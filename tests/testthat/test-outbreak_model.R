@@ -25,6 +25,7 @@ test_that("A basic sim returns the correct object", {
                    inf_rate = 0.6898583, inf_shift = 3,
                    inc_meanlog = 1.434065, inc_sdlog = 0.6612,
                    delay_scale = 4.287786, prop.asym = 0.4,
+                   testing = FALSE,
                    quarantine = FALSE)
 
   # Check initialise at time = 0
