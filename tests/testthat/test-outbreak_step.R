@@ -13,8 +13,13 @@ test_that("A basic sim returns the correct object", {
   case_data <- outbreak_setup(num.initial.cases = 1,
                               incfn=incfn,
                               delayfn = delayfn,
+                              testing = FALSE,
+                              test_delay = 1,
+                              sensitivity = 0.9,
+                              precaution = 3,
+                              self_report = 0,
                               prop.asym=0)
-
+  
   # generate next generation of cases
   case_data2 <- outbreak_step(case_data = case_data,
                              disp.iso = 1,
@@ -27,8 +32,14 @@ test_that("A basic sim returns the correct object", {
                              inf_shape = 2.115779,
                              inf_rate = 0.6898583,
                              inf_shift = 3,
+                             max_quar_delay = 4,
+                             min_quar_delay = 1,
                              prop.ascertain = 0,
-                             quarantine = FALSE)
+                             quarantine = FALSE,
+                             testing = FALSE,
+                             sensitivity = 0.9, 
+                             precaution = 5,
+                             self_report = 0)
 
   expect_true(nrow(case_data2$cases) > 1)
   expect_equal(as.vector(table(case_data2$cases$infector)), c(1, nrow(case_data2$cases) - 1))
@@ -69,23 +80,33 @@ test_that("Sim with multiple infectors makes senes", {
   case_data <- outbreak_setup(num.initial.cases = 2,
                               incfn=incfn,
                               delayfn = delayfn,
+                              testing = FALSE,
+                              test_delay = 1,
+                              sensitivity = 0.9,
+                              precaution = 3,
+                              self_report = 0,
                               prop.asym=0)
-
 
   # generate next generation of cases
   case_data2 <- outbreak_step(case_data = case_data,
                               disp.iso = 1,
                               disp.com = 0.16,
                               r0isolated = 0,
-                              r0community = 10000, # almost guarentees that both index cases will create infections
+                              r0community = 1000, # almost guarentees to get new cases
                               prop.asym = 0,
                               incfn = incfn,
                               delayfn = delayfn,
                               inf_shape = 2.115779,
                               inf_rate = 0.6898583,
                               inf_shift = 3,
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
                               prop.ascertain = 0,
-                              quarantine = FALSE)
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0.9, 
+                              precaution = 5,
+                              self_report = 0)
 
   expect_true(nrow(case_data2$cases) > 1)
 
@@ -101,29 +122,40 @@ test_that("R0isolated is working properly", {
   incfn <- dist_setup(1.434065,0.6612,dist_type='lognormal')
   # delay distribution sampling function
   delayfn <- dist_setup(2, 4,'weibull')
-
+  
   # generate initial cases
   case_data <- outbreak_setup(num.initial.cases = 1,
                               incfn=incfn,
                               delayfn = delayfn,
-
+                              testing = FALSE,
+                              test_delay = 1,
+                              sensitivity = 0.9,
+                              precaution = 3,
+                              self_report = 0,
                               prop.asym=0)
   case_data$isolated <- TRUE
-
+  
   # generate next generation of cases
   case_data2 <- outbreak_step(case_data = case_data,
                               disp.iso = 1,
                               disp.com = 0.16,
-                              r0isolated = 0, # Shoiuld get zero cases
-                              r0community = 500, # Case is isolated so irrelevent
+                              r0isolated = 0,
+                              r0community = 1000, # almost guarentees to get new cases
                               prop.asym = 0,
                               incfn = incfn,
                               delayfn = delayfn,
                               inf_shape = 2.115779,
                               inf_rate = 0.6898583,
                               inf_shift = 3,
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
                               prop.ascertain = 0,
-                              quarantine = FALSE)
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0.9, 
+                              precaution = 5,
+                              self_report = 0)
+  
 
   expect_true(nrow(case_data2$cases) == 1)
 
@@ -142,7 +174,13 @@ test_that("R0isolated is working properly", {
                               inf_rate = 0.6898583,
                               inf_shift = 3,
                               prop.ascertain = 0,
-                              quarantine = FALSE)
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0.9, 
+                              precaution = 5,
+                              self_report = 0)
 
   expect_true(nrow(case_data3$cases) > 1)
 
