@@ -21,7 +21,14 @@ outbreak_model(
   inf_shape = NULL,
   inf_rate = NULL,
   inf_shift = NULL,
-  quarantine = NULL
+  min_quar_delay = 1,
+  max_quar_delay = NULL,
+  test_delay = NULL,
+  sensitivity = NULL,
+  precaution = NULL,
+  self_report = NULL,
+  quarantine = NULL,
+  testing = NULL
 )
 }
 \arguments{
@@ -35,9 +42,9 @@ outbreak_model(
 
 \item{disp.com}{numeric dispersion parameter for non-isolated cases (must be >0)}
 
-\item{delay_shape}{numeric shape parameter of delay distribution}
+\item{min_quar_delay}{The minimum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
 
-\item{delay_scale}{numeric scale parameter of delay distribution}
+\item{max_quar_delay}{The maximum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
 
 \item{quarantine}{logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset}
 }
