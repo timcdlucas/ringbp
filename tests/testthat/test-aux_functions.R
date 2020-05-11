@@ -107,7 +107,14 @@ test_that('extinct_prob works as expected', {
                       inf_shape = 2.115779,
                       inf_rate = 0.6898583,
                       inf_shift = 3,
+                      min_quar_delay = 1,
+                      max_quar_delay = 3,
+                      self_report = 0.5,
+                      precaution = 1,
+                      test_delay = 1,
+                      quarantine = TRUE,
                       prop.asym = 0,
+                      sensitivity = 0.9, 
                       prop.ascertain = 0)
 
   r1 <- extinct_prob(res, cap)
@@ -148,7 +155,7 @@ test_that('extinct_prob works as expected', {
                       num.initial.cases = 5,
                       cap_max_days = 100,
                       cap_cases = cap,
-                      r0isolated = 100,
+                      r0isolated = 0,
                       r0community = 100,
                       disp.iso = 1,
                       disp.com = 0.16,
@@ -159,7 +166,14 @@ test_that('extinct_prob works as expected', {
                       inf_shape = 2.115779,
                       inf_rate = 0.6898583,
                       inf_shift = 3,
+                      min_quar_delay = 1,
+                      max_quar_delay = 3,
+                      self_report = 0.5,
+                      precaution = 1,
+                      test_delay = 1,
+                      quarantine = TRUE,
                       prop.asym = 0,
+                      sensitivity = 0.9, 
                       prop.ascertain = 0)
 
   r3 <- extinct_prob(res3, cap)
@@ -182,7 +196,14 @@ test_that('extinct_prob works as expected', {
                        inf_shape = 2.115779,
                        inf_rate = 0.6898583,
                        inf_shift = 3,
+                       min_quar_delay = 1,
+                       max_quar_delay = 3,
+                       self_report = 0.5,
+                       precaution = 1,
+                       test_delay = 1,
+                       quarantine = TRUE,
                        prop.asym = 0,
+                       sensitivity = 0.9, 
                        prop.ascertain = 0)
 
   r3 <- extinct_prob(res3, cap)
