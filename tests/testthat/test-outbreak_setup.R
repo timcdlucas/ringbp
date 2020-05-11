@@ -41,7 +41,8 @@ test_that("asym arg works properly", {
   all_asym <- outbreak_setup(num.initial.cases = 5,
                               incfn=incfn,
                               delayfn = delayfn,
-                             testing = FALSE,
+                              testing = FALSE,
+                              test_delay = 1,
                               prop.asym=1)
   expect_true(all(all_asym$asym))
 
@@ -54,6 +55,8 @@ test_that("asym arg works properly", {
   mix <- outbreak_setup(num.initial.cases = 10000,
                              incfn=incfn,
                              delayfn = delayfn,
+                             test_delay = 1,
+                             testing = FALSE,
                              prop.asym=0.5)
 
   expect_length(unique(mix$asym), 2)

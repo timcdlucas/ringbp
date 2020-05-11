@@ -198,15 +198,18 @@ test_that('Test a bunch of args',{
   case_data <- outbreak_setup(num.initial.cases = 1,
                               incfn=incfn,
                               delayfn = delayfn,
+                              testing = FALSE,
+                              test_delay = 1,
                               prop.asym=0)
 
 
   # generate next generation of cases
+  # Ascertain = 0
   case_data2 <- outbreak_step(case_data = case_data,
                               disp.iso = 1,
                               disp.com = 0.16,
-                              r0isolated = 0,
-                              r0community = 10000, # almost guarentees that both index cases will create infections
+                              r0isolated = 500, # Shoiuld get lots of cases
+                              r0community = 0, # Case is isolated so irrelevent
                               prop.asym = 0,
                               incfn = incfn,
                               delayfn = delayfn,
@@ -214,15 +217,22 @@ test_that('Test a bunch of args',{
                               inf_rate = 0.6898583,
                               inf_shift = 3,
                               prop.ascertain = 0,
-                              quarantine = FALSE)
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0.9, 
+                              precaution = 5,
+                              self_report = 0)
 
     expect_true(all(case_data2$cases$missed))
 
+    # Now ascertain = 1
     case_data3 <- outbreak_step(case_data = case_data,
                                 disp.iso = 1,
                                 disp.com = 0.16,
-                                r0isolated = 0,
-                                r0community = 10000, # almost guarentees that both index cases will create infections
+                                r0isolated = 500, # Shoiuld get lots of cases
+                                r0community = 0, # Case is isolated so irrelevent
                                 prop.asym = 0,
                                 incfn = incfn,
                                 delayfn = delayfn,
@@ -230,7 +240,14 @@ test_that('Test a bunch of args',{
                                 inf_rate = 0.6898583,
                                 inf_shift = 3,
                                 prop.ascertain = 1,
-                                quarantine = FALSE)
+                                max_quar_delay = 4,
+                                min_quar_delay = 1,
+                                quarantine = FALSE,
+                                testing = FALSE,
+                                sensitivity = 0.9, 
+                                precaution = 5,
+                                self_report = 0)
+    
 
     # The index case should be missed but no others.
     expect_true(sum(case_data3$cases$missed) == 1)
