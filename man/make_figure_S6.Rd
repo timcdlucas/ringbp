@@ -14,7 +14,6 @@ Constructs figure S6 from supplementary material
 }
 \examples{
 
-No longer relevant (plotting for different infectiousness profiles)
 }
 \author{
 Joel Hellewell
