@@ -10,7 +10,8 @@
 #' @importFrom ggplot2 ggplot aes geom_density theme_bw geom_vline scale_x_continuous coord_cartesian xlab ylab scale_fill_discrete scale_color_discrete theme
 #' @examples
 #'
-#' No longer relevant (plotting for different infectiousness profiles)
+
+
 make_figure_S6 <- function() {
 
   # inf_fn <- function(inc_samp, k) {
