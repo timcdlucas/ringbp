@@ -1,4 +1,4 @@
-#' Create function to calculate adherence times
+#' A function to calculate adherence times
 #' @author Emma Davis
 #' @param N number of samples/cases
 #' @param adherence adherence probability to isolation
@@ -7,7 +7,7 @@
 #' @return numeric vector of adherence times (=delay if adhering, =1e10 if not adhering)
 #' @export
 #' @examples
-#'
+#' adhere(1, 0.5, 3)
 adhere <- function(N,adherence=1,delay=1){
   out <- delay+1e10*rbinom(N,prob=1-adherence,size=1)
 }
@@ -22,6 +22,8 @@ adhere <- function(N,adherence=1,delay=1){
 #' @export
 #' @importFrom purrr partial
 #' @examples
+#' fnc <- dist_setup(1, 2, 'weibull')
+#' fnc(2)
 #'
 dist_setup <- function(dist_param1 = NULL, dist_param2 = NULL, dist_type = NULL) {
 
@@ -64,7 +66,7 @@ adherence <- function(n, p){
 #' @export
 #' @importFrom sn rsn
 #' @examples
-#'
+#' fnc <- inf_fn(1, 2, 3, 3)
 inf_fn <- function(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift = NULL) {
 
   out <- inc_samp - inf_shift + rgamma(n = length(inc_samp),
@@ -82,7 +84,6 @@ inf_fn <- function(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift
 #' @return
 #' @export
 #' @inheritParams detect_extinct
-#' @examples
 #'
 extinct_prob <- function(outbreak_df_week = NULL, cap_cases  = NULL, week_range = 12:16) {
 
@@ -107,7 +108,6 @@ extinct_prob <- function(outbreak_df_week = NULL, cap_cases  = NULL, week_range 
 #' @return
 #' @export
 #' @importFrom dplyr group_by filter summarise ungroup
-#' @examples
 #'
 detect_extinct <- function(outbreak_df_week  = NULL, cap_cases  = NULL, week_range = 12:16) {
 
@@ -132,13 +132,11 @@ detect_extinct <- function(outbreak_df_week  = NULL, cap_cases  = NULL, week_ran
 #' @param index_R0.in numeric filtering value for community R0 value
 #' @param res.in data.table of results from parameter sweep
 #'
-#' @return
 #' @export
 #' @importFrom dplyr filter mutate
 #' @importFrom ggplot2 ggplot aes geom_line geom_point facet_wrap ylab xlab scale_x_continuous scale_y_continuous coord_cartesian
 #' @importFrom cowplot panel_border
 #'
-#' @examples
 #'
 sub_plot <- function(delay.in = "SARS",
                      prop.asym.in = 0.4,

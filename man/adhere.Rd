@@ -2,7 +2,7 @@
 % Please edit documentation in R/aux_functions.R
 \name{adhere}
 \alias{adhere}
-\title{Create function to calculate adherence times}
+\title{A function to calculate adherence times}
 \usage{
 adhere(N, adherence = 1, delay = 1)
 }
@@ -17,10 +17,10 @@ adhere(N, adherence = 1, delay = 1)
 numeric vector of adherence times (=delay if adhering, =1e10 if not adhering)
 }
 \description{
-Create function to calculate adherence times
+A function to calculate adherence times
 }
 \examples{
-
+adhere(1, 0.5, 3)
 }
 \author{
 Emma Davis

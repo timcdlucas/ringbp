@@ -19,7 +19,6 @@
 #' @importFrom cowplot theme_minimal_hgrid panel_border
 #' @importFrom ggplot2 ggplot aes stat_summary facet_grid vars scale_fill_gradient scale_y_continuous scale_x_discrete theme_bw theme labs ggtitle coord_flip
 #' @export
-#' @examples
 #'
 #'
 box_plot_max_weekly_cases <- function(results = NULL,
@@ -147,8 +146,8 @@ box_plot_max_weekly_cases <- function(results = NULL,
 #' @export
 #' @importFrom dplyr mutate
 #' @author Sam Abbott
-#' @examples
-#'
+
+
 rename_variables_for_plotting <- function(df = NULL) {
 
   df %>%

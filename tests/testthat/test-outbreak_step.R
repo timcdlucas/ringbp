@@ -202,14 +202,18 @@ test_that('Test a bunch of args',{
                               test_delay = 1,
                               prop.asym=0)
 
+  case_data$missed <- TRUE
+  case_data$isolated_time <- Inf
+  case_data$isolated <- FALSE
+  
 
   # generate next generation of cases
   # Ascertain = 0
   case_data2 <- outbreak_step(case_data = case_data,
                               disp.iso = 1,
-                              disp.com = 0.16,
-                              r0isolated = 500, # Shoiuld get lots of cases
-                              r0community = 0, # Case is isolated so irrelevent
+                              disp.com = 1,
+                              r0isolated = 0, 
+                              r0community = 500, # Shoiuld get lots of cases
                               prop.asym = 0,
                               incfn = incfn,
                               delayfn = delayfn,
@@ -230,9 +234,9 @@ test_that('Test a bunch of args',{
     # Now ascertain = 1
     case_data3 <- outbreak_step(case_data = case_data,
                                 disp.iso = 1,
-                                disp.com = 0.16,
-                                r0isolated = 500, # Shoiuld get lots of cases
-                                r0community = 0, # Case is isolated so irrelevent
+                                disp.com = 1,
+                                r0isolated = 0, 
+                                r0community = 500, # Shoiuld get lots of cases
                                 prop.asym = 0,
                                 incfn = incfn,
                                 delayfn = delayfn,
@@ -246,18 +250,19 @@ test_that('Test a bunch of args',{
                                 testing = FALSE,
                                 sensitivity = 0.9, 
                                 precaution = 5,
-                                self_report = 0)
+                                self_report = 1)
     
 
     # The index case should be missed but no others.
+    #  This test relies on the index being symptomatic which I haven't forced.
     expect_true(sum(case_data3$cases$missed) == 1)
 
 
     case_data4 <- outbreak_step(case_data = case_data,
                                 disp.iso = 1,
-                                disp.com = 0.16,
-                                r0isolated = 0,
-                                r0community = 100000, # To test a mix make sure there's loads of cases.
+                                disp.com = 1,
+                                r0isolated = 0, 
+                                r0community = 500, # Shoiuld get lots of cases
                                 prop.asym = 0,
                                 incfn = incfn,
                                 delayfn = delayfn,
@@ -265,9 +270,17 @@ test_that('Test a bunch of args',{
                                 inf_rate = 0.6898583,
                                 inf_shift = 3,
                                 prop.ascertain = 0.5,
-                                quarantine = FALSE)
+                                max_quar_delay = 4,
+                                min_quar_delay = 1,
+                                quarantine = FALSE,
+                                testing = FALSE,
+                                sensitivity = 0.9, 
+                                precaution = 5,
+                                self_report = 0.5)
 
     # After ignoring the index case we should still get both true and false.
+    # This is more complicated with prop.asym and self_report. 
+    # I'll add more tests.
     expect_length(unique(case_data4$cases$missed[-1]), 2)
 
 
