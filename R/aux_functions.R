@@ -6,7 +6,6 @@
 #'
 #' @return numeric vector of adherence times (=delay if adhering, =1e10 if not adhering)
 #' @export
-#' @importFrom
 #' @examples
 #'
 adhere <- function(N,adherence=1,delay=1){
