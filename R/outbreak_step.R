@@ -17,10 +17,9 @@
 #' @importFrom data.table data.table rbindlist
 #' @importFrom purrr map2 map2_dbl map_lgl rbernoulli
 #'
-#' @return
+#' @return The new cases data.table.
 #' @export
 #'
-#' @examples
 #'
 outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0isolated = NULL, r0community = NULL,
                           prop.asym = NULL, incfn = NULL, delayfn = NULL, inf_rate = NULL, inf_shape = NULL,

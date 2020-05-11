@@ -51,13 +51,10 @@ outbreak_step(
 \item{quarantine}{logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset}
 }
 \value{
-
+The new cases data.table.
 }
 \description{
 Move forward one generation in the branching process
-}
-\examples{
-
 }
 \author{
 Joel Hellewell

@@ -45,10 +45,6 @@ sypmtom onset.}
 \description{
 Create box plots of maximum weekly cases by scenario
 }
-\examples{
-
-
-}
 \author{
 Amy Gimma and Sam Abbott
 }

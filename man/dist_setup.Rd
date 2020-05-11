@@ -20,6 +20,8 @@ partial function that takes a numeric argument for number of samples
 Create partial function to sample from gamma distributions
 }
 \examples{
+fnc <- dist_setup(1, 2, 'weibull')
+fnc(2)
 
 }
 \author{
