@@ -14,6 +14,11 @@ test_that("A basic sim setup returns the correct object", {
   case_data <- outbreak_setup(num.initial.cases = 5,
                               incfn=incfn,
                               delayfn = delayfn,
+                              testing = FALSE,
+                              test_delay = 1,
+                              sensitivity = 0.9,
+                              precaution = 3,
+                              self_report = 0,
                               prop.asym=0)
 
   expect_equal(nrow(case_data), 5)
@@ -36,6 +41,7 @@ test_that("asym arg works properly", {
   all_asym <- outbreak_setup(num.initial.cases = 5,
                               incfn=incfn,
                               delayfn = delayfn,
+                             testing = FALSE,
                               prop.asym=1)
   expect_true(all(all_asym$asym))
 
