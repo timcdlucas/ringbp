@@ -2,6 +2,7 @@
 context("Test basic usage")
 
 set.seed(20200428)
+cap <- 100
 res <- scenario_sim(n.sim = 2,
                      num.initial.cases = 1,
                      cap_max_days = 100,

@@ -39,7 +39,7 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
 
   # set isolation time for cluster to minimum time of onset of symptoms + draw from delay distribution
   case_data <- case_data[, isolated_time := onset + delayfn(1)
-                         ][, isolated_end := isolated_time+test_delay+ifelse(test_result!=FALSE | asym==T,Inf,precaution)
+                         ][, isolated_end := isolated_time+test_delay+ifelse(test_result!=FALSE | asym==TRUE, Inf, precaution)
                            ][, isolated := FALSE]
 
   case_data$isolated_time[case_data$asym] <- Inf

@@ -156,7 +156,7 @@ test_that('extinct_prob works as expected', {
                       cap_max_days = 100,
                       cap_cases = cap,
                       r0isolated = 0,
-                      r0community = 100,
+                      r0community = 10000,
                       disp.iso = 1,
                       disp.com = 0.16,
                       delay_shape = 2.5,
@@ -168,15 +168,15 @@ test_that('extinct_prob works as expected', {
                       inf_shift = 3,
                       min_quar_delay = 1,
                       max_quar_delay = 3,
-                      self_report = 0.5,
-                      precaution = 1,
+                      self_report = 0,
+                      precaution = 0,
                       test_delay = 1,
-                      quarantine = TRUE,
+                      quarantine = FALSE,
                       prop.asym = 0,
                       sensitivity = 0.9, 
                       prop.ascertain = 0)
 
-  r3 <- extinct_prob(res3, cap)
+  r3 <- extinct_prob(res3, cap, 12:14)
   expect_equal(r3, 0)
 
 
