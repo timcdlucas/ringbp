@@ -15,9 +15,6 @@ inf_fn(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift = NULL)
 
 \item{inf_shift}{shift parameter, describing number of days pre-symptoms can be infectious}
 }
-\value{
-
-}
 \description{
 Samples the serial interval for given incubation period samples
 }
