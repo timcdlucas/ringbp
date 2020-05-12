@@ -19,7 +19,6 @@
 #' @importFrom cowplot theme_minimal_hgrid panel_border
 #' @importFrom ggplot2 ggplot aes stat_summary facet_grid vars scale_fill_gradient scale_y_continuous scale_x_discrete theme_bw theme labs ggtitle coord_flip
 #' @export
-#' @examples
 #'
 #'
 box_plot_max_weekly_cases <- function(results = NULL,
@@ -33,6 +32,9 @@ box_plot_max_weekly_cases <- function(results = NULL,
                                       num_initial_cases = 20,
                                       record_params = FALSE,
                                       y_lim = NULL) {
+  
+  inf_shift <- NULL
+  
   filt_results <- results %>%
     dplyr::group_by(scenario) %>%
     dplyr::mutate(prob_extinct = extinct_prob(sims[[1]], cap_cases = cap_cases)) %>%
@@ -143,12 +145,11 @@ box_plot_max_weekly_cases <- function(results = NULL,
 #'
 #' @param df Dataframe of results
 #'
-#' @return
 #' @export
 #' @importFrom dplyr mutate
 #' @author Sam Abbott
-#' @examples
-#'
+
+
 rename_variables_for_plotting <- function(df = NULL) {
 
   df %>%

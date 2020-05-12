@@ -1,10 +1,9 @@
 #' Set up initial cases for branching process
-#' @author Joel Hellewell
+#' @author Emma Davis and Tim Lucas (from Joel Hellewell)
 #'
 #' @param num.initial.cases Integer number of initial cases
 #' @param incfn function that samples from incubation period Weibull distribution; generated using dist_setup
-#' @param delayfn function that samples from the onset-to-hospitalisation delay Weibull distribution; generated using dist_setup
-#' @param k Numeric skew parameter for sampling the serial interval from the incubation period
+#' @param delayfn function generated using dist_setup = 1 or Inf (adherence to isolation)
 #' @param prop.asym Numeric proportion of cases that are sublinical (between 0 and 1)
 #'
 #' @return data.table of cases in outbreak so far
@@ -20,7 +19,12 @@
 #' delayfn <- dist_setup(delay_shape, delay_scale)
 #' outbreak_setup(num.initial.cases = 5,incfn,delayfn,k=1.95,prop.asym=0)
 #'}
-outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym) {
+outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity, precaution, test_delay, self_report, testing) {
+  
+  # Column names used in nonstandard eval.
+  test_result <- isolated_end <- infector_iso_end <- delays <- NULL
+  delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
+  
   # Set up table of initial cases
   inc_samples <- incfn(num.initial.cases)
 
@@ -30,11 +34,18 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym) {
                           infector = 0,
                           missed = TRUE,
                           onset = inc_samples,
-                          new_cases = NA)
+                          new_cases = NA,
+                          test_result = NA)
+
+  if(testing==TRUE){
+    case_data <- case_data[asym==FALSE, test_result := purrr::rbernoulli(sum(1-asym), sensitivity)]
+  }
+  case_data$missed[which(!case_data$asym)] <- FALSE
 
   # set isolation time for cluster to minimum time of onset of symptoms + draw from delay distribution
   case_data <- case_data[, isolated_time := onset + delayfn(1)
-                         ][, isolated := FALSE]
+                         ][, isolated_end := isolated_time+test_delay+ifelse(test_result!=FALSE | asym==TRUE, Inf, precaution)
+                           ][, isolated := FALSE]
 
   case_data$isolated_time[case_data$asym] <- Inf
 

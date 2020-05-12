@@ -80,43 +80,49 @@ make_figure_2a <- function() {
 #'}
 make_figure_2 <- function() {
 
+  # A colour-blind-friendly palette
+  cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
   p2 <- data.frame(x = seq(0, 15, 0.1),
                    y = dlnorm(x = seq(0, 15, 0.1),
                                 meanlog = 1.434065,
-                                sdlog = 0.6612)) %>%
-    ggplot2::ggplot(aes(x = x, y = y)) +
+                                sdlog = 0.6612),
+                   theta = rep(c("mean = 4.2 days"),rep(151,1))) %>%
+    ggplot2::ggplot(aes(x = x, y = y, fill=theta)) +
     ggplot2::geom_line() +
     cowplot::theme_cowplot() +
     ggplot2::geom_vline(xintercept = exp(1.43), lty = 2) +
     ggplot2::coord_cartesian(xlim = c(0, 13)) +
-    ggplot2::labs(tag = "B", x = "time since infection (days)", y = "probability density") +
+    ggplot2::labs(tag = "A", x = "time since infection (days)", y = "probability density") +
     ggplot2::geom_ribbon(aes(ymax = y, ymin = 0),
-                         fill = "chartreuse2",
-                         alpha = 0.4)
+                         alpha = 0.4) +
+    ggplot2::theme(legend.position = "right") +
+    ggplot2::scale_fill_manual(values = cbPalette[2],
+                               name = c("Incubation period"))
 
 
   p3 <- data.frame(y = c(dgamma(seq(0, 13, 0.1), 2.115779, 0.6898583)),
                    x = seq(0, 13, 0.1)-3,
-                   theta = rep(c("42%"), rep(131, 1))) %>%
+                   theta = rep(c("42% transmission\nbefore symptoms"), rep(131, 1))) %>%
     ggplot2::ggplot(aes(x, y, fill = theta)) +
     ggplot2::geom_ribbon(aes(ymin = 0, ymax = y), alpha = 0.4) +
     ggplot2::geom_line(aes(x, y)) +
     cowplot::theme_cowplot() +
     ggplot2::coord_cartesian(xlim = c(-3, 10)) +
     ggplot2::geom_vline(xintercept = -1.4,lty=2) +
-    ggplot2::theme(legend.position = "bottom") +
-    ggplot2::scale_fill_manual(values = c("grey65",
-                                          "goldenrod3",
-                                          "orchid"),
-                               name = "Proportion of\ntransmission\nbefore symptoms") +
-    ggplot2::labs(tag = "C",
-                  x = "time since infection (days)",
+    ggplot2::theme(legend.position = "right") +
+    ggplot2::scale_fill_manual(values = cbPalette[3],
+                               name = c("Transmission profile")) +
+    ggplot2::labs(tag = "B",
+                  x = "time since symptom onset (days)",
                   y = "probability density")
 
 
-  (make_figure_2a() | (p2 / p3)) & theme(axis.text = element_text(size = 10),
-                                         legend.title = element_text(size = 11),
-                                         axis.title = element_text(size = 11))
+  #(make_figure_2a() |
+  ((p2 / p3)) & theme(axis.text = element_text(size = 10),
+                                         legend.title = element_text(size = 12),
+                                         legend.text = element_text(size = 10),
+                                         axis.title = element_text(size = 10))
 
 }
 
@@ -334,7 +340,7 @@ make_figure_4 <- function(res = NULL, num.initial.cases_val = 5,
                                values = c("black", "chocolate4","mediumpurple2", "mediumpurple4")) +
     ggplot2::scale_color_manual(values = c("black", "chocolate4","mediumpurple2", "mediumpurple4"),
                                 name = "Proportion\nof cases\nwithout\nsymptoms")  +
-    guides(colour=guide_legend(title="Proportion\nof cases\nwithout\nsymptoms"), fill = FALSE) +
+    ggplot2::guides(colour=ggplot2::guide_legend(title="Proportion\nof cases\nwithout\nsymptoms"), fill = FALSE) +
     cowplot::theme_cowplot()
 
   fig4 <- (f4p1 + f4p2) / (f4p3 + f4p4) + patchwork::plot_annotation(tag_levels = "A") &
