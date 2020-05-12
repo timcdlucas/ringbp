@@ -20,7 +20,7 @@
 
 knitr::opts_chunk$set(cache = TRUE, fig.width = 8, fig.height = 5, cache.lazy = FALSE)
 
-
+library(data.table)
 library(tidyverse)
 library(git2r)
 library(tictoc)

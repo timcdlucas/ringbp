@@ -20,11 +20,11 @@
 #' outbreak_setup(num.initial.cases = 5,incfn,delayfn,k=1.95,prop.asym=0)
 #'}
 outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity, precaution, test_delay, self_report, testing) {
-  
+
   # Column names used in nonstandard eval. These should go in globaVariables in scenario_sim.R
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
   delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
-  
+
   # Set up table of initial cases
   inc_samples <- incfn(num.initial.cases)
 
@@ -38,13 +38,13 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
                           test_result = NA)
 
   case_data <- case_data %>%
-    mutate(missed := ifelse(asym == FALSE,
+    mutate(missed = ifelse(asym == FALSE,
                            rbernoulli(sum(!asym), 1 - self_report),
                            TRUE))
 
   if(testing==TRUE){
     case_data <- case_data %>%
-      mutate(test_result := ifelse(missed==FALSE,
+      mutate(test_result = ifelse(missed==FALSE,
                                    purrr::rbernoulli(sum(1-asym), sensitivity),
                                    NA))
   }
@@ -52,14 +52,15 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
   adhere <- delayfn(num.initial.cases)
   # set isolation time for cluster to minimum time of onset of symptoms + draw from delay distribution
 
-  case_data <- case_data %>% mutate(isolated_time := ifelse(asym==FALSE,
+  case_data <- case_data %>% mutate(isolated_time = ifelse(asym==FALSE,
                                                             ifelse(missed==TRUE,
                                                             onset + adhere,
                                                             onset + 1),
                                                             Inf)) %>%
-    mutate(isolated_end := isolated_time+test_delay+ifelse(test_result!=FALSE | missed==T,Inf,precaution)) %>%
-    mutate(isolated := FALSE)
+    mutate(isolated_end = isolated_time+test_delay+ifelse(vect_isTRUE(test_result) | missed==T,Inf,precaution)) %>%
+    mutate(isolated = FALSE)
 
+  case_data <- as.data.table(case_data)
   # return
   return(case_data)
 }
