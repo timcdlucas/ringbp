@@ -5,6 +5,7 @@
 #' @param delay time from symptom to isolation if adhering
 #'
 #' @return numeric vector of adherence times (=delay if adhering, =1e10 if not adhering)
+#' @importFrom stats rbinom dgamma dlnorm rbinom rgamma rlnorm runif
 #' @export
 #' @examples
 #' adhere(1, 0.5, 3)
