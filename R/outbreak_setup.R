@@ -21,7 +21,7 @@
 #'}
 outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity, precaution, test_delay, self_report, testing) {
   
-  # Column names used in nonstandard eval.
+  # Column names used in nonstandard eval. These should go in globaVariables in scenario_sim.R
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
   delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
   
@@ -38,8 +38,8 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
                           test_result = NA)
 
   case_data <- case_data %>%
-    mutate(missed := ifelse(asym==F,
-                           rbernoulli(missed,1-self_report),
+    mutate(missed := ifelse(asym == FALSE,
+                           rbernoulli(sum(!asym), 1 - self_report),
                            TRUE))
 
   if(testing==TRUE){
