@@ -15,9 +15,6 @@ rename_variables_for_plotting(df = NULL)
 \description{
 Rename variables for plotting
 }
-\examples{
-
-}
 \author{
 Sam Abbott
 }

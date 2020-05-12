@@ -22,5 +22,5 @@ inf_fn(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift = NULL)
 Samples the serial interval for given incubation period samples
 }
 \examples{
-
+fnc <- inf_fn(1, 2, 3, 3)
 }

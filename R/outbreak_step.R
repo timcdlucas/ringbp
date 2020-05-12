@@ -17,10 +17,9 @@
 #' @importFrom data.table data.table rbindlist
 #' @importFrom purrr map2 map2_dbl map_lgl rbernoulli
 #'
-#' @return
+#' @return The new cases data.table.
 #' @export
 #'
-#' @examples
 #'
 outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0isolated = NULL, r0community = NULL,
                           prop.asym = NULL, incfn = NULL, delayfn = NULL, inf_rate = NULL, inf_shape = NULL,
@@ -28,19 +27,10 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
                           test_delay = NULL, sensitivity = NULL, precaution = NULL, self_report = NULL,
                           quarantine = NULL, testing = NULL) {
 
-  # A vectorised version of isTRUE
-  vect_isTRUE <- function(x) {
-    purrr::map_lgl(x, isTRUE)
-  }
-
-  vect_max <- function(x, y) {
-    purrr::map2_dbl(x, y, max)
-  }
-
-  vect_min <- function(x, y) {
-    purrr::map2_dbl(x, y, min)
-  }
-
+  # Column names used in nonstandard eval.
+  test_result <- isolated_end <- infector_iso_end <- delays <- NULL
+  delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
+  
   # For each case in case_data, draw new_cases from a negative binomial distribution
   # with an R0 and dispersion dependent on if isolated=TRUE
   new_cases <- case_data[, new_cases := purrr::map2_dbl(
@@ -232,3 +222,13 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
 vect_isTRUE <- function(x) {
   purrr::map_lgl(x, isTRUE)
 }
+
+
+vect_max <- function(x, y) {
+  purrr::map2_dbl(x, y, max)
+}
+
+vect_min <- function(x, y) {
+  purrr::map2_dbl(x, y, min)
+}
+
