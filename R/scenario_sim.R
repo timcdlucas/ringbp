@@ -34,6 +34,7 @@
 #' @importFrom stats median
 #' @importFrom stats quantile
 #' @importFrom stats rweibull
+#' @importFrom data.table :=
 #' @importFrom utils data
 #' @return A data.table object returning the results for multiple simulations using
 #' the same set of parameters. The table has columns
