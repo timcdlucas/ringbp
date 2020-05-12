@@ -17,9 +17,6 @@ detect_extinct(outbreak_df_week = NULL, cap_cases = NULL, week_range = 12:16)
 \description{
 Calculate proportion of outbreaks that went extinct
 }
-\examples{
-
-}
 \author{
 Joel Hellewell
 }

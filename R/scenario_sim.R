@@ -19,6 +19,11 @@
 #' @param inf_shape shape of distribution for infection time
 #' @param inf_rate rate of distribution for infection time
 #' @param inf_shift shift of distribution for infection time into pre-symptomatic period (days)
+#' @param test_delay time from isolation to test result
+#' @param sensitivity of test
+#' @param precaution a precautionary delay to leaving isolation if test negative
+#' @param self_report proportion of isolating missed cases that self-report to PHE
+#' @param testing whether testing is implemented or not
 #'
 #' @importFrom purrr safely
 #' @return
@@ -79,8 +84,14 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                          r0isolated = NULL, r0community = NULL, disp.iso = NULL, disp.com = NULL,
                          delay_shape = NULL, delay_scale = NULL, inc_meanlog = NULL, inc_sdlog = NULL,
                          inf_shape = NULL, inf_rate = NULL, inf_shift = NULL, num.initial.cases = NULL,
-                         min_quar_delay = 1, max_quar_delay = NULL,
-                         prop.asym = NULL, quarantine = NULL) {
+                         min_quar_delay = 1, max_quar_delay = NULL, sensitivity = NULL, precaution = NULL,
+                         self_report = NULL, test_delay = NULL, prop.asym = NULL, quarantine = NULL) {
+
+  if(sensitivity==0){
+    testing = FALSE
+  } else {
+    testing = TRUE
+  }
 
   # Run n.sim number of model runs and put them all together in a big data.frame
   res <- purrr::map(.x = 1:n.sim, ~ outbreak_model(num.initial.cases = num.initial.cases,
@@ -101,7 +112,12 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                                              prop.asym = prop.asym,
                                              min_quar_delay = min_quar_delay,
                                              max_quar_delay = max_quar_delay,
-                                             quarantine = quarantine))
+                                             test_delay = test_delay,
+                                             sensitivity =sensitivity,
+                                             precaution =precaution,
+                                             self_report=self_report,
+                                             quarantine = quarantine,
+                                             testing = testing))
 
 
   # bind output together and add simulation index

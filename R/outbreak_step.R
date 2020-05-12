@@ -17,16 +17,20 @@
 #' @importFrom data.table data.table rbindlist
 #' @importFrom purrr map2 map2_dbl map_lgl rbernoulli
 #'
-#' @return
+#' @return The new cases data.table.
 #' @export
 #'
-#' @examples
 #'
 outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0isolated = NULL, r0community = NULL,
                           prop.asym = NULL, incfn = NULL, delayfn = NULL, inf_rate = NULL, inf_shape = NULL,
                           inf_shift = NULL, prop.ascertain = NULL, min_quar_delay = 1, max_quar_delay = NULL,
-                          quarantine = NULL) {
+                          test_delay = NULL, sensitivity = NULL, precaution = NULL, self_report = NULL,
+                          quarantine = NULL, testing = NULL) {
 
+  # Column names used in nonstandard eval.
+  test_result <- isolated_end <- infector_iso_end <- delays <- NULL
+  delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
+  
   # For each case in case_data, draw new_cases from a negative binomial distribution
   # with an R0 and dispersion dependent on if isolated=TRUE
   new_cases <- case_data[, new_cases := purrr::map2_dbl(
@@ -74,11 +78,31 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
                                            function(x, y) {
                                              rep(x, as.integer(y))
                                              })),
+    # records when infector came out of isolation
+    infector_iso_end = unlist(purrr::map2(new_case_data$isolated_end, new_case_data$new_cases,
+                                           function(x, y) {
+                                             rep(x, as.integer(y))
+                                           })),
     # records if infector asymptomatic
     infector_asym = unlist(purrr::map2(new_case_data$asym, new_case_data$new_cases,
                                        function(x, y) {
                                          rep(x, y)
                                          })),
+    # records if infector has tested positive
+    infector_pos = unlist(purrr::map2(new_case_data$test_result, new_case_data$new_cases,
+                                       function(x, y) {
+                                         rep(x, y)
+                                       })),
+    # records if infector was missed
+    infector_missed = unlist(purrr::map2(new_case_data$missed, new_case_data$new_cases,
+                                      function(x, y) {
+                                        rep(x, y)
+                                      })),
+    # records when infector was exposed
+    infector_exp = unlist(purrr::map2(new_case_data$exposure, new_case_data$new_cases,
+                                      function(x, y) {
+                                        rep(x, y)
+                                      })),
     # draws a sample to see if this person is asymptomatic
     asym = purrr::rbernoulli(n = total_new_cases, p = prop.asym),
     # draws a sample to see if this person is traced
@@ -89,36 +113,88 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
     new_cases = NA
   )
 
-
-  prob_samples <- prob_samples[exposure < infector_iso_time][, # filter out new cases prevented by isolation
+  prob_samples$exposure <- pmax(prob_samples$exposure, prob_samples$infector_exp +1)
+  prob_samples <- prob_samples[exposure < infector_iso_time | exposure > infector_iso_end][, # filter out new cases prevented by isolation
                                              `:=`(# onset of new case is exposure + incubation period sample
                                                onset = exposure + incubfn_sample)]
 
+  # cases whose parents have been missed are automatically missed
+  prob_samples$missed[vect_isTRUE(prob_samples$infector_missed)] <- TRUE
 
-  # cases whose parents are asymptomatic are automatically missed
-  prob_samples$missed[vect_isTRUE(prob_samples$infector_asym)] <- TRUE
+  #had to put these outside as the vectorisation wasn't working inside the next line down where isolate_time is calculated, was using the same sampled value for all columns
+  prob_samples[, delays := delayfn(nrow(prob_samples))] #delays of symptomatic individuals to isolation
+  prob_samples[, delays_traced := runif(nrow(prob_samples), min_quar_delay, max_quar_delay)] #delays of those who are traced
 
   # If you are asymptomatic, your isolation time is Inf
   prob_samples[, isolated_time := ifelse(vect_isTRUE(missed),
                                          # If you are not tracked (are missed)
                                          ifelse(vect_isTRUE(asym),
-                                                # If you a are asymptotic you never isolate
+                                                # If you a are missed asymptotic you never isolate
                                                 Inf,
                                                 # If you are not asymptotic you isolate after onset of symptoms plus a delay
-                                                onset + delayfn(1)),
+                                                onset + delays),
                                          # If you are tracked (are not missed)
                                          ifelse(vect_isTRUE(rep(quarantine, total_new_cases)),
-                                                # With quarentine, isolate as soon as your infector was identified.
-                                                infector_iso_time + runif(1, min_quar_delay, max_quar_delay),
-                                                # Without quarentine:
+                                                # With quarantine, isolate with some delay after your infector was identified.
+                                                ifelse(vect_isTRUE(asym),
+                                                       infector_iso_time + delays_traced,
+                                                       vect_min(onset+delays,infector_iso_time + delays_traced)), #minimum of isolation due to symptoms and isolation due to tracing
+                                                # Without quarantine:
                                                 # onset < infector_iso < onset+delay  -> isolate when infector is identified and isolates
                                                 # onset < onset+delay  < infector_iso -> isolate after symptoms and a delay
                                                 # infector_iso < onset < onset+delay  -> isolate as soon as symptoms onset.
                                                 vect_min(onset + delayfn(1), vect_max(onset, infector_iso_time))))]
 
+  missedSympt <- nrow(prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf),]) # Symptomatic individuals who are missed
+  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] # Report themselves to contact tracing with prob self_report
+
+  if(testing==TRUE) {
+      prob_samples[, test := ifelse(vect_isTRUE(missed), # If not-traced:
+                                    FALSE, # not tested
+                                    TRUE)] # otherwise tested
+
+      prob_samples[, time_to_test := ifelse(vect_isTRUE(test), # If tested:
+                                            test_delay, # delay from isolation to test results (currently a constant delay but could be expanded)
+                                            Inf)]
+
+      prob_samples[, test_result := ifelse(vect_isTRUE(test), # If tested
+                                            as.logical(rbinom(length(which(prob_samples$test==T)),1,sensitivity)), # =TRUE if positive, =FALSE if false negative
+                                            NA)] # not tested
+
+      prob_samples[, isolated_end := ifelse(vect_isTRUE(test), # If tested
+                                            ifelse(vect_isTRUE(test_result), # If positive
+                                            Inf, # Stay in isolation long enough to not transmit
+                                            vect_max(isolated_time+time_to_test,isolated_time+precaution)), # If test is negative
+                                            # Leave isolation with some precautionary delay (0-7 days)
+                                            Inf)]
+
+      prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time,
+                                                                                   isolated_time+precaution,
+                                                                                   ifelse(vect_isTRUE(test_result),
+                                                                                          isolated_end,
+                                                                                          vect_max(isolated_time+time_to_test,isolated_time+precaution)))]
+      prob_samples[vect_isTRUE(!prob_samples$infector_pos), missed := ifelse((infector_iso_time + test_delay)<=isolated_time,
+                                                                              TRUE,
+                                                                              ifelse(vect_isTRUE(test_result),
+                                                                                     missed,
+                                                                                     TRUE))]
+  }
+
+  if(testing == FALSE) {
+    prob_samples$test <- FALSE
+    prob_samples$time_to_test <- NA
+    prob_samples$test_result <- NA
+    prob_samples$isolated_end <- NA
+    prob_samples$missed[vect_isTRUE(prob_samples$infector_asym)] <- TRUE
+  }
+
+  #prob_samples[vect_isTRUE(isolated_time>=isolated_end),isolated_time := Inf]
+  #prob_samples[vect_isTRUE(isolated_time>=isolated_end),isolated_end := Inf]
 
   # Chop out unneeded sample columns
-  prob_samples[, c("incubfn_sample", "infector_iso_time", "infector_asym") := NULL]
+  prob_samples[, c("incubfn_sample", "infector_iso_time", "infector_asym","infector_pos",
+                   "infector_exp","infector_iso_end","delays","delays_traced","test",
+                   'time_to_test',"infector_missed") := NULL]
   # Set new case ids for new people
   prob_samples$caseid <- (nrow(case_data) + 1):(nrow(case_data) + nrow(prob_samples))
 
@@ -146,3 +222,13 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
 vect_isTRUE <- function(x) {
   purrr::map_lgl(x, isTRUE)
 }
+
+
+vect_max <- function(x, y) {
+  purrr::map2_dbl(x, y, max)
+}
+
+vect_min <- function(x, y) {
+  purrr::map2_dbl(x, y, min)
+}
+

@@ -21,6 +21,12 @@ scenario_sim(
   inf_rate = NULL,
   inf_shift = NULL,
   num.initial.cases = NULL,
+  min_quar_delay = 1,
+  max_quar_delay = NULL,
+  sensitivity = NULL,
+  precaution = NULL,
+  self_report = NULL,
+  test_delay = NULL,
   prop.asym = NULL,
   quarantine = NULL
 )
@@ -42,9 +48,7 @@ scenario_sim(
 
 \item{disp.com}{dispersion parameter for negative binomial distribution for non-isolated cases}
 
-\item{delay_shape}{shape of distribution for delay between symptom onset and isolation}
-
-\item{delay_scale}{scale of distribution for delay between symptom onset and isolation}
+\item{inc_sdlog}{scale of distribution for incubation period}
 
 \item{inf_shape}{shape of distribution for infection time}
 
@@ -54,13 +58,29 @@ scenario_sim(
 
 \item{num.initial.cases}{Initial number of cases in each initial cluster}
 
+\item{min_quar_delay}{The minimum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
+
+\item{max_quar_delay}{The maximum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
+
+\item{sensitivity}{of test}
+
+\item{precaution}{a precautionary delay to leaving isolation if test negative}
+
+\item{self_report}{proportion of isolating missed cases that self-report to PHE}
+
+\item{test_delay}{time from isolation to test result}
+
 \item{prop.asym}{proportion of cases that are completely asymptomatic.}
 
 \item{quarantine}{logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset}
 
-\item{inc_shape}{shape of distribution for incubation period}
+\item{adherence}{adherence probability to isolation}
 
-\item{inc_scale}{scale of distribution for incubation period}
+\item{delay}{delay between symptom onset and isolation}
+
+\item{inc_meanlong}{shape of distribution for incubation period}
+
+\item{testing}{whether testing is implemented or not}
 }
 \value{
 
