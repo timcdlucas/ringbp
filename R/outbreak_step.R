@@ -31,7 +31,7 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
   # Column names used in nonstandard eval.
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
   delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
-  
+
   # For each case in case_data, draw new_cases from a negative binomial distribution
   # with an R0 and dispersion dependent on if isolated=TRUE
   new_cases <- case_data[, new_cases := purrr::map2_dbl(
@@ -169,16 +169,19 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
                                             # Leave isolation with some precautionary delay (0-7 days)
                                             Inf)]
 
-      prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time,
-                                                                                   isolated_time+precaution,
-                                                                                   ifelse(vect_isTRUE(test_result),
-                                                                                          isolated_end,
-                                                                                          vect_max(isolated_time+time_to_test,isolated_time+precaution)))]
-      prob_samples[vect_isTRUE(!prob_samples$infector_pos), missed := ifelse((infector_iso_time + test_delay)<=isolated_time,
-                                                                              TRUE,
-                                                                              ifelse(vect_isTRUE(test_result),
-                                                                                     missed,
-                                                                                     TRUE))]
+      prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), #if you were traced but your infector didn't test positive
+                   isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced and isolated
+                                          isolated_time+precaution, #then you stay in isolation for time = precaution
+                                          ifelse(vect_isTRUE(test_result), #if you were isolated before their test then you're also tested
+                                                 isolated_end, #if you tested positive then no change to end of isolation (i.e. =Inf)
+                                                 vect_max(isolated_time+time_to_test,isolated_time+precaution)))] #if you tested negative then you are released after your test result, providing you've been in isolation for at least precaution days
+
+      prob_samples[vect_isTRUE(prob_samples$infector_pos==FALSE), #if your infector tested negative
+                   missed := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced
+                                    TRUE, #your contacts aren't traced
+                                    ifelse(vect_isTRUE(test_result), #otherwise, you're tested
+                                           missed, #positive: no change to previous allocation
+                                           TRUE))] #negative: your contacts also aren't traced
   }
 
   if(testing == FALSE) {
