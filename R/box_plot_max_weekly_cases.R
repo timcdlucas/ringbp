@@ -145,7 +145,6 @@ box_plot_max_weekly_cases <- function(results = NULL,
 #'
 #' @param df Dataframe of results
 #'
-#' @return
 #' @export
 #' @importFrom dplyr mutate
 #' @author Sam Abbott
