@@ -85,6 +85,11 @@ make_figure_S1 <- function(res = NULL) {
 #' make_figure_S1(results)
 #' }
 make_figure_S2 <- function(res = NULL) {
+  
+  sub_plotS1 <- purrr::partial(ringbp::sub_plot,
+                               res.in = res,
+                               index_R0.in = unique(res$index_R0),
+                               col.by = "index_R0")
 
   sub_plotS2 <- purrr::partial(ringbp::sub_plot,
                                res.in = res,
