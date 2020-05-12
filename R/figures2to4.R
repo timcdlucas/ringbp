@@ -323,7 +323,7 @@ make_figure_4 <- function(res = NULL, num.initial.cases_val = 5,
                                values = c("black", "chocolate4","mediumpurple2", "mediumpurple4")) +
     ggplot2::scale_color_manual(values = c("black", "chocolate4","mediumpurple2", "mediumpurple4"),
                                 name = "Proportion\nof cases\nwithout\nsymptoms")  +
-    guides(colour=guide_legend(title="Proportion\nof cases\nwithout\nsymptoms"), fill = FALSE) +
+    ggplot2::guides(colour=ggplot2::guide_legend(title="Proportion\nof cases\nwithout\nsymptoms"), fill = FALSE) +
     cowplot::theme_cowplot()
 
   fig4 <- (f4p1 + f4p2) / (f4p3 + f4p4) + patchwork::plot_annotation(tag_levels = "A") &

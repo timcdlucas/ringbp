@@ -89,8 +89,7 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
 
   if(sensitivity==0){
     testing = FALSE
-  }
-  else {
+  } else {
     testing = TRUE
   }
 

@@ -20,6 +20,11 @@
 #' outbreak_setup(num.initial.cases = 5,incfn,delayfn,k=1.95,prop.asym=0)
 #'}
 outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity, precaution, test_delay, self_report, testing) {
+  
+  # Column names used in nonstandard eval.
+  test_result <- isolated_end <- infector_iso_end <- delays <- NULL
+  delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
+  
   # Set up table of initial cases
   inc_samples <- incfn(num.initial.cases)
 
@@ -46,6 +51,7 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
 
   adhere <- delayfn(num.initial.cases)
   # set isolation time for cluster to minimum time of onset of symptoms + draw from delay distribution
+
   case_data <- case_data %>% mutate(isolated_time := ifelse(asym==FALSE,
                                                             ifelse(missed==TRUE,
                                                             onset + adhere,

@@ -27,12 +27,6 @@ sub_plot(
 
 \item{theta.in}{character filtering value for theta}
 }
-\value{
-
-}
 \description{
 Create sub-plot for supplementary figures
-}
-\examples{
-
 }
