@@ -52,13 +52,14 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
   adhere <- delayfn(num.initial.cases)
   # set isolation time for cluster to minimum time of onset of symptoms + draw from delay distribution
 
-  case_data <- case_data %>% mutate(isolated_time := ifelse(asym==FALSE,
+  case_data <- case_data %>% mutate(isolated_time = ifelse(asym==FALSE,
                                                             ifelse(missed==TRUE,
                                                             onset + adhere,
                                                             onset + 1),
                                                             Inf)) %>%
-    mutate(isolated_end := isolated_time+test_delay+ifelse(test_result!=FALSE | missed==T,Inf,precaution)) %>%
-    mutate(isolated := FALSE)
+    mutate(isolated_end = isolated_time+test_delay+ifelse(test_result!=FALSE | missed==T,Inf,precaution)) %>%
+    mutate(isolated = FALSE)
+  case_data <- as.data.table(case_data)
 
   # return
   return(case_data)
