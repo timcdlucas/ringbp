@@ -32,6 +32,9 @@ box_plot_max_weekly_cases <- function(results = NULL,
                                       num_initial_cases = 20,
                                       record_params = FALSE,
                                       y_lim = NULL) {
+  
+  inf_shift <- NULL
+  
   filt_results <- results %>%
     dplyr::group_by(scenario) %>%
     dplyr::mutate(prob_extinct = extinct_prob(sims[[1]], cap_cases = cap_cases)) %>%
