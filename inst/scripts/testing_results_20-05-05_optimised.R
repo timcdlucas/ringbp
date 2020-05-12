@@ -33,7 +33,7 @@ devtools::load_all()
 
 git2r::revparse_single('.',"HEAD")$sha
 
-set.seed(200503)
+set.seed(200512)
 
 #' Delay shape is adherence probability
 #'
@@ -109,7 +109,7 @@ scenarios2 <- tidyr::expand_grid(
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
   control_effectiveness = seq(0.4, 1, 0.2),
-  self_report = c(0),
+  self_report = c(0.2),
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0,7), #this could be between 0 and 7? Number of days stay in isolation if negative test
@@ -211,7 +211,7 @@ scenarios4 <- tidyr::expand_grid(
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
   control_effectiveness = seq(0.4, 1, 0.2),
-  self_report = c(0,0.5),
+  self_report = c(0.2,0.5),
   test_delay = c(0), #time from isolation to test result
   sensitivity = c(0), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
