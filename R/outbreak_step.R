@@ -27,6 +27,10 @@ outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0
                           test_delay = NULL, sensitivity = NULL, precaution = NULL, self_report = NULL,
                           quarantine = NULL, testing = NULL) {
 
+  # Column names used in nonstandard eval.
+  test_result <- isolated_end <- infector_iso_end <- delays <- NULL
+  delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
+  
   # For each case in case_data, draw new_cases from a negative binomial distribution
   # with an R0 and dispersion dependent on if isolated=TRUE
   new_cases <- case_data[, new_cases := purrr::map2_dbl(
