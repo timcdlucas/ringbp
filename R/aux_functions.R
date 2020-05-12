@@ -63,7 +63,6 @@ adherence <- function(n, p){
 #' @param inf_rate rate parameter for sampling the serial interval from the incubation period
 #' @param inf_shift shift parameter, describing number of days pre-symptoms can be infectious
 #'
-#' @return
 #' @export
 #' @importFrom sn rsn
 #' @examples
@@ -82,7 +81,6 @@ inf_fn <- function(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift
 #' Calculate proportion of runs that have controlled outbreak
 #'
 #' @author Joel Hellewell
-#' @return
 #' @export
 #' @inheritParams detect_extinct
 #'
@@ -106,7 +104,6 @@ extinct_prob <- function(outbreak_df_week = NULL, cap_cases  = NULL, week_range 
 #' @param outbreak_df_week data.table  weekly cases producted by the outbreak model
 #' @param cap_cases integer number of cumulative cases at which the branching process was terminated
 #'
-#' @return
 #' @export
 #' @importFrom dplyr group_by filter summarise ungroup
 #'
