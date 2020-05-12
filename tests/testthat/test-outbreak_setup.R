@@ -57,7 +57,9 @@ test_that("asym arg works properly", {
                              delayfn = delayfn,
                              test_delay = 1,
                              testing = FALSE,
-                             prop.asym=0.5)
+                             prop.asym=0.5,
+                             self_report = 0.5,
+                             precaution = 1)
 
   expect_length(unique(mix$asym), 2)
 

@@ -82,7 +82,7 @@ test_that("Sim with multiple infectors makes senes", {
                               delayfn = delayfn,
                               testing = FALSE,
                               test_delay = 1,
-                              sensitivity = 0.9,
+                              sensitivity = 0.1,
                               precaution = 3,
                               self_report = 0,
                               prop.asym=0)
@@ -90,7 +90,7 @@ test_that("Sim with multiple infectors makes senes", {
   # generate next generation of cases
   case_data2 <- outbreak_step(case_data = case_data,
                               disp.iso = 1,
-                              disp.com = 0.16,
+                              disp.com = 1,
                               r0isolated = 0,
                               r0community = 1000, # almost guarentees to get new cases
                               prop.asym = 0,
@@ -200,7 +200,8 @@ test_that('Test a bunch of args',{
                               delayfn = delayfn,
                               testing = FALSE,
                               test_delay = 1,
-                              prop.asym=0)
+                              prop.asym=0,
+                              self_report = 0.2)
 
   case_data$missed <- TRUE
   case_data$isolated_time <- Inf
