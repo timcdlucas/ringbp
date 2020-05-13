@@ -36,25 +36,31 @@ scenario_sim(
 
 \item{prop.ascertain}{Probability that cases are ascertained by contact tracing}
 
-\item{cap_max_days}{Maximum number of days to run process for}
+\item{cap_max_days}{Max number of days to run the simulation.}
 
-\item{cap_cases}{Maximum number of cases to run process for}
+\item{cap_cases}{After reaching this cap, assume the epidemic continues to grow.}
 
-\item{r0isolated}{basic reproduction number for isolated cases}
+\item{r0isolated}{numeric reproduction number for isolated cases (must be >0)}
 
-\item{r0community}{basic reproduction number for non-isolated cases}
+\item{r0community}{numeric reproduction number for non-isolated cases (must be >0)}
 
-\item{disp.iso}{dispersion parameter for negative binomial distribution for isolated cases}
+\item{disp.iso}{numeric dispersion parameter for isolated cases (must be >0)}
 
-\item{disp.com}{dispersion parameter for negative binomial distribution for non-isolated cases}
+\item{disp.com}{numeric dispersion parameter for non-isolated cases (must be >0)}
 
-\item{inc_sdlog}{scale of distribution for incubation period}
+\item{delay_shape}{Probability of adherence to isolation after symptom onset when not tracked.}
 
-\item{inf_shape}{shape of distribution for infection time}
+\item{delay_scale}{Doesnt do anything and should be removed.}
 
-\item{inf_rate}{rate of distribution for infection time}
+\item{inc_meanlog}{shape of distribution for incubation period.}
 
-\item{inf_shift}{shift of distribution for infection time into pre-symptomatic period (days)}
+\item{inc_sdlog}{scale of distribution for incubation period.}
+
+\item{inf_shape}{The shape for the gamma distribution of serial intervals around the symptom onset distribution.}
+
+\item{inf_rate}{Rate parameter for the gamma distribution of serial intervals around the symptom onset distribution.}
+
+\item{inf_shift}{Shift the gamma distribution of serial intervals around the symptom onset distribution back by this much (i.e. transmission can ocur this much before symptom onset).}
 
 \item{num.initial.cases}{Initial number of cases in each initial cluster}
 
@@ -62,25 +68,17 @@ scenario_sim(
 
 \item{max_quar_delay}{The maximum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
 
-\item{sensitivity}{of test}
+\item{sensitivity}{Test sensitivity.}
 
-\item{precaution}{a precautionary delay to leaving isolation if test negative}
+\item{precaution}{After a negative test result, keep people in quarantine for this long as a precautionary measure.}
 
-\item{self_report}{proportion of isolating missed cases that self-report to PHE}
+\item{self_report}{Probability that someone that is not tracked will self report (111 for example) after symptoms.}
 
-\item{test_delay}{time from isolation to test result}
+\item{test_delay}{How long does it take for tests to be administered and results returned.}
 
-\item{prop.asym}{proportion of cases that are completely asymptomatic.}
+\item{prop.asym}{Proportion of asymptomatics.}
 
 \item{quarantine}{logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset}
-
-\item{adherence}{adherence probability to isolation}
-
-\item{delay}{delay between symptom onset and isolation}
-
-\item{inc_meanlong}{shape of distribution for incubation period}
-
-\item{testing}{whether testing is implemented or not}
 }
 \value{
 

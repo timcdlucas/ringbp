@@ -2,7 +2,14 @@
 #' Run a single instance of the branching process model
 #' @author Joel Hellewell
 #' @inheritParams outbreak_step
-#'
+#' @param num.initial.cases How many cases to start with.
+#' @param inc_meanlog shape of distribution for incubation period.
+#' @param inc_sdlog scale of distribution for incubation period.
+#' @param cap_max_days Max number of days to run the simulation.
+#' @param cap_cases After reaching this cap, assume the epidemic continues to grow.
+#' @param delay_shape Probability of adherence to isolation after symptom onset when not tracked.
+#' @param delay_scale Doesnt do anything and should be removed.
+#' @param 
 #' @return data.table of cases by week, cumulative cases, and the effective reproduction number of the outreak
 #' @export
 #'

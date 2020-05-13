@@ -33,6 +33,8 @@ Imports:
     patchwork,
     sn,
     ggrepel,
-    cowplot
+    cowplot,
+    tibble
 Suggests:
-    future
+    future,
+    testthat

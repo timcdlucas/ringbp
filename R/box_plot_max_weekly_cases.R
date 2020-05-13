@@ -3,9 +3,7 @@
 #'
 #' @param results results of the branching model in a data.frame or tibble
 #' @param cap_cases the maximimum number of cases per outbreak scenario; default is 5000
-#' @param extinct_threshold filters the minimum proportion of simulations that become extinct per scenario; default 0.8
-#' @param theta_value A Character string defaulting to "15%". Determines the proportion of infections that occur prior to
-#' sypmtom onset.
+#' @param extinct_thresold filters the minimum proportion of simulations that become extinct per scenario; default 0.8
 #' @param prop_asym A numeric string defaulting to 0. Filters the proportion of infectiouns are asymptomatic
 #' @param facet_scales passed to facet_grid’s scales parameter; default is "fixed"
 #' @param filt_control_effectiveness filters by the minimum control effectiveness proportion; default is 0.4
@@ -13,6 +11,7 @@
 #' @param num_initial_cases filters by the number of initial cases in the scenario; default is 40
 #' @param record_params option to display the params as a caption (used for testing); default FALSE
 #' @param y_lim Numeric the limit of the y axis to show.
+#' @param inf_shift_value Value of inf_shift to subset data to.
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom dplyr group_by mutate ungroup filter mutate left_join summarise select
 #' @importFrom tidyr unnest

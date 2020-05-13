@@ -1,6 +1,6 @@
 #' Set up initial cases for branching process
 #' @author Emma Davis and Tim Lucas (from Joel Hellewell)
-#'
+#' @inheritParams outbreak_step
 #' @param num.initial.cases Integer number of initial cases
 #' @param incfn function that samples from incubation period Weibull distribution; generated using dist_setup
 #' @param delayfn function generated using dist_setup = 1 or Inf (adherence to isolation)
@@ -8,7 +8,7 @@
 #'
 #' @return data.table of cases in outbreak so far
 #' @export
-#' @importFrom data.table data.table
+#' @importFrom data.table data.table as.data.table
 #'
 #' @examples
 #'

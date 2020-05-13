@@ -13,16 +13,19 @@ make_figure_4(
 )
 }
 \arguments{
-\item{res}{The results dataframe todo}
+\item{res}{The results dataframe from parameter sweep and then calculating extinction.}
+
+\item{num.initial.cases_val}{Value for num.initial.cases to subset the data to.}
+
+\item{delay_val}{Value for delay type to subset the data to.}
+
+\item{prop.asym_val}{Value for prop.asym to subset the data to.}
+
+\item{index_R0_val}{Value of index_R0 to subset the data to.}
 }
 \value{
 A ggplot2 plot object
 }
 \description{
 Construct Figure 4 from the manuscript
-}
-\examples{
-\dontrun{
-make_figure_4()
-}
 }

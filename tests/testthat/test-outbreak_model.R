@@ -16,7 +16,6 @@ test_that("A basic sim returns the correct object", {
   # generate initial cases
 
   r1 <-
-
     outbreak_model(num.initial.cases = 1, prop.ascertain = 0.8,
                    cap_max_days = 50, cap_cases = 30,
                    r0isolated = 5, r0community = 5,
@@ -25,8 +24,14 @@ test_that("A basic sim returns the correct object", {
                    inf_rate = 0.6898583, inf_shift = 3,
                    inc_meanlog = 1.434065, inc_sdlog = 0.6612,
                    delay_scale = 4.287786, prop.asym = 0.4,
+                   max_quar_delay = 4,
+                   min_quar_delay = 1,
+                   quarantine = FALSE,
+                   test_delay = 1,
                    testing = FALSE,
-                   quarantine = FALSE)
+                   sensitivity = 0.9, 
+                   precaution = 5,
+                   self_report = 0.5)
 
   # Check initialise at time = 0
   expect_equal(r1$week[1],0)

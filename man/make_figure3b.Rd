@@ -13,17 +13,18 @@ make_figure3b(
 }
 \arguments{
 \item{df}{A dataframe of results as produced by \code{parameter_sweep}}
+
+\item{num.initial.cases_val}{Value for num.initial.cases to subset the data to.}
+
+\item{delay_val}{Value for delay type to subset the data to.}
+
+\item{prop.asym_val}{Value for prop.asym to subset the data to.}
 }
 \value{
 A ggplot2 plot of the effective reproduction no vs contacts traced.
 }
 \description{
 Generate a figure comparing the effective reproduction no with contacts traced.
-}
-\examples{
-\dontrun{
-make_figure_3b()
-}
 }
 \author{
 Sam Abbott
