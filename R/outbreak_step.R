@@ -29,16 +29,16 @@
 #' @export
 #'
 #'
-outbreak_step <- function(case_data = NULL, disp.iso = NULL, 
-                          disp.com = NULL, r0isolated = NULL, 
-                          r0community = NULL, prop.asym = NULL, 
-                          incfn = NULL, delayfn = NULL, 
-                          inf_rate = NULL, inf_shape = NULL,
-                          inf_shift = NULL, prop.ascertain = NULL, 
-                          min_quar_delay = 1, max_quar_delay = NULL,
-                          test_delay = NULL, sensitivity = NULL, 
-                          precaution = NULL, self_report = NULL,
-                          quarantine = NULL, testing = NULL) {
+outbreak_step <- function(case_data, disp.iso, 
+                          disp.com, r0isolated, 
+                          r0community, prop.asym, 
+                          incfn, delayfn, 
+                          inf_rate, inf_shape,
+                          inf_shift, prop.ascertain, 
+                          min_quar_delay, max_quar_delay,
+                          test_delay, sensitivity, 
+                          precaution, self_report,
+                          quarantine, testing) {
 
   # Column names used in nonstandard eval.
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
