@@ -305,6 +305,7 @@ test_that('Test ascertain arg',{
                               delayfn = delayfn,
                               testing = FALSE,
                               test_delay = 1,
+                              precaution = 2,
                               prop.asym=0,
                               self_report = 0.2)
   
