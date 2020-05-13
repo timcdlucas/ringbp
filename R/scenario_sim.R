@@ -6,24 +6,6 @@
 #' @param prop.ascertain Probability that cases are ascertained by contact tracing
 #' @param cap_max_days Maximum number of days to run process for
 #' @param cap_cases Maximum number of cases to run process for
-#' @param r0isolated basic reproduction number for isolated cases
-#' @param r0community basic reproduction number for non-isolated cases
-#' @param disp.iso dispersion parameter for negative binomial distribution for isolated cases
-#' @param disp.com dispersion parameter for negative binomial distribution for non-isolated cases
-#' @param adherence adherence probability to isolation
-#' @param delay delay between symptom onset and isolation
-#' @param quarantine logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset
-#' @param prop.asym proportion of cases that are completely asymptomatic.
-#' @param inc_meanlong shape of distribution for incubation period
-#' @param inc_sdlog scale of distribution for incubation period
-#' @param inf_shape shape of distribution for infection time
-#' @param inf_rate rate of distribution for infection time
-#' @param inf_shift shift of distribution for infection time into pre-symptomatic period (days)
-#' @param test_delay time from isolation to test result
-#' @param sensitivity of test
-#' @param precaution a precautionary delay to leaving isolation if test negative
-#' @param self_report proportion of isolating missed cases that self-report to PHE
-#' @param testing whether testing is implemented or not
 #'
 #' @importFrom purrr safely
 #' @return
