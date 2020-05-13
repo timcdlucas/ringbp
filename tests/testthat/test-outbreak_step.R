@@ -188,7 +188,7 @@ test_that("R0isolated is working properly", {
 
 
 
-test_that('Test a bunch of args',{
+test_that('Test self_report arg',{
 
   incfn <- dist_setup(1.434065,0.6612,dist_type='lognormal')
   # delay distribution sampling function
@@ -203,11 +203,6 @@ test_that('Test a bunch of args',{
                               prop.asym=0,
                               self_report = 0.2)
 
-  case_data$missed <- TRUE
-  case_data$isolated_time <- Inf
-  case_data$isolated <- FALSE
-  
-
   # generate next generation of cases
   # Ascertain = 0
   case_data2 <- outbreak_step(case_data = case_data,
@@ -221,7 +216,7 @@ test_that('Test a bunch of args',{
                               inf_shape = 2.115779,
                               inf_rate = 0.6898583,
                               inf_shift = 3,
-                              prop.ascertain = 0,
+                              prop.ascertain = 0.5,
                               max_quar_delay = 4,
                               min_quar_delay = 1,
                               quarantine = FALSE,
@@ -244,7 +239,7 @@ test_that('Test a bunch of args',{
                                 inf_shape = 2.115779,
                                 inf_rate = 0.6898583,
                                 inf_shift = 3,
-                                prop.ascertain = 1,
+                                prop.ascertain = 0.5,
                                 max_quar_delay = 4,
                                 min_quar_delay = 1,
                                 quarantine = FALSE,
@@ -287,3 +282,60 @@ test_that('Test a bunch of args',{
 
 })
 
+
+
+
+test_that('Test ascertain arg',{
+  
+  inc_meanlog = 1.434065
+  inc_sdlog = 0.6612
+  
+  incfn <- dist_setup(dist_param1 = inc_meanlog,
+                      dist_param2 = inc_sdlog,
+                      dist_type = 'lognormal')
+  
+  delay_shape = 0.9
+  delayfn <- dist_setup(delay_shape,
+                        1,
+                        "adherence")
+  
+  # generate initial cases
+  
+  case_data <- outbreak_setup(num.initial.cases = 1,
+                              incfn=incfn,
+                              delayfn = delayfn,
+                              testing = FALSE,
+                              test_delay = 1,
+                              prop.asym=0,
+                              self_report = 0.2)
+  
+  # Start with a tracked individual, not in isolation. So I'm not sure how that will work.
+  case_data$missed <- FALSE
+
+  # generate next generation of cases
+  # Ascertain = 1 so all cases should be tracked.
+  case_data2 <- outbreak_step(case_data = case_data,
+                              disp.iso = 1,
+                              disp.com = 1,
+                              r0isolated = 0, 
+                              r0community = 500, # Shoiuld get lots of cases
+                              prop.asym = 0,
+                              incfn = incfn,
+                              delayfn = delayfn,
+                              inf_shape = 2.115779,
+                              inf_rate = 0.6898583,
+                              inf_shift = 3,
+                              prop.ascertain = 1,
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0.9, 
+                              precaution = 5,
+                              self_report = 0)
+  
+  expect_true(all(!case_data2$cases$missed))
+  expect_true(nrow(case_data2) > 1)
+  
+
+})
