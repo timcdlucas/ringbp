@@ -1,11 +1,9 @@
 #' Run a specified number of simulations with identical parameters
 #' @author Joel Hellewell
-#' @inheritParams outbreak_step
+#' @inheritParams outbreak_model
 #' @param n.sim number of simulations to run
 #' @param num.initial.cases Initial number of cases in each initial cluster
 #' @param prop.ascertain Probability that cases are ascertained by contact tracing
-#' @param cap_max_days Maximum number of days to run process for
-#' @param cap_cases Maximum number of cases to run process for
 #'
 #' @importFrom purrr safely
 #' @return
