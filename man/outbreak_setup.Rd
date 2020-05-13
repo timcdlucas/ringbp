@@ -24,6 +24,16 @@ outbreak_setup(
 \item{delayfn}{function generated using dist_setup = 1 or Inf (adherence to isolation)}
 
 \item{prop.asym}{Numeric proportion of cases that are sublinical (between 0 and 1)}
+
+\item{sensitivity}{Test sensitivity.}
+
+\item{precaution}{After a negative test result, keep people in quarantine for this long as a precautionary measure.}
+
+\item{test_delay}{How long does it take for tests to be administered and results returned.}
+
+\item{self_report}{Probability that someone that is not tracked will self report (111 for example) after symptoms.}
+
+\item{testing}{Logical to determine whether testing is used.}
 }
 \value{
 data.table of cases in outbreak so far
