@@ -7,11 +7,13 @@
 #' @importFrom tidyr gather
 #' @importFrom magrittr %<>%
 #' @importFrom dplyr mutate
+#' @importFrom graphics hist
 #' @importFrom data.table data.table
 #' @importFrom ggplot2 ggplot geom_ribbon theme_bw theme xlab ylab geom_line geom_vline scale_colour_brewer scale_fill_brewer element_text aes
 #'
 make_figure_2a <- function() {
 
+  num <- Source <- xlim <- NULL
   # A colour-blind-friendly palette
   cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
