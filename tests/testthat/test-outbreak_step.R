@@ -296,8 +296,7 @@ test_that('Test ascertain arg',{
   
   delay_shape = 0.9
   delayfn <- dist_setup(delay_shape,
-                        1,
-                        "adherence")
+                        1, "adherence")
   
   # generate initial cases
   
@@ -311,6 +310,7 @@ test_that('Test ascertain arg',{
   
   # Start with a tracked individual, not in isolation. So I'm not sure how that will work.
   case_data$missed <- FALSE
+  case_data$isolated_time <- 100
 
   # generate next generation of cases
   # Ascertain = 1 so all cases should be tracked.
@@ -335,7 +335,34 @@ test_that('Test ascertain arg',{
                               self_report = 0)
   
   expect_true(all(!case_data2$cases$missed))
-  expect_true(nrow(case_data2) > 1)
+  expect_true(nrow(case_data2$cases) > 1)
   
+  
+  
+  # generate next generation of cases
+  # Ascertain = 0 so all cases except the index should not be tracked.
+  case_data2 <- outbreak_step(case_data = case_data,
+                              disp.iso = 1,
+                              disp.com = 1,
+                              r0isolated = 0, 
+                              r0community = 500, # Shoiuld get lots of cases
+                              prop.asym = 0,
+                              incfn = incfn,
+                              delayfn = delayfn,
+                              inf_shape = 2.115779,
+                              inf_rate = 0.6898583,
+                              inf_shift = 3,
+                              prop.ascertain = 0,
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0,      
+                              precaution = 5,
+                              self_report = 0)
+  
+  expect_true(all(case_data2$cases$missed[-1]))
+  expect_true(nrow(case_data2$cases) > 1)
 
 })
+
