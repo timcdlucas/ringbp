@@ -366,3 +366,90 @@ test_that('Test ascertain arg',{
 
 })
 
+
+
+test_that('Test testing arg',{
+  
+  inc_meanlog = 1.434065
+  inc_sdlog = 0.6612
+  
+  incfn <- dist_setup(dist_param1 = inc_meanlog,
+                      dist_param2 = inc_sdlog,
+                      dist_type = 'lognormal')
+  
+  delay_shape = 0.9
+  delayfn <- dist_setup(delay_shape,
+                        1, "adherence")
+  
+  # generate initial cases
+  
+  case_data <- outbreak_setup(num.initial.cases = 1,
+                              incfn=incfn,
+                              delayfn = delayfn,
+                              testing = FALSE,
+                              test_delay = 1,
+                              prop.asym=0,
+                              self_report = 0.2)
+  
+
+  # generate next generation of cases
+  # Testing = FALSE so all tests should be NA
+  case_data2 <- outbreak_step(case_data = case_data,
+                              disp.iso = 1,
+                              disp.com = 1,
+                              r0isolated = 0, 
+                              r0community = 500, # Shoiuld get lots of cases
+                              prop.asym = 0,
+                              incfn = incfn,
+                              delayfn = delayfn,
+                              inf_shape = 2.115779,
+                              inf_rate = 0.6898583,
+                              inf_shift = 3,
+                              prop.ascertain = 1,
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
+                              quarantine = FALSE,
+                              testing = FALSE,
+                              sensitivity = 0.9, 
+                              precaution = 5,
+                              self_report = 0)
+  
+  expect_true(all(is.na(case_data2$cases$test_result)))
+  
+  
+  
+  # generate next generation of cases
+  # Testing = TRUE so same tests should be TRUE or FALSE
+  
+  case_data <- outbreak_setup(num.initial.cases = 1,
+                              incfn=incfn,
+                              delayfn = delayfn,
+                              testing = TRUE,
+                              test_delay = 1,
+                              prop.asym=0,
+                              self_report = 0.2)
+  
+  case_data2 <- outbreak_step(case_data = case_data,
+                              disp.iso = 1,
+                              disp.com = 1,
+                              r0isolated = 0, 
+                              r0community = 500, # Shoiuld get lots of cases
+                              prop.asym = 0,
+                              incfn = incfn,
+                              delayfn = delayfn,
+                              inf_shape = 2.115779,
+                              inf_rate = 0.6898583,
+                              inf_shift = 3,
+                              prop.ascertain = 1,
+                              max_quar_delay = 4,
+                              min_quar_delay = 1,
+                              quarantine = FALSE,
+                              testing = TRUE,
+                              sensitivity = 0.9, 
+                              test_delay = 1,
+                              precaution = 5,
+                              self_report = 0.5)
+  
+  
+  expect_true(all(c(TRUE, FALSE) %in% case_data2$cases$test_result))
+})
