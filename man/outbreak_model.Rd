@@ -32,7 +32,13 @@ outbreak_model(
 )
 }
 \arguments{
+\item{num.initial.cases}{How many cases to start with.}
+
 \item{prop.ascertain}{numeric proportion of infectious contacts ascertained by contact tracing (must be 0<=x<=1)}
+
+\item{cap_max_days}{Max number of days to run the simulation.}
+
+\item{cap_cases}{After reaching this cap, assume the epidemic continues to grow.}
 
 \item{r0isolated}{numeric reproduction number for isolated cases (must be >0)}
 
@@ -41,6 +47,14 @@ outbreak_model(
 \item{disp.iso}{numeric dispersion parameter for isolated cases (must be >0)}
 
 \item{disp.com}{numeric dispersion parameter for non-isolated cases (must be >0)}
+
+\item{delay_shape}{Probability of adherence to isolation after symptom onset when not tracked.}
+
+\item{delay_scale}{Doesnt do anything and should be removed.}
+
+\item{inc_meanlog}{shape of distribution for incubation period.}
+
+\item{inc_sdlog}{scale of distribution for incubation period.}
 
 \item{prop.asym}{Proportion of asymptomatics.}
 

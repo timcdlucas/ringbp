@@ -25,7 +25,9 @@ sub_plot(
 
 \item{res.in}{data.table of results from parameter sweep}
 
-\item{theta.in}{character filtering value for theta}
+\item{facet.by}{Column to facet by.}
+
+\item{col.by}{Column to colour points by.}
 }
 \description{
 Create sub-plot for supplementary figures
