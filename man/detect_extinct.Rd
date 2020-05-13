@@ -10,9 +10,8 @@ detect_extinct(outbreak_df_week = NULL, cap_cases = NULL, week_range = 12:16)
 \item{outbreak_df_week}{data.table  weekly cases producted by the outbreak model}
 
 \item{cap_cases}{integer number of cumulative cases at which the branching process was terminated}
-}
-\value{
 
+\item{week_range}{The range of weeks for which zero cases must be zero for a run to be considered extinct. Probably want the last 3 or so weeks.}
 }
 \description{
 Calculate proportion of outbreaks that went extinct

@@ -13,16 +13,16 @@ make_figure_3a(
 }
 \arguments{
 \item{df}{A dataframe of results as produced by \code{parameter_sweep}}
+
+\item{num.initial.cases_val}{Value for num.initial.cases to subset the data to.}
+
+\item{delay_val}{Value for delay type to subset the data to.}
+
+\item{prop.asym_val}{Value for prop.asym to subset the data to.}
 }
 \value{
 A ggplot2 plot object
 }
 \description{
 Construct Figure 3a from manuscript
-}
-\examples{
-\dontrun{
-make_figure_3a()
-}
-
 }

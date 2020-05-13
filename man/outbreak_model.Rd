@@ -32,7 +32,13 @@ outbreak_model(
 )
 }
 \arguments{
+\item{num.initial.cases}{How many cases to start with.}
+
 \item{prop.ascertain}{numeric proportion of infectious contacts ascertained by contact tracing (must be 0<=x<=1)}
+
+\item{cap_max_days}{Max number of days to run the simulation.}
+
+\item{cap_cases}{After reaching this cap, assume the epidemic continues to grow.}
 
 \item{r0isolated}{numeric reproduction number for isolated cases (must be >0)}
 
@@ -42,11 +48,37 @@ outbreak_model(
 
 \item{disp.com}{numeric dispersion parameter for non-isolated cases (must be >0)}
 
+\item{delay_shape}{Probability of adherence to isolation after symptom onset when not tracked.}
+
+\item{delay_scale}{Doesnt do anything and should be removed.}
+
+\item{inc_meanlog}{shape of distribution for incubation period.}
+
+\item{inc_sdlog}{scale of distribution for incubation period.}
+
+\item{prop.asym}{Proportion of asymptomatics.}
+
+\item{inf_shape}{The shape for the gamma distribution of serial intervals around the symptom onset distribution.}
+
+\item{inf_rate}{Rate parameter for the gamma distribution of serial intervals around the symptom onset distribution.}
+
+\item{inf_shift}{Shift the gamma distribution of serial intervals around the symptom onset distribution back by this much (i.e. transmission can ocur this much before symptom onset).}
+
 \item{min_quar_delay}{The minimum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
 
 \item{max_quar_delay}{The maximum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)}
 
+\item{test_delay}{How long does it take for tests to be administered and results returned.}
+
+\item{sensitivity}{Test sensitivity.}
+
+\item{precaution}{After a negative test result, keep people in quarantine for this long as a precautionary measure.}
+
+\item{self_report}{Probability that someone that is not tracked will self report (111 for example) after symptoms.}
+
 \item{quarantine}{logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset}
+
+\item{testing}{Logical to determine whether testing is used.}
 }
 \value{
 data.table of cases by week, cumulative cases, and the effective reproduction number of the outreak
