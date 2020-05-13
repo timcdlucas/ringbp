@@ -28,18 +28,21 @@ library(ggplot2)
 library(patchwork)
 library(cowplot)
 library(latex2exp)
+library(furrr)
+library(sn)
+library(ggrepel)
+library(testthat)
 
 devtools::load_all()
 
-git2r::revparse_single('.',"HEAD")$sha
+# git2r::revparse_single('.',"HEAD")$sha
 
 set.seed(200512)
 
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-
-no.samples <- 3000
+no.samples <- 10
 
 scenarios1 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
@@ -88,7 +91,7 @@ toc()
 
 
 # #+ writeout
-# saveRDS(sweep_results1, file = "data-raw/res_20200507_1B.rds")
+# saveRDS(sweep_results1, file = "data-raw/res_20200512_1.rds")
 
 ##################################################################
 
@@ -138,7 +141,7 @@ sweep_results2 <- ringbp::parameter_sweep(scenarios2,
 toc()
 
 # #+ writeout
-# saveRDS(sweep_results2, file = "data-raw/res_20200507_2B.rds")
+saveRDS(sweep_results2, file = "data-raw/res_20200512_2.rds")
 
 ##################################################################
 
@@ -190,7 +193,7 @@ toc()
 
 
 # #+ writeout
-# saveRDS(sweep_results3, file = "data-raw/res_20200507_3B.rds")
+saveRDS(sweep_results3, file = "data-raw/res_20200512_3.rds")
 
 ##################################################################
 
@@ -242,28 +245,28 @@ toc()
 
 
 # #+ writeout
-# saveRDS(sweep_results4, file = "data-raw/res_20200507_4B.rds")
+saveRDS(sweep_results4, file = "data-raw/res_20200512_4.rds")
 
 ##################################################################
 
-sweep_resultsB <- rbind(sweep_results1,sweep_results2,sweep_results3,sweep_results4)
+sweep_results <- rbind(sweep_results1,sweep_results2,sweep_results3,sweep_results4)
 
 #expand results for no testing so they can be filtered for plotting later on
 #same results hold for precaution =0,7 and test delay =0,2
-temp1 <- sweep_resultsB %>% filter(sensitivity==0) %>%
+temp1 <- sweep_results %>% filter(sensitivity==0) %>%
   mutate(precaution := 7)
 
-temp2 <- sweep_resultsB %>% filter(sensitivity==0) %>%
+temp2 <- sweep_results %>% filter(sensitivity==0) %>%
   mutate(precaution := 7) %>%
   mutate(test_delay := 2)
 
-temp3 <- sweep_resultsB %>% filter(sensitivity==0) %>%
+temp3 <- sweep_results %>% filter(sensitivity==0) %>%
   mutate(test_delay := 2)
 
 temp <- rbind(temp1,temp2,temp3)
 temp$scenario <- 216 + (1:nrow(temp))
-sweep_resultsB <- rbind(sweep_resultsB,temp)
-sweep_resultsB$scenario[1:216] <- 1:216
+sweep_results <- rbind(sweep_results,temp)
+sweep_results$scenario[1:216] <- 1:216
 
 # saveRDS(sweep_resultsB, file = "data-raw/res_20200507_completeB.rds")
 
@@ -275,20 +278,14 @@ ringbp::make_figure_2()
 # Load in results  -------------------------------------------------------
 
 # sweep_results_extra <- readRDS("data-raw/res_20200505_testing_R0_1point5.rds")
-sweep_resultsA <- readRDS("data-raw/res_20200507_complete.rds")
-sweep_resultsB <- readRDS("data-raw/res_20200507_completeB.rds")
-
-#they aren't in the same order!
- for (i in 2:nrow(sweep_results)){
-   sweep_resultsB$sims[[i]]$sim <- sweep_resultsB$sims[[i]]$sim + 2000
-   sweep_results$sims[[i]] <- bind_rows(sweep_results$sims[[i]],sweep_resultsB$sims[[i]])
- }
-
-sweep_results <- bind_rows(sweep_resultsA, sweep_resultsB)
-sweep_results <- sweep_results %>% unnest(sims) %>%
-  dplyr::group_by(max_quar_delay,index_R0,control_effectiveness,
-                  self_report,test_delay,sensitivity,precaution) %>%
-  nest()
+# sweep_resultsA <- readRDS("data-raw/res_20200507_complete.rds")
+# sweep_resultsB <- readRDS("data-raw/res_20200507_completeB.rds")
+#
+# sweep_results <- bind_rows(sweep_resultsA, sweep_resultsB)
+# sweep_results <- sweep_results %>% unnest(sims) %>%
+#   dplyr::group_by(max_quar_delay,index_R0,control_effectiveness,
+#                   self_report,test_delay,sensitivity,precaution) %>%
+#   nest()
 
 res <- sweep_results %>%
   dplyr::group_by(scenario) %>%
