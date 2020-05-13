@@ -13,7 +13,15 @@
 #' @param quarantine logical whether quarantine is in effect, if TRUE then traced contacts are isolated before symptom onset
 #' @param min_quar_delay The minimum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)
 #' @param max_quar_delay The maximum delay between a case being identified and their contacts being isolated (only applies when quarentine set to TRUE)
-#'
+#' @param prop.asym Proportion of asymptomatics.
+#' @param inf_rate Rate parameter for the gamma distribution of serial intervals around the symptom onset distribution.
+#' @param inf_shape The shape for the gamma distribution of serial intervals around the symptom onset distribution.
+#' @param inf_shift Shift the gamma distribution of serial intervals around the symptom onset distribution back by this much (i.e. transmission can ocur this much before symptom onset).
+#' @param test_delay How long does it take for tests to be administered and results returned.
+#' @param sensitivity Test sensitivity.
+#' @param precaution After a negative test result, keep people in quarantine for this long as a precautionary measure.
+#' @param self_report Probability that someone that is not tracked will self report (111 for example) after symptoms.
+#' @param testing Logical to determine whether testing is used.
 #' @importFrom data.table data.table rbindlist
 #' @importFrom purrr map2 map2_dbl map_lgl rbernoulli
 #'
@@ -21,10 +29,15 @@
 #' @export
 #'
 #'
-outbreak_step <- function(case_data = NULL, disp.iso = NULL, disp.com = NULL, r0isolated = NULL, r0community = NULL,
-                          prop.asym = NULL, incfn = NULL, delayfn = NULL, inf_rate = NULL, inf_shape = NULL,
-                          inf_shift = NULL, prop.ascertain = NULL, min_quar_delay = 1, max_quar_delay = NULL,
-                          test_delay = NULL, sensitivity = NULL, precaution = NULL, self_report = NULL,
+outbreak_step <- function(case_data = NULL, disp.iso = NULL, 
+                          disp.com = NULL, r0isolated = NULL, 
+                          r0community = NULL, prop.asym = NULL, 
+                          incfn = NULL, delayfn = NULL, 
+                          inf_rate = NULL, inf_shape = NULL,
+                          inf_shift = NULL, prop.ascertain = NULL, 
+                          min_quar_delay = 1, max_quar_delay = NULL,
+                          test_delay = NULL, sensitivity = NULL, 
+                          precaution = NULL, self_report = NULL,
                           quarantine = NULL, testing = NULL) {
 
   # Column names used in nonstandard eval.
