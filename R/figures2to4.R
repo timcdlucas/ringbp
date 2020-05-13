@@ -113,17 +113,13 @@ make_figure_2 <- function() {
 #' Construct Figure 3a from manuscript
 #'
 #' @param df A dataframe of results as produced by `parameter_sweep`
-#'
+#' @inheritParams make_figure3b
 #' @return A ggplot2 plot object
 #' @export
 #' @importFrom ggplot2 ggplot geom_line geom_point scale_fill_manual scale_color_manual scale_x_continuous scale_y_continuous theme labs
 #' @importFrom cowplot theme_cowplot
 #' @importFrom dplyr filter select
-#' @examples
-#'\dontrun{
-#'make_figure_3a()
-#'}
-#'
+
 make_figure_3a <- function(df = NULL, num.initial.cases_val = 5,
                            delay_val = "SARS",
                            prop.asym_val = 0.4) {
@@ -160,14 +156,14 @@ make_figure_3a <- function(df = NULL, num.initial.cases_val = 5,
 #' Generate a figure comparing the effective reproduction no with contacts traced.
 #' @author Sam Abbott
 #' @param df A dataframe of results as produced by `parameter_sweep`
+#' @param num.initial.cases_val Value for num.initial.cases to subset the data to.
+#' @param delay_val Value for delay type to subset the data to.
+#' @param prop.asym_val Value for prop.asym to subset the data to.
 #'
 #' @return A ggplot2 plot of the effective reproduction no vs contacts traced.
 #' @export
 #'
-#' @examples
-#'\dontrun{
-#'make_figure_3b()
-#'}
+
 make_figure3b <- function(df = NULL, num.initial.cases_val = 5,
                           delay_val = "SARS",
                           prop.asym_val = 0.4) {
@@ -230,7 +226,9 @@ make_figure3b <- function(df = NULL, num.initial.cases_val = 5,
 
 #' Construct Figure 4 from the manuscript
 #'
-#' @param res The results dataframe todo
+#' @param res The results dataframe from parameter sweep and then calculating extinction.
+#' @param index_R0_val Value of index_R0 to subset the data to.
+#' @inheritParams make_figure3b
 #'
 #' @return A ggplot2 plot object
 #' @export
@@ -239,10 +237,7 @@ make_figure3b <- function(df = NULL, num.initial.cases_val = 5,
 #' @importFrom cowplot theme_cowplot
 #' @importFrom patchwork plot_annotation
 #'
-#' @examples
-#'\dontrun{
-#'make_figure_4()
-#'}
+
 make_figure_4 <- function(res = NULL, num.initial.cases_val = 5,
                           delay_val = "SARS", prop.asym_val = 0.4,
                           index_R0_val = 1.1) {

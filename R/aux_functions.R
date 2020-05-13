@@ -103,6 +103,7 @@ extinct_prob <- function(outbreak_df_week = NULL, cap_cases  = NULL, week_range 
 #' @author Joel Hellewell
 #' @param outbreak_df_week data.table  weekly cases producted by the outbreak model
 #' @param cap_cases integer number of cumulative cases at which the branching process was terminated
+#' @param week_range The range of weeks for which zero cases must be zero for a run to be considered extinct. Probably want the last 3 or so weeks.
 #'
 #' @export
 #' @importFrom dplyr group_by filter summarise ungroup
