@@ -459,6 +459,7 @@ test_that('Test testing arg',{
 
 test_that('Test sensitivity arg',{
   
+  
   inc_meanlog = 1.434065
   inc_sdlog = 0.6612
   
@@ -478,7 +479,8 @@ test_that('Test sensitivity arg',{
                               testing = TRUE,
                               test_delay = 1,
                               prop.asym=0,
-                              self_report = 0.5)
+                              sensitivity = 0.9,
+                              self_report = 0)
   
   
   # generate next generation of cases
@@ -502,7 +504,7 @@ test_that('Test sensitivity arg',{
                               sensitivity = 1, 
                               precaution = 5,
                               test_delay = 0.3,
-                              self_report = 0.5)
+                              self_report = 0.5 )
   
   expect_true(all(case_data2$cases$test_result %in% c(TRUE, NA)))
   # Missed cases should be na, not missed should be TRUE
