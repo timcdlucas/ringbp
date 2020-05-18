@@ -42,7 +42,7 @@ set.seed(200516)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 3000
+no.samples <- 3
 
 scenarios <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
@@ -90,7 +90,7 @@ toc()
 
 
 # #+ writeout
-saveRDS(sweep_results, file = "data-raw/res_20200515_highk.rds")
+# saveRDS(sweep_results, file = "data-raw/res_20200515_highk.rds")
 
 
 # Plot figure 2:  --------------------------------------------------------
@@ -182,24 +182,24 @@ res %>%
   xlab('Contact tracing coverage') +
   ylim(c(0,0.6))
 
-res %>%
-  filter(self_report == 0.5) %>%
-  filter(max_quar_delay == 1) %>%
-  filter(index_R0 == 1.3) %>%
-  mutate(test_delay = factor(test_delay, labels = c('instant test','2 day delay'))) %>%
-  mutate(precaution = factor(precaution, labels = c('immediate release if negative', 'minimum 7 days'))) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('No testing','65%','95%'))) %>%
-  ggplot(aes(control_effectiveness, 1 - pext, colour = sensitivity)) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(1,3,6)],name="Test sensitivity:") +
-  ggplot2::theme(legend.position = "bottom") +
-  geom_line() +
-  geom_point() +
-  facet_grid(test_delay ~ precaution) +
-  labs(title = TeX('\\textbf{Self-reporting is 50%, trace delay is 1,}'), subtitle = TeX('\\textbf{$\\R_0$ is $1.3$}')) +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ylab('Prob. large outbreak') +
-  xlab('Contact tracing coverage') +
-  ylim(c(0,0.4))
+# res %>%
+#   filter(self_report == 0.5) %>%
+#   filter(max_quar_delay == 1) %>%
+#   filter(index_R0 == 1.3) %>%
+#   mutate(test_delay = factor(test_delay, labels = c('instant test','2 day delay'))) %>%
+#   mutate(precaution = factor(precaution, labels = c('immediate release if negative', 'minimum 7 days'))) %>%
+#   mutate(sensitivity = factor(sensitivity, labels = c('No testing','65%','95%'))) %>%
+#   ggplot(aes(control_effectiveness, 1 - pext, colour = sensitivity)) +
+#   ggplot2::scale_colour_manual(values = cbPalette[c(1,3,6)],name="Test sensitivity:") +
+#   ggplot2::theme(legend.position = "bottom") +
+#   geom_line() +
+#   geom_point() +
+#   facet_grid(test_delay ~ precaution) +
+#   labs(title = TeX('\\textbf{Self-reporting is 50%, trace delay is 1,}'), subtitle = TeX('\\textbf{$\\R_0$ is $1.3$}')) +
+#   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+#   ylab('Prob. large outbreak') +
+#   xlab('Contact tracing coverage') +
+#   ylim(c(0,0.4))
 
 
 #+ by_size, eval = TRUE, cache = TRUE, fig.height = 5, fig.width = 9
@@ -397,7 +397,7 @@ min_quar_delay = 1
 max_quar_delay = 4
 index_R0 = 1.3
 prop.asym = 0.4
-control_effectiveness = 0.6
+prop.ascertain = control_effectiveness = 0.6
 self_report = c(0.5)
 test_delay = 2 #time from isolation to test result
 sensitivity = 0.65 #percent of cases detected
@@ -406,6 +406,8 @@ num.initial.cases = 5
 disp.iso = 1
 r0community = index_R0
 r0isolated = 0
-disp.com = 0.5
+disp.com = 0.16
 quarantine = TRUE
 testing = TRUE
+cap_cases = 2000
+cap_max_days = 300
