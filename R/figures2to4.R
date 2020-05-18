@@ -43,7 +43,7 @@ make_figure_2a <- function() {
     #                                  col = as.factor(dist)),
     #                     lty = 2,
     #                     size = 0.8) +
-    ggplot2::labs(tag = "A",
+    ggplot2::labs(tag = "C",
                   x = "generation interval (days)",
                   y = "probability density") +
     xlim(c(0,20))
@@ -77,7 +77,7 @@ make_figure_2 <- function() {
     cowplot::theme_cowplot() +
     ggplot2::geom_vline(xintercept = exp(1.43), lty = 2) +
     ggplot2::coord_cartesian(xlim = c(0, 13)) +
-    ggplot2::labs(tag = "B", x = "time since infection (days)", y = "probability density") +
+    ggplot2::labs(tag = "A", x = "time since infection (days)", y = "probability density") +
     ggplot2::geom_ribbon(aes(ymax = y, ymin = 0),
                          alpha = 0.4) +
     ggplot2::theme(legend.position = "right") +
@@ -99,12 +99,12 @@ make_figure_2 <- function() {
     ggplot2::scale_fill_manual(values = cbPalette[5],
                                name = c("Transmission\nprofile")) +
     ggplot2::scale_colour_manual(guide="none",values = cbPalette[5]) +
-    ggplot2::labs(tag = "C",
+    ggplot2::labs(tag = "B",
                   x = "time since symptom onset (days)",
                   y = "probability density")
 
 
-  (make_figure_2a() | (p2 / p3)) & theme(axis.text = element_text(size = 10),
+  ((p2 / p3) | make_figure_2a() ) & theme(axis.text = element_text(size = 10),
                                          legend.title = element_text(size = 12),
                                          legend.text = element_text(size = 10),
                                          axis.title = element_text(size = 10))
