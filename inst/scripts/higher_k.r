@@ -37,7 +37,7 @@ devtools::load_all()
 
 # git2r::revparse_single('.',"HEAD")$sha
 
-set.seed(200515)
+set.seed(200516)
 
 #' Delay shape is adherence probability
 #'
@@ -129,7 +129,7 @@ res %>%
   filter(test_delay == 2) %>%
   filter(sensitivity == 0.65) %>%
   mutate(prop.asym = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
-  mutate(adherence = factor(self_report, labels = c('10% self-reporting','50%'))) %>%
+  mutate(adherence = factor(self_report, labels = c('50% self reporting'))) %>%
   mutate(index_R0 = factor(index_R0)) %>%
   ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_0$")) +
@@ -140,7 +140,7 @@ res %>%
   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   ylab('Prob. large outbreak') +
   xlab('Contact tracing coverage') +
-  ylim(c(0,0.3))
+  ylim(c(0,0.5))
 
 
 
@@ -161,7 +161,7 @@ res %>%
   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   ylab('Prob. large outbreak') +
   xlab('Contact tracing coverage') +
-  ylim(c(0,0.3))
+  ylim(c(0,0.5))
 
 res %>%
   filter(self_report == 0.5) %>%
@@ -180,26 +180,26 @@ res %>%
   ggtitle('Self-reporting is 50%, sensitivity is 65%,\ntrace delay is 1') +
   ylab('Prob. large outbreak') +
   xlab('Contact tracing coverage') +
-  ylim(c(0,0.3))
+  ylim(c(0,0.6))
 
-res %>%
-  filter(self_report == 0.5) %>%
-  filter(max_quar_delay == 1) %>%
-  filter(index_R0 == 1.3) %>%
-  mutate(test_delay = factor(test_delay, labels = c('instant test','2 day delay'))) %>%
-  mutate(precaution = factor(precaution, labels = c('immediate release if negative', 'minimum 7 days'))) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('No testing','65%','95%'))) %>%
-  ggplot(aes(control_effectiveness, 1 - pext, colour = sensitivity)) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(1,3,6)],name="Test sensitivity:") +
-  ggplot2::theme(legend.position = "bottom") +
-  geom_line() +
-  geom_point() +
-  facet_grid(test_delay ~ precaution) +
-  labs(title = TeX('\\textbf{Self-reporting is 50%, trace delay is 1,}'), subtitle = TeX('\\textbf{$\\R_0$ is $1.3$}')) +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ylab('Prob. large outbreak') +
-  xlab('Contact tracing coverage') +
-  ylim(c(0,0.2))
+# res %>%
+#   filter(self_report == 0.5) %>%
+#   filter(max_quar_delay == 1) %>%
+#   filter(index_R0 == 1.3) %>%
+#   mutate(test_delay = factor(test_delay, labels = c('instant test','2 day delay'))) %>%
+#   mutate(precaution = factor(precaution, labels = c('immediate release if negative', 'minimum 7 days'))) %>%
+#   mutate(sensitivity = factor(sensitivity, labels = c('No testing','65%','95%'))) %>%
+#   ggplot(aes(control_effectiveness, 1 - pext, colour = sensitivity)) +
+#   ggplot2::scale_colour_manual(values = cbPalette[c(1,3,6)],name="Test sensitivity:") +
+#   ggplot2::theme(legend.position = "bottom") +
+#   geom_line() +
+#   geom_point() +
+#   facet_grid(test_delay ~ precaution) +
+#   labs(title = TeX('\\textbf{Self-reporting is 50%, trace delay is 1,}'), subtitle = TeX('\\textbf{$\\R_0$ is $1.3$}')) +
+#   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+#   ylab('Prob. large outbreak') +
+#   xlab('Contact tracing coverage') +
+#   ylim(c(0,0.4))
 
 
 #+ by_size, eval = TRUE, cache = TRUE, fig.height = 5, fig.width = 9
@@ -277,7 +277,7 @@ total_cumulative_distr <-
 total_cumulative_distr <- do.call(rbind, total_cumulative_distr$res) %>%
   mutate(index_R0 = factor(index_R0, labels = c('R0 = 1.1', '1.3','1.5'))) %>%
   mutate(precaution = factor(precaution, labels = c('immediate release', '7 days'))) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('No testing','65% sensitive','95%'))) %>%
+  mutate(sensitivity = factor(sensitivity, labels = c('65% sensitive'))) %>%
   mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 days'))) %>%
   filter(outbreaks != 0)
 
@@ -321,7 +321,7 @@ total_cumulative_distr <-
   mutate(index_R0 = factor(index_R0, labels = c('R0 = 1.1', '1.3','1.5'))) %>%
   mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 day trace delay'))) %>%
   mutate(precaution = factor(precaution, labels = c('immediate release', '7 days'))) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('No testing','65% sensitive','95%')))
+  mutate(sensitivity = factor(sensitivity, labels = c('65% sensitive')))
 
 T1 <- total_cumulative_distr %>% filter(sensitivity=="65% sensitive") %>%
   filter(precaution=="7 days")
@@ -385,3 +385,29 @@ res3 %>% mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
 #   ggplot(aes(control_effectiveness,max_weekly)) + geom_boxplot() +
 #   facet_grid(index_R0 ~ max_quar_delay) +
 #   scale_y_log10()
+
+delay_shape = c(0.9)
+delay_scale = 1
+inc_meanlog = 1.434065
+inc_sdlog = 0.6612
+inf_shape = 2.115779
+inf_rate = 0.6898583
+inf_shift = 3
+min_quar_delay = 1
+max_quar_delay = 4
+index_R0 = 1.3
+prop.asym = 0.4
+prop.ascertain = control_effectiveness = 0.6
+self_report = c(0.5)
+test_delay = 2 #time from isolation to test result
+sensitivity = 0.65 #percent of cases detected
+precaution = 7 #this could be between 0 and 7? Number of days stay in isolation if negative test
+num.initial.cases = 5
+disp.iso = 1
+r0community = index_R0
+r0isolated = 0
+disp.com = 0.16
+quarantine = TRUE
+testing = TRUE
+cap_cases = 2000
+cap_max_days = 300
