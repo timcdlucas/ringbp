@@ -210,8 +210,10 @@ outbreak_step <- function(case_data, disp.iso,
     prob_samples$missed[vect_isTRUE(prob_samples$infector_asym)] <- TRUE
   }
 
-  prob_samples[, isolated_end := ifelse(vect_isTRUE(exposure > infector_iso_end),
-                                        Inf,isolated_end)]
+  #make sure no one has isolation start time after their isolation end time
+  prob_samples[, isolated_end := ifelse(vect_isTRUE(isolated_time > isolated_end),
+                                        isolated_time,
+                                        isolated_end)]
 
   #prob_samples[vect_isTRUE(isolated_time>=isolated_end),isolated_time := Inf]
   #prob_samples[vect_isTRUE(isolated_time>=isolated_end),isolated_end := Inf]

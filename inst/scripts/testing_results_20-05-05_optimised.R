@@ -42,7 +42,7 @@ set.seed(200518)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 10
+no.samples <- 3000
 
 tic()
 scenarios1 <- tidyr::expand_grid(
