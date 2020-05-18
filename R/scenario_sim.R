@@ -101,10 +101,16 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                                              testing = testing))
 
 
+
   # bind output together and add simulation index
   res <- data.table::rbindlist(res)
   res[, sim := rep(1:n.sim, rep(floor(cap_max_days / 7) + 1, n.sim)), ]
   return(res)
+
+  # res1 <- data.table::rbindlist(res[[1]])
+  # res1[, sim := rep(1:n.sim, rep(floor(cap_max_days / 7) + 1, n.sim)), ]
+  # res2 <- res[[2]]
+  # return(list(res1,res2))
 }
 
 

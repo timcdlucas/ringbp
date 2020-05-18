@@ -9,7 +9,7 @@
 #' @param cap_cases After reaching this cap, assume the epidemic continues to grow.
 #' @param delay_shape Probability of adherence to isolation after symptom onset when not tracked.
 #' @param delay_scale Doesnt do anything and should be removed.
-#' @param 
+#' @param
 #' @return data.table of cases by week, cumulative cases, and the effective reproduction number of the outreak
 #' @export
 #'
@@ -73,14 +73,14 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
 
   # Initial setup
   case_data <- outbreak_setup(num.initial.cases = num.initial.cases,
-                            incfn = incfn,
-                            prop.asym = prop.asym,
-                            delayfn = delayfn,
-                            sensitivity = sensitivity,
-                            precaution = precaution,
-                            test_delay = test_delay,
-                            self_report = self_report,
-                            testing = testing)
+                              incfn = incfn,
+                              prop.asym = prop.asym,
+                              delayfn = delayfn,
+                              sensitivity = sensitivity,
+                              precaution = precaution,
+                              test_delay = test_delay,
+                              self_report = self_report,
+                              testing = testing)
 
   # Preallocate
   effective_r0_vect <- c()
@@ -91,25 +91,25 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   while (latest.onset < cap_max_days & total.cases < cap_cases & !extinct) {
 
     out <- outbreak_step(case_data = case_data,
-                             disp.iso = disp.iso,
-                             disp.com = disp.com,
-                             r0isolated = r0isolated,
-                             r0community = r0community,
-                             incfn = incfn,
-                             delayfn = delayfn,
-                             inf_shape = inf_shape,
-                             inf_rate = inf_rate,
-                             inf_shift = inf_shift,
-                             prop.ascertain = prop.ascertain,
-                             quarantine = quarantine,
-                             prop.asym = prop.asym,
-                             min_quar_delay = min_quar_delay, 
-                             max_quar_delay = max_quar_delay,
-                             sensitivity = sensitivity,
-                             precaution = precaution,
-                             test_delay = test_delay,
-                             self_report = self_report,
-                             testing = testing)
+                         disp.iso = disp.iso,
+                         disp.com = disp.com,
+                         r0isolated = r0isolated,
+                         r0community = r0community,
+                         incfn = incfn,
+                         delayfn = delayfn,
+                         inf_shape = inf_shape,
+                         inf_rate = inf_rate,
+                         inf_shift = inf_shift,
+                         prop.ascertain = prop.ascertain,
+                         quarantine = quarantine,
+                         prop.asym = prop.asym,
+                         min_quar_delay = min_quar_delay,
+                         max_quar_delay = max_quar_delay,
+                         sensitivity = sensitivity,
+                         precaution = precaution,
+                         test_delay = test_delay,
+                         self_report = self_report,
+                         testing = testing)
 
 
     case_data <- out[[1]]
@@ -120,10 +120,13 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
     extinct <- all(case_data$isolated)
   }
 
+  timetotest <- case_data[(isolated_time < Inf & !is.na(test_result)),(isolated_time - exposure) + test_delay,]
   # Prepare output, group into weeks
   weekly_cases <- case_data[, week := floor(onset / 7)
-                            ][, .(weekly_cases = .N), by = week
+                            ][, .(weekly_cases = .N, tested = numTested(test_result),
+                                  positive = numPositive(test_result)), by = week
                               ]
+
   # maximum outbreak week
   max_week <- floor(cap_max_days / 7)
   # weeks with 0 cases in 0:max_week
@@ -133,7 +136,9 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   if (length(missing_weeks > 0)) {
     weekly_cases <- data.table::rbindlist(list(weekly_cases,
                                                data.table(week = missing_weeks,
-                                                          weekly_cases = 0)))
+                                                          weekly_cases = 0,
+                                                          tested = 0,
+                                                          positive = 0)))
   }
   # order and sum up
   weekly_cases <- weekly_cases[order(week)
@@ -144,7 +149,16 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   # Add effective R0
   weekly_cases <- weekly_cases[, `:=`(effective_r0 = mean(effective_r0_vect,
                                                           na.rm = TRUE),
-                                        cases_per_gen = list(cases_in_gen_vect))]
+                                      cases_per_gen = list(cases_in_gen_vect),
+                                      timetotest = list(timetotest))]
   # return
   return(weekly_cases)
+}
+
+numTested <- function(results) {
+  return(length(which(!is.na(results))))
+}
+
+numPositive <- function(results){
+  return(length(which(results[which(!is.na(results))] == TRUE)))
 }
