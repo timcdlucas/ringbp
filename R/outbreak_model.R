@@ -9,7 +9,7 @@
 #' @param cap_cases After reaching this cap, assume the epidemic continues to grow.
 #' @param delay_shape Probability of adherence to isolation after symptom onset when not tracked.
 #' @param delay_scale Doesnt do anything and should be removed.
-#' @param 
+#' @param
 #' @return data.table of cases by week, cumulative cases, and the effective reproduction number of the outreak
 #' @export
 #'
@@ -103,7 +103,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                              prop.ascertain = prop.ascertain,
                              quarantine = quarantine,
                              prop.asym = prop.asym,
-                             min_quar_delay = min_quar_delay, 
+                             min_quar_delay = min_quar_delay,
                              max_quar_delay = max_quar_delay,
                              sensitivity = sensitivity,
                              precaution = precaution,
