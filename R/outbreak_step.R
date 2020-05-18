@@ -29,14 +29,14 @@
 #' @export
 #'
 #'
-outbreak_step <- function(case_data, disp.iso, 
-                          disp.com, r0isolated, 
-                          r0community, prop.asym, 
-                          incfn, delayfn, 
+outbreak_step <- function(case_data, disp.iso,
+                          disp.com, r0isolated,
+                          r0community, prop.asym,
+                          incfn, delayfn,
                           inf_rate, inf_shape,
-                          inf_shift, prop.ascertain, 
+                          inf_shift, prop.ascertain,
                           min_quar_delay, max_quar_delay,
-                          test_delay, sensitivity, 
+                          test_delay, sensitivity,
                           precaution, self_report,
                           quarantine, testing) {
 
@@ -158,6 +158,12 @@ outbreak_step <- function(case_data, disp.iso,
                                                 # infector_iso < onset < onset+delay  -> isolate as soon as symptoms onset.
                                                 vect_min(onset + delayfn(1), vect_max(onset, infector_iso_time))))]
 
+  #Individuals who are exposed after infector is released from quaratine due to false negative test aren't traced
+  prob_samples[, isolated_time := ifelse(vect_isTRUE(exposure > infector_iso_end),
+                                        ifelse(asym, Inf, onset + delays),isolated_time)]
+  prob_samples[, missed := ifelse(vect_isTRUE(exposure > infector_iso_end),
+                                         TRUE,missed)]
+
   missedSympt <- nrow(prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf),]) # Symptomatic individuals who are missed
   prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] # Report themselves to contact tracing with prob self_report
 
@@ -203,6 +209,11 @@ outbreak_step <- function(case_data, disp.iso,
     prob_samples$isolated_end <- NA
     prob_samples$missed[vect_isTRUE(prob_samples$infector_asym)] <- TRUE
   }
+
+  #make sure no one has isolation start time after their isolation end time
+  prob_samples[, isolated_end := ifelse(vect_isTRUE(isolated_time > isolated_end),
+                                        isolated_time,
+                                        isolated_end)]
 
   #prob_samples[vect_isTRUE(isolated_time>=isolated_end),isolated_time := Inf]
   #prob_samples[vect_isTRUE(isolated_time>=isolated_end),isolated_end := Inf]

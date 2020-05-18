@@ -37,13 +37,14 @@ devtools::load_all()
 
 # git2r::revparse_single('.',"HEAD")$sha
 
-set.seed(200512)
+set.seed(200518)
 
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
 no.samples <- 3000
 
+tic()
 scenarios1 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
   delay_group = list(tibble::tibble(
@@ -91,7 +92,7 @@ toc()
 
 
 # #+ writeout
-# saveRDS(sweep_results1, file = "data-raw/res_20200512_1.rds")
+saveRDS(sweep_results1, file = "data-raw/res_20200518_1.rds")
 
 ##################################################################
 
@@ -141,7 +142,7 @@ sweep_results2 <- ringbp::parameter_sweep(scenarios2,
 toc()
 
 # #+ writeout
-saveRDS(sweep_results2, file = "data-raw/res_20200512_2.rds")
+saveRDS(sweep_results2, file = "data-raw/res_20200518_2.rds")
 
 ##################################################################
 
@@ -193,7 +194,7 @@ toc()
 
 
 # #+ writeout
-saveRDS(sweep_results3, file = "data-raw/res_20200512_3.rds")
+saveRDS(sweep_results3, file = "data-raw/res_20200518_3.rds")
 
 ##################################################################
 
@@ -243,13 +244,11 @@ sweep_results4 <- ringbp::parameter_sweep(scenarios4,
 
 toc()
 
-
+toc()
 # #+ writeout
-saveRDS(sweep_results4, file = "data-raw/res_20200512_4.rds")
+saveRDS(sweep_results4, file = "data-raw/res_20200518_4.rds")
 
 ##################################################################
-
-sweep_results1 <- readRDS("data-raw/res_20200512_1.rds")
 
 sweep_results <- rbind(sweep_results1,sweep_results2,sweep_results3,sweep_results4)
 
@@ -270,7 +269,7 @@ temp$scenario <- 216 + (1:nrow(temp))
 sweep_results <- rbind(sweep_results,temp)
 sweep_results$scenario[1:216] <- 1:216
 
-saveRDS(sweep_results, file = "data-raw/res_20200512_complete.rds")
+saveRDS(sweep_results, file = "data-raw/res_20200518_complete.rds")
 
 # Plot figure 2:  --------------------------------------------------------
 # Parameter distributions (incubation, generation interval etc.)
@@ -296,25 +295,54 @@ res <- sweep_results %>%
 
 #+ plots3
 
+testRes <- sweep_results1 %>%
+  dplyr::group_by(scenario) %>%
+  dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
+  dplyr::ungroup()
 
 #+ plotsS, eval = TRUE, cache = FALSE, fig.height = 5, fig.width = 9
 
 # A colour-blind-friendly palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+testRes <- testRes %>%
+  filter(self_report == 0.5) %>%
+  filter(precaution == 7) %>%
+  filter(sensitivity == 0.65) %>%
+  filter(index_R0 == 1.3) %>%
+  filter(control_effectiveness == '0.6')
+
+# Histogrms of time to test (from exposure)
+h1 <- data.frame(y=unlist(testRes$timetotest[1])) %>% ggplot(aes(y)) +
+  geom_density() + theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+  xlim(c(0,15)) +
+  xlab('time tested (days post-exposure)') +
+  ggtitle(paste0('Test delay = ',testRes$test_delay[1],', max trace time = ',testRes$max_quar_delay[1],sep=""))
+
+h2 <- data.frame(y=unlist(testRes$timetotest[2])) %>% ggplot(aes(y)) +
+  geom_density() + theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+  xlim(c(0,15)) +
+  ylab("") +
+  xlab('time tested (days post-exposure)') +
+  ggtitle(paste0('Test delay = ',testRes$test_delay[2],', max trace time = ',testRes$max_quar_delay[2],sep=""))
+
+plot_grid(h1,h2)
+
+# Further plots
+
 res %>%
   filter(max_quar_delay == 1) %>%
   filter(precaution == 7) %>%
   filter(test_delay == 2) %>%
   filter(sensitivity == 0.65) %>%
-  mutate(prop.asym = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
-  mutate(adherence = factor(self_report, labels = c('10% self-reporting','50%'))) %>%
+  mutate(sensitivity = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
+  mutate(self_report = factor(self_report, labels = c('10% self-reporting','50%'))) %>%
   mutate(index_R0 = factor(index_R0)) %>%
   ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_0$")) +
   geom_line() +
   geom_point() +
-  facet_grid(adherence ~ prop.asym) +
+  facet_grid(self_report ~ sensitivity) +
   ggtitle('Contact trace delay is 1, test delay is 2 days,\nminimum isolation is 7 days') +
   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   ylab('Prob. large outbreak') +
@@ -328,14 +356,14 @@ res %>%
   filter(precaution == 7) %>%
   filter(test_delay == 2) %>%
   filter(sensitivity == 0.65) %>%
-  mutate(prop.asym = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
+  mutate(sensitivity = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
   mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 days'))) %>%
   mutate(index_R0 = factor(index_R0)) %>%
   ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
   geom_line() +
   geom_point() +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_0$")) +
-  facet_grid(max_quar_delay ~ prop.asym) +
+  facet_grid(max_quar_delay ~ sensitivity) +
   ggtitle('Self-reporting is 50%, test delay is 2 days,\nminimum isolation is 7 days') +
   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   ylab('Prob. large outbreak') +
