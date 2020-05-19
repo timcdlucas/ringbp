@@ -120,11 +120,20 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
     extinct <- all(case_data$isolated)
   }
 
+  # time of first case detection
+  first_iso <- case_data[missed==FALSE,][isolated_time==min(isolated_time),]$isolated_time
+  # number of cases exposed before first case detection
+  early_missed <- nrow(case_data[exposure<first_iso,])
+
+  #calculate time to test (from exposure) for each tested case
   timetotest <- case_data[(isolated_time < Inf & !is.na(test_result)),(isolated_time - exposure) + test_delay,]
+
   # Prepare output, group into weeks
   weekly_cases <- case_data[, week := floor(onset / 7)
                             ][, .(weekly_cases = .N, tested = numTested(test_result),
-                                  positive = numPositive(test_result)), by = week
+                                  positive = numPositive(test_result),
+                                  isolated = numOccur(isolated_time),
+                                  released = numOccur(isolated_end)), by = week
                               ]
 
   # maximum outbreak week
@@ -138,7 +147,9 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                                                data.table(week = missing_weeks,
                                                           weekly_cases = 0,
                                                           tested = 0,
-                                                          positive = 0)))
+                                                          positive = 0,
+                                                          isolated = 0,
+                                                          released = 0)))
   }
   # order and sum up
   weekly_cases <- weekly_cases[order(week)
@@ -149,6 +160,8 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   # Add effective R0
   weekly_cases <- weekly_cases[, `:=`(effective_r0 = mean(effective_r0_vect,
                                                           na.rm = TRUE),
+                                      first_iso = first_iso,
+                                      early_missed = early_missed,
                                       cases_per_gen = list(cases_in_gen_vect),
                                       timetotest = list(timetotest))]
   # return
@@ -161,4 +174,8 @@ numTested <- function(results) {
 
 numPositive <- function(results){
   return(length(which(results[which(!is.na(results))] == TRUE)))
+}
+
+numOccur <- function(results){
+  return(length(which(results < Inf)))
 }
