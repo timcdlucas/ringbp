@@ -57,14 +57,17 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
       mutate(test_result = ifelse(missed==FALSE,
                                    purrr::rbernoulli(sum(!missed), sensitivity),
                                    NA))
+    # end isolation never (Inf) if test positive or missed (isolation start also Inf)
+    # if test negative then end isolation a precautionary period ('precaution') after isolation start
+    case_data <- case_data %>%
+      mutate(isolated_end = isolated_time+ifelse(vect_isTRUE(test_result) | missed==T,Inf,precaution)) %>%
+      mutate(isolated = FALSE) # initialise so all cases are initially able to transit (effectively isolate once their secondary cases have been calculated and assigned)
   }
-
-  # end isolation never (Inf) if test positive or missed (isolation start also Inf)
-  # if test negative then end isolation a precautionary period ('precaution') after isolation start
-  case_data <- case_data %>%
-    mutate(isolated_end = isolated_time+ifelse(vect_isTRUE(test_result) | missed==T,Inf,precaution)) %>%
-    mutate(isolated = FALSE) # initialise so all cases are initially able to transit (effectively isolate once their secondary cases have been calculated and assigned)
-
+  if(testing==FALSE) {
+    case_data <- case_data %>%
+      mutate(isolated_end = Inf) %>%
+      mutate(isolated = FALSE) # initialise so all cases are initially able to transit (effectively isolate once their secondary cases have been calculated and assigned)
+  }
   case_data <- as.data.table(case_data)
   # return
   return(case_data)

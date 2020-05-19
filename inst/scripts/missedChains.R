@@ -47,7 +47,7 @@ scenarios <- tidyr::expand_grid(
   dplyr::mutate(scenario = 1:dplyr::n())
 
 cap_cases <- 2000
-max_days <- 300
+max_days <- 50
 ## Parameterise fixed paramters
 sim_with_params <- purrr::partial(ringbp::scenario_sim,
                                   cap_max_days = max_days,
