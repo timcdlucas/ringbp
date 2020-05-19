@@ -45,14 +45,16 @@ dist_setup <- function(dist_param1 = NULL, dist_param2 = NULL, dist_type = NULL)
   }
   if(dist_type == "adherence"){
     out <- purrr::partial(adherence,
-                          p = dist_param1)
+                          p = dist_param1,
+                          mu = dist_param2)
   }
   return(out)
 }
 
 
-adherence <- function(n, p){
-  ifelse(rbinom(n, 1, p), 1, Inf)
+adherence <- function(n, p, mu){
+  iso_delay <- ifelse(mu==1,1,rexp(n, 1/mu))
+  ifelse(as.logical(rbinom(n, 1, p)), iso_delay, Inf)
 }
 
 
@@ -131,7 +133,7 @@ detect_extinct <- function(outbreak_df_week  = NULL, cap_cases  = NULL, week_ran
 #' @param res.in data.table of results from parameter sweep
 #' @param facet.by Column to facet by.
 #' @param col.by Column to colour points by.
-#' 
+#'
 #'
 #' @export
 #' @importFrom dplyr filter mutate
