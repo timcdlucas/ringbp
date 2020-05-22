@@ -63,5 +63,6 @@ tic()
 sweep_results <- ringbp::parameter_sweep(scenarios,
                                           sim_fn = sim_with_params,
                                           samples = no.samples,
-                                          show_progress = TRUE)
+                                          show_progress = TRUE,
+                                          earlyOut = TRUE)
 toc()

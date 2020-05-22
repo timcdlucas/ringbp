@@ -72,7 +72,8 @@
 #' sweep_results
 #' }
 parameter_sweep <- function(scenarios = NULL, samples = 1,
-                            sim_fn = NULL, show_progress = TRUE) {
+                            sim_fn = NULL, show_progress = TRUE,
+                            earlyOut = FALSE) {
 
   safe_sim_fn <- purrr::safely(sim_fn)
 
@@ -101,7 +102,8 @@ parameter_sweep <- function(scenarios = NULL, samples = 1,
                test_delay = .$test_delay,
                sensitivity =.$sensitivity,
                precaution =.$precaution,
-               self_report =.$self_report
+               self_report =.$self_report,
+               earlyOut = earlyOut
       )[[1]],
       .progress = show_progress,
       .options = furrr::future_options(scheduling = 20)

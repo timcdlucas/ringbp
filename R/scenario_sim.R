@@ -66,7 +66,8 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                          delay_shape = NULL, delay_scale = NULL, inc_meanlog = NULL, inc_sdlog = NULL,
                          inf_shape = NULL, inf_rate = NULL, inf_shift = NULL, num.initial.cases = NULL,
                          min_quar_delay = 1, max_quar_delay = NULL, sensitivity = NULL, precaution = NULL,
-                         self_report = NULL, test_delay = NULL, prop.asym = NULL, quarantine = NULL) {
+                         self_report = NULL, test_delay = NULL, prop.asym = NULL, quarantine = NULL,
+                         earlyOut = NULL) {
 
   if(sensitivity==0){
     testing = FALSE
@@ -94,11 +95,12 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                                              min_quar_delay = min_quar_delay,
                                              max_quar_delay = max_quar_delay,
                                              test_delay = test_delay,
-                                             sensitivity =sensitivity,
-                                             precaution =precaution,
-                                             self_report=self_report,
+                                             sensitivity = sensitivity,
+                                             precaution = precaution,
+                                             self_report = self_report,
                                              quarantine = quarantine,
-                                             testing = testing))
+                                             testing = testing,
+                                             earlyOut = earlyOut))
 
 
 
