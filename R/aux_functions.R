@@ -82,6 +82,49 @@ inf_fn <- function(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift
 
 #' Calculate proportion of runs that have controlled outbreak
 #'
+#' @author Emma Davis
+#' @export
+#' @inheritParams detect_extinct
+#'
+trace_outs <- function(outbreak_df_week = NULL) {
+
+  tested <- outbreak_df_week %>%
+    group_by(sim) %>%
+    .$tested %>%
+    sum(.) %>%
+    ungroup()
+
+  positive <- outbreak_df_week %>%
+    group_by(sim) %>%
+    .$positive %>%
+    sum(.) %>%
+    ungroup()
+
+  isolated <- outbreak_df_week %>%
+    group_by(sim) %>%
+    .$isolated %>%
+    sum(.) %>%
+    ungroup()
+
+  released <- outbreak_df_week %>%
+    group_by(sim) %>%
+    .$released %>%
+    sum(.) %>%
+    ungroup()
+
+  cases <- outbreak_df_week %>%
+    group_by(sim) %>%
+    .$weekly_cases %>%
+    sum(.) %>%
+    ungroup()
+
+  out <- data.frame(tested=tested,positive=positive,isolated=isolated,released=released,cases=cases)
+
+  return(out)
+}
+
+#' Calculate proportion of runs that have controlled outbreak
+#'
 #' @author Joel Hellewell
 #' @export
 #' @inheritParams detect_extinct

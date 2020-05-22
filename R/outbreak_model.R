@@ -53,7 +53,8 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                            min_quar_delay = 1, max_quar_delay = NULL,
                            test_delay = NULL, sensitivity = NULL,
                            precaution = NULL, self_report = NULL,
-                           quarantine = NULL, testing = NULL) {
+                           quarantine = NULL, testing = NULL,
+                           earlyOut = NULL) {
 
   # Set up functions to sample from distributions
   # incubation period sampling function
@@ -120,10 +121,16 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
     extinct <- all(case_data$isolated)
   }
 
-  # time of first case detection
-  first_iso <- case_data[missed==FALSE,][isolated_time==min(isolated_time),]$isolated_time
-  # number of cases exposed before first case detection
-  early_missed <- nrow(case_data[exposure<first_iso,])
+  if(earlyOut==TRUE){
+    first_iso <- Inf
+    early_missed <- nrow(case_data)
+    if(any(case_data$missed==FALSE & case_data$isolated_time<Inf)){
+      # time of first case detection
+      first_iso <- case_data[missed==FALSE,][isolated_time==min(isolated_time),isolated_time]
+      # number of cases exposed before first case detection
+      early_missed <- nrow(case_data[exposure<first_iso,])
+    }
+  }
 
   #calculate time to test (from exposure) for each tested case
   timetotest <- case_data[(isolated_time < Inf & !is.na(test_result)),(isolated_time - exposure) + test_delay,]
@@ -160,10 +167,15 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   # Add effective R0
   weekly_cases <- weekly_cases[, `:=`(effective_r0 = mean(effective_r0_vect,
                                                           na.rm = TRUE),
-                                      first_iso = first_iso,
-                                      early_missed = early_missed,
                                       cases_per_gen = list(cases_in_gen_vect),
-                                      timetotest = list(timetotest))]
+                                      timetotest = ifelse(length(timetotest)<1, 0,
+                                                          c(list(timetotest),rep(0,max_week))))]
+
+  if(earlyOut==TRUE){
+    weekly_cases <- weekly_cases[, `:=`(first_iso = first_iso,
+                                        early_missed = early_missed)]
+  }
+
   # return
   return(weekly_cases)
 }

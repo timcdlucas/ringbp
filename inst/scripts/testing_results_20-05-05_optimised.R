@@ -92,9 +92,16 @@ toc()
 
 
 # #+ writeout
-saveRDS(sweep_results1, file = "data-raw/res_20200518_1.rds")
-
+# saveRDS(sweep_results1, file = "data-raw/res_20200518_1.rds")
+rm(list=ls())
+Sys.sleep(180)
+# tic()
+# sweep_results1 <- readRDS("data-raw/res_20200518_1.rds")
+# toc()
 ##################################################################
+
+set.seed(200518)
+no.samples <- 3000
 
 scenarios2 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
@@ -109,14 +116,14 @@ scenarios2 <- tidyr::expand_grid(
   inf_rate = 0.6898583,
   inf_shift = 3,
   min_quar_delay = 1,
-  max_quar_delay = c(1,4),
+  max_quar_delay = c(1),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
   control_effectiveness = seq(0.4, 1, 0.2),
-  self_report = c(0.2),
+  self_report = c(0.1),
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
-  precaution = c(0,7), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  precaution = c(7), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(5)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
@@ -142,9 +149,13 @@ sweep_results2 <- ringbp::parameter_sweep(scenarios2,
 toc()
 
 # #+ writeout
-saveRDS(sweep_results2, file = "data-raw/res_20200518_2.rds")
-
+# saveRDS(sweep_results2, file = "data-raw/res_20200518_2.rds")
+rm(list=ls())
+Sys.sleep(180)
 ##################################################################
+
+set.seed(200518)
+no.samples <- 3000
 
 scenarios3 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
@@ -166,7 +177,7 @@ scenarios3 <- tidyr::expand_grid(
   self_report = c(0.5),
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
-  precaution = c(0,7), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  precaution = c(7), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(5)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
@@ -194,9 +205,13 @@ toc()
 
 
 # #+ writeout
-saveRDS(sweep_results3, file = "data-raw/res_20200518_3.rds")
-
+# saveRDS(sweep_results3, file = "data-raw/res_20200518_3.rds")
+rm(list=ls())
+Sys.sleep(180)
 ##################################################################
+
+set.seed(200518)
+no.samples <- 3000
 
 scenarios4 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
@@ -211,11 +226,67 @@ scenarios4 <- tidyr::expand_grid(
   inf_rate = 0.6898583,
   inf_shift = 3,
   min_quar_delay = 1,
-  max_quar_delay = c(1,4),
+  max_quar_delay = c(4),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
   control_effectiveness = seq(0.4, 1, 0.2),
-  self_report = c(0.2,0.5),
+  self_report = c(0.5),
+  test_delay = c(2), #time from isolation to test result
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(5)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n())
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(ringbp::scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+#+ full_run
+tic()
+## Run parameter sweep
+sweep_results4 <- ringbp::parameter_sweep(scenarios4,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = TRUE)
+
+toc()
+
+
+# #+ writeout
+# saveRDS(sweep_results4, file = "data-raw/res_20200518_4.rds")
+rm(list=ls())
+Sys.sleep(180)
+##################################################################
+
+set.seed(200518)
+no.samples <- 3000
+
+scenarios5 <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.9),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = c(1),
+  index_R0 = c(1.1,1.3,1.5),
+  prop.asym = c(0.4),
+  control_effectiveness = seq(0.4, 1, 0.2),
+  self_report = c(0.5),
   test_delay = c(0), #time from isolation to test result
   sensitivity = c(0), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
@@ -237,16 +308,15 @@ sim_with_params <- purrr::partial(ringbp::scenario_sim,
 #+ full_run
 tic()
 ## Run parameter sweep
-sweep_results4 <- ringbp::parameter_sweep(scenarios4,
+sweep_results5 <- ringbp::parameter_sweep(scenarios5,
                                          sim_fn = sim_with_params,
                                          samples = no.samples,
                                          show_progress = TRUE)
 
 toc()
 
-toc()
 # #+ writeout
-saveRDS(sweep_results4, file = "data-raw/res_20200518_4.rds")
+# saveRDS(sweep_results5, file = "data-raw/res_20200518_5.rds")
 
 ##################################################################
 
@@ -554,6 +624,7 @@ ggplot(res2, aes(time_to_size)) + geom_histogram(aes(y=..density..),breaks=1:30,
   ggtitle('Time to reach 500 cases') +
   xlab('Time (weeks)')
 
+# Plot showing risk of different outbreak sizes occurring
 
 res3 <- res2 %>% filter(sensitivity==0.65) %>%
   #filter(max_quar_delay==1) %>%
@@ -584,6 +655,38 @@ res3 %>% mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
   ylab('risk of outbreak larger than X') +
   ggtitle('Risk of outbreak exceeding size X, by tracing coverage and speed')
 
+
+# boxplots for 100% contact tracing
+
+res4 <- res %>% group_by(scenario) %>%
+  mutate(trace_stats = trace_outs(sims)) %>%
+  ungroup()
+
+res4 %>% dplyr::filter(control_effectiveness == 1) %>%
+  dplyr::filter(self_report == 0.5) %>%
+  dplyr::filter(max_quar_delay == 4) %>%
+  dplyr::filter(precaution == 7) %>%
+  dplyr::filter(test_delay == 2) %>%
+  dplyr::filter(sensitivity != 0) %>%
+  dplyr::mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
+  dplyr::mutate(sensitivity = factor(sensitivity, labels=c("65% sensitive","95%"))) %>%
+  ggplot(aes(control_effectiveness,trace_stats$tested)) + geom_boxplot() +
+  facet_grid(index_R0 ~ sensitivity)
+
+# plots looking at number traced versus proportion traced
+
+res5 %>% group_by(scenario)
+  mutate(avg_test = mean(trace_stats[[1]]$tested),
+         avg_pos = mean(trace_stats[[1]]$positive),
+         avg_iso = mean(trace_stats[[1]]$isolated),
+         avg_rel = mean(trace_stats[[1]]$released),
+         avg_case = mean(trace_stats[[1]]$cases)) %>%
+    ungroup()
+
+res5 %>% dplyr::filter() %>%
+  ggplot(aes(control_effectiveness, avg_test))
+
+
 # Boxplots?
 # res3 %>% filter(sensitivity==0.65) %>%
 #   mutate(control_effectiveness = factor(control_effectiveness,labels=c("Prop. traced 40%","60%","80%","100%"))) %>%
@@ -592,3 +695,5 @@ res3 %>% mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
 #   ggplot(aes(control_effectiveness,max_weekly)) + geom_boxplot() +
 #   facet_grid(index_R0 ~ max_quar_delay) +
 #   scale_y_log10()
+
+
