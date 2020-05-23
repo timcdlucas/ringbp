@@ -90,35 +90,46 @@ trace_outs <- function(outbreak_df_week = NULL) {
 
   tested <- outbreak_df_week %>%
     group_by(sim) %>%
-    .$tested %>%
-    sum(.) %>%
-    ungroup()
+    mutate(tested = c(sum(tested),rep(NA,length(tested)-1))) %>%
+    ungroup() %>%
+    .$tested
+
+  tested <- tested[which(!is.na(tested))]
+
 
   positive <- outbreak_df_week %>%
     group_by(sim) %>%
-    .$positive %>%
-    sum(.) %>%
-    ungroup()
+    mutate(positive = c(sum(positive),rep(NA,length(positive)-1))) %>%
+    ungroup() %>%
+    .$positive
+
+  positive <- positive[which(!is.na(positive))]
 
   isolated <- outbreak_df_week %>%
     group_by(sim) %>%
-    .$isolated %>%
-    sum(.) %>%
-    ungroup()
+    mutate(isolated = c(sum(isolated),rep(NA,length(isolated)-1))) %>%
+    ungroup() %>%
+    .$isolated
+
+  isolated <- isolated[which(!is.na(isolated))]
 
   released <- outbreak_df_week %>%
     group_by(sim) %>%
-    .$released %>%
-    sum(.) %>%
-    ungroup()
+    mutate(released = c(sum(released),rep(NA,length(released)-1))) %>%
+    ungroup() %>%
+    .$released
+
+  released <- released[which(!is.na(released))]
 
   cases <- outbreak_df_week %>%
     group_by(sim) %>%
-    .$weekly_cases %>%
-    sum(.) %>%
-    ungroup()
+    mutate(cases = c(sum(weekly_cases),rep(NA,length(weekly_cases)-1))) %>%
+    ungroup() %>%
+    .$cases
 
-  out <- data.frame(tested=tested,positive=positive,isolated=isolated,released=released,cases=cases)
+  cases <- cases[which(!is.na(cases))]
+
+  out <- tibble(tested=tested,positive=positive,isolated=isolated,released=released,cases=cases)
 
   return(out)
 }
