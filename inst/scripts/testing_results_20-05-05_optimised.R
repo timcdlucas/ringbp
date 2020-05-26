@@ -378,8 +378,6 @@ sweep_results <- c()
 
 # saveRDS(res, file = "data-raw/res_20200518_pext.rds")
 
-#+ plots3
-
 #+ plotsS, eval = TRUE, cache = FALSE, fig.height = 5, fig.width = 9
 
 # A colour-blind-friendly palette
