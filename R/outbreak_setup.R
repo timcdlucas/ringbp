@@ -19,7 +19,8 @@
 #' delayfn <- dist_setup(delay_shape, delay_scale)
 #' outbreak_setup(num.initial.cases = 5,incfn,delayfn,k=1.95,prop.asym=0)
 #'}
-outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity, precaution, test_delay, self_report, testing) {
+outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity,
+                           precaution, test_delay, self_report, testing, iso_adhere) {
 
   # Column names used in nonstandard eval. These should go in globaVariables in scenario_sim.R
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
@@ -35,14 +36,17 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
                           onset = inc_samples,
                           new_cases = NA,
                           missed = NA,
-                          test_result = NA)
+                          test_result = NA,
+                          refuse = NA) #refuse to isolate
 
-  # precalculate who will self-isolated if symptomatic and how long after onset, returns Inf if never isolate
-  adhere <- delayfn(num.initial.cases)
+  # precalculate who will self-report if symptomatic and how long after onset, returns Inf if never report
+  adhere_rep <- delayfn(num.initial.cases)
+  # who won't isolate even if asked
+  case_data <- case_data %>% mutate(refuse = rbinom(num.initial.cases,1,1-iso_adhere))
 
   # you never isolate if asymptomatic, but isolate at time 'adhere' after onset if symptomatic
   case_data <- case_data %>% mutate(isolated_time = ifelse(asym==FALSE,
-                                                           onset + adhere,
+                                                           onset + adhere_rep,
                                                            Inf))
 
   # you are missed if you never isolate, but if you isolate you'll be detected (not missed) with probability self_report

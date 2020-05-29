@@ -54,7 +54,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                            test_delay = NULL, sensitivity = NULL,
                            precaution = NULL, self_report = NULL,
                            quarantine = NULL, testing = NULL,
-                           earlyOut = NULL) {
+                           earlyOut = NULL, iso_adhere = NULL) {
 
   # Set up functions to sample from distributions
   # incubation period sampling function
@@ -81,7 +81,8 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                               precaution = precaution,
                               test_delay = test_delay,
                               self_report = self_report,
-                              testing = testing)
+                              testing = testing,
+                              iso_adhere = iso_adhere)
 
   # Preallocate
   effective_r0_vect <- c()
@@ -110,6 +111,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                          precaution = precaution,
                          test_delay = test_delay,
                          self_report = self_report,
+                         iso_adhere = iso_adhere,
                          testing = testing)
 
 
@@ -133,7 +135,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   }
 
   #calculate time to test (from exposure) for each tested case
-  timetotest <- case_data[(isolated_time < Inf & !is.na(test_result)),(isolated_time - exposure) + test_delay,]
+  #timetotest <- case_data[(isolated_time < Inf & !is.na(test_result)),(isolated_time - exposure) + test_delay,]
 
   # Prepare output, group into weeks
   weekly_cases <- case_data[, week := floor(onset / 7)
@@ -167,9 +169,9 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
   # Add effective R0
   weekly_cases <- weekly_cases[, `:=`(effective_r0 = mean(effective_r0_vect,
                                                           na.rm = TRUE),
-                                      cases_per_gen = list(cases_in_gen_vect),
-                                      timetotest = ifelse(length(timetotest)<1, 0,
-                                                          c(list(timetotest),rep(0,max_week))))]
+                                      cases_per_gen = list(cases_in_gen_vect))]#,
+                                      #timetotest = ifelse(length(timetotest)<1, 0,
+                                      #                    c(list(timetotest),rep(0,max_week))))]
 
   if(earlyOut==TRUE){
     weekly_cases <- weekly_cases[, `:=`(first_iso = first_iso,
