@@ -33,8 +33,7 @@ res <- res %>% dplyr::filter(control_effectiveness == 1) %>%
   dplyr::mutate(sensitivity = factor(sensitivity, labels=c("65% sensitive","95%")))  %>%
   dplyr::mutate(self_report = factor(self_report, labels=c("50% self reporting","100%")))
 
-res <- res %>% unnest(trace_stats) %>%
-
+res <- res %>% unnest(trace_stats)
 
 Fig5B <- res %>% filter(cases>=20) %>%
   mutate(precaution = factor(precaution,labels=" ")) %>%
@@ -46,6 +45,9 @@ Fig5B <- res %>% filter(cases>=20) %>%
                 x = TeX("Index $\\R_s$"),
                 y = 'proportion cases detected') +
   theme_minimal(base_size=18)
+
+ggsave(filename="data-raw/Fig5.pdf",plot_grid(Fig5A,Fig5B,Fig5C,Fig5D,nrow=2,ncol=2),
+       width=343, height=291,units="mm")
 
 
 ################################################
