@@ -32,6 +32,7 @@ library(furrr)
 library(sn)
 library(ggrepel)
 library(testthat)
+library(svglite)
 
 devtools::load_all()
 
@@ -348,9 +349,6 @@ toc()
 # # Save final combined results
 # saveRDS(sweep_results, file = "data-raw/res_20200518_complete.rds")
 
-# Load in pre-saved results
-sweep_results <- readRDS("data-raw/res_20200518_complete.rds")
-
 # Plot figure 2:  --------------------------------------------------------
 # Parameter distributions (incubation, generation interval etc.)
 
@@ -358,32 +356,30 @@ ringbp::make_figure_2()
 
 # Load in results  -------------------------------------------------------
 
-# sweep_results_extra <- readRDS("data-raw/res_20200505_testing_R0_1point5.rds")
-# sweep_resultsA <- readRDS("data-raw/res_20200507_complete.rds")
-# sweep_resultsB <- readRDS("data-raw/res_20200507_completeB.rds")
-#
-# sweep_results <- bind_rows(sweep_resultsA, sweep_resultsB)
-# sweep_results <- sweep_results %>% unnest(sims) %>%
-#   dplyr::group_by(max_quar_delay,index_R0,control_effectiveness,
-#                   self_report,test_delay,sensitivity,precaution) %>%
-#   nest()
+# Load in pre-saved results
+sweep_results <- readRDS("data-raw/res_20200518_complete.rds")
+# A colour-blind-friendly palette
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-res <- sweep_results %>%
+sweep_results <- sweep_results %>%
   dplyr::group_by(scenario) %>%
   dplyr::mutate(pext = extinct_prob(sims[[1]], cap_cases = cap_cases, week_range = 40:42)) %>%
-  dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
+  #dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
   dplyr::ungroup(scenario)
 
-sweep_results <- c()
 
-# saveRDS(res, file = "data-raw/res_20200518_pext.rds")
+# Fig 4 - Time tested post-exposure
 
+<<<<<<< HEAD
 #+ plotsS, eval = TRUE, cache = FALSE, fig.height = 5, fig.width = 9
 
 # A colour-blind-friendly palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 res1 <- res %>%
+=======
+res1 <- sweep_results %>%
+>>>>>>> df7dc743aa84bba2be6f1807c30822e0b7fd247f
   filter(self_report == 0.5) %>%
   filter(precaution == 7) %>%
   filter(sensitivity == 0.65) %>%
@@ -392,30 +388,36 @@ res1 <- res %>%
 
 res1 <- res1 %>%
   dplyr::group_by(scenario) %>%
-  dplyr::mutate(pext = extinct_prob(sims[[1]], cap_cases = cap_cases, week_range = 40:42)) %>%
+  #dplyr::mutate(pext = extinct_prob(sims[[1]], cap_cases = cap_cases, week_range = 40:42)) %>%
   dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
   dplyr::ungroup(scenario)
 
 falseNeg <- read.csv('data-raw/FalseNegative_kucirka.csv')
+#saveRDS(res1,"data-raw/Fig4.rds")
 
-# Histogrms of time to test (from exposure)
 h1 <- data.frame(y=c(unlist(res1$timetotest[1]),unlist(res1$timetotest[2])),delay=c(rep("2 days",length(unlist(res1$timetotest[1]))),rep("0 days",length(unlist(res1$timetotest[2]))))) %>%
   ggplot() +
   geom_density(alpha=0.2,aes(y,y=..scaled..,fill=delay,colour=delay)) + theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   ggplot2::scale_colour_manual(values = cbPalette[c(2,3)],name="Test delay\n (density)") +
-  ggplot2::scale_fill_manual(values = cbPalette[c(2,3)],guide="none") +
+  ggplot2::scale_fill_manual(values = cbPalette[c(2,3)],name="Test delay\n (density)") +
   xlim(c(0,15)) +
-  geom_point(data=falseNeg, aes(inherit=FALSE, x=Day,y=1-Mean)) +
+  geom_point(data=falseNeg, aes(x=Day,y=1-Mean)) +
   geom_linerange(data=falseNeg,aes(x=Day,ymax=1-Lower,ymin=1-Upper)) +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+  theme_minimal(base_size = 18) +
   xlab('Time tested (days post-exposure)') +
   ylab('Sensitivity (Kucirka et al.)')
 
 
+# Supp Fig7 A and B
 
-# Further plots
+res <- sweep_results %>%
+  filter(precaution == 7) %>%
+  filter(test_delay == 2) %>%
+  filter(sensitivity == 0.65)
 
-res %>%
+saveRDS(res,'data-raw/FigS7.rds')
+
+Fig7A <- sweep_results %>%
   filter(max_quar_delay == 1) %>%
   filter(precaution == 7) %>%
   filter(test_delay == 2) %>%
@@ -428,15 +430,12 @@ res %>%
   geom_line() +
   geom_point() +
   facet_grid(self_report ~ sensitivity) +
-  ggtitle('Contact trace delay is 1, test delay is 2 days,\nminimum isolation is 7 days') +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ylab('Prob. large outbreak') +
-  xlab('Contact tracing coverage') +
+  theme_minimal(base_size = 18) +
+  ggplot2::theme(legend.position = "bottom") +
+  labs(tag="A",x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.3))
 
-
-
-res %>%
+Fig7B <- sweep_results %>%
   filter(self_report == 0.5) %>%
   filter(precaution == 7) %>%
   filter(test_delay == 2) %>%
@@ -449,13 +448,21 @@ res %>%
   geom_point() +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
   facet_grid(max_quar_delay ~ sensitivity) +
-  ggtitle('Self-reporting is 50%, test delay is 2 days,\nminimum isolation is 7 days') +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ylab('Prob. large outbreak') +
-  xlab('Contact tracing coverage') +
+  theme_minimal(base_size = 18) +
+  ggplot2::theme(legend.position = "bottom") +
+  labs(tag="B",x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.3))
 
-res %>%
+Fig7A + Fig7B
+
+# Fig 3 A and B
+res <- sweep_results %>%
+  filter(self_report == 0.5) %>%
+  filter(max_quar_delay == 1)
+
+#saveRDS(res,'data-raw/Fig3.rds')
+
+Fig3B <- res %>%
   filter(self_report == 0.5) %>%
   filter(max_quar_delay == 1) %>%
   filter(sensitivity == 0.65) %>%
@@ -464,17 +471,15 @@ res %>%
   mutate(index_R0 = factor(index_R0)) %>%
   ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$:")) +
-  ggplot2::theme(legend.position = "bottom") +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   geom_line() +
   geom_point() +
   facet_grid(test_delay ~ precaution) +
-  ggtitle('Self-reporting is 50%, sensitivity is 65%,\ntrace delay is 1') +
-  ylab('Prob. large outbreak') +
-  xlab('Contact tracing coverage') +
+  theme_minimal(base_size = 18) +
+  ggplot2::theme(legend.position = "bottom") +
+  labs(tag="B",x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.3))
 
-res %>%
+Fig3A <- res %>%
   filter(self_report == 0.5) %>%
   filter(max_quar_delay == 1) %>%
   filter(index_R0 == 1.3) %>%
@@ -483,29 +488,28 @@ res %>%
   mutate(sensitivity = factor(sensitivity, labels = c('No testing','65%','95%'))) %>%
   ggplot(aes(control_effectiveness, 1 - pext, colour = sensitivity)) +
   ggplot2::scale_colour_manual(values = cbPalette[c(1,3,6)],name="Test sensitivity:") +
-  ggplot2::theme(legend.position = "bottom") +
   geom_line() +
   geom_point() +
   facet_grid(test_delay ~ precaution) +
-  labs(title = TeX('\\textbf{Self-reporting is 50%, trace delay is 1,}'), subtitle = TeX('\\textbf{$\\R_s$ is $1.3$}')) +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ylab('Prob. large outbreak') +
-  xlab('Contact tracing coverage') +
+  theme_minimal(base_size = 18) +
+  ggplot2::theme(legend.position = "bottom") +
+  labs(tag="A",x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.17))
 
+Fig3A + Fig3B
 
-#+ by_size, eval = TRUE, cache = TRUE, fig.height = 5, fig.width = 9
+# Manipulate data for further plots
 
 res2 <- list()
 week_range <- 40:42
 
-res <- res %>%
+sweep_results <- sweep_results %>%
   filter(self_report == 0.5,
          test_delay == 2)
 
-for(i in seq_len(nrow(res))){
+for(i in seq_len(nrow(sweep_results))){
   #print(i)
-  tmp <- res$sims[i][[1]]
+  tmp <- sweep_results$sims[i][[1]]
   tmp <-
     tmp %>%
     dplyr::group_by(sim) %>% # group by simulation run
@@ -523,30 +527,15 @@ for(i in seq_len(nrow(res))){
     dplyr::ungroup()
   tmp <-
     tmp %>%
-    mutate(index_R0 = res$index_R0[i],
-           control_effectiveness = res$control_effectiveness[i],
-           max_quar_delay = res$max_quar_delay[i],
-           precaution = res$precaution[i],
-           sensitivity = res$sensitivity[i])
+    mutate(index_R0 = sweep_results$index_R0[i],
+           control_effectiveness = sweep_results$control_effectiveness[i],
+           max_quar_delay = sweep_results$max_quar_delay[i],
+           precaution = sweep_results$precaution[i],
+           sensitivity = sweep_results$sensitivity[i])
 
   res2[[i]] <- tmp
 }
 res2 <- do.call(rbind, res2)
-
-
-
-#+ plots_by_size2, eval = TRUE, cache= FALSE
-
-# Cumulation is *the number of runs, with that many total, that went extinct*.
-# At cumulative size = 4,
-#   cumulation is 0 (everything has more than 4 total cases)
-#   so p(outbreak) is total outbreaks / total runs
-
-# at cumulative size = 10
-#   cumulation is +ve (say 100)
-#   So 100 runs reached 10 but still went extinct.
-#   Therefore 1900 runs carried on.
-#   so p(outbreak) is (total outbreaks) / (total runs - cumulation)
 
 # we want:
 # total outbreaks / n
@@ -574,80 +563,28 @@ total_cumulative_distr <- do.call(rbind, total_cumulative_distr$res) %>%
   mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 days'))) %>%
   filter(outbreaks != 0)
 
+# Fig 5A
+
 T1 <- total_cumulative_distr %>% filter(sensitivity=="65% sensitive") %>%
   filter(precaution=="7 days")
-ggplot(T1,
+
+saveRDS(T1,'data-raw/Fig5A.rds')
+
+Fig5A <- ggplot(T1,
          aes(total, poutbreak, colour = factor(control_effectiveness), group = factor(control_effectiveness))) +
     geom_line() +
     facet_grid(max_quar_delay ~ index_R0) +
     scale_colour_manual(values = cbPalette) +
     ylab('Prob. large outbreak') +
     guides(colour=guide_legend(title="Prop. Traced")) +
-    ggtitle('Prob. of outbreak with total cases so far') +
-    ggplot2::theme(legend.position = "bottom") +
-    theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+    theme_minimal(base_size = 18) +
+    ggplot2::theme(legend.position = "top") +
+    labs(tag="A",x='total cases so far',y="Prob. large outbreak") +
     xlim(c(0,1000)) +
     ylim(c(0,1))
 
-#+ plots_by_max_weekly, cache = FALSE
 
-total_cumulative_distr <-
-  res2 %>%
-  group_by(index_R0, control_effectiveness, max_quar_delay, precaution, sensitivity) %>%
-  do(res = tibble(cumdistr = sum(.$extinct) * ecdf(.$max_weekly[.$extinct == 1])(1:max(.$max_weekly)),
-                  max_max_weekly = max(.$max_weekly),
-                  max_weekly = 1:max(.$max_weekly),
-                  extinct = sum(.$extinct),
-                  outbreaks = nrow(.) - sum(.$extinct),
-                  max_quar_delay = .$max_quar_delay[1],
-                  runs = nrow(.),
-                  index_R0 = .$index_R0[1],
-                  precaution = .$precaution[1],
-                  sensitivity = .$sensitivity[1],
-                  control_effectiveness = .$control_effectiveness[1],
-                  poutbreak = (outbreaks) / (runs - cumdistr)))
-
-
-total_cumulative_distr <-
-  do.call(rbind, total_cumulative_distr$res) %>%
-  filter(poutbreak < 1) %>%
-  filter(index_R0 != 1.1) %>%
-  mutate(index_R0 = factor(index_R0, labels = c('R0 = 1.3','1.5'))) %>%
-  mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 day trace delay'))) %>%
-  mutate(precaution = factor(precaution, labels = c('immediate release', '7 days'))) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('No testing','65% sensitive','95%')))
-
-T1 <- total_cumulative_distr %>% filter(sensitivity=="65% sensitive") %>%
-  filter(precaution=="7 days")
-
-ggplot(T1,
-       aes(max_weekly, poutbreak, colour = factor(control_effectiveness), group = factor(control_effectiveness))) +
-  geom_line() +
-  facet_grid(max_quar_delay ~ index_R0, scale = 'free_x') +
-  scale_colour_manual(values = cbPalette) +
-  ylab('Prob. large outbreak') +
-  xlab('weekly cases') +
-  guides(colour=guide_legend(title="Prop. Traced")) +
-  ggtitle('Prob. of outbreak with size of worst week') +
-  ggplot2::theme(legend.position = "bottom") +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  xlim(c(0,150))
-
-
-# Histogram of how long it takes to reach 500 cases (weeks)
-# Doesn't matter which variables you look at, looks like roughly the same distribution of times
-res2 %>%
-  filter(control_effectiveness == "0.6") %>%
-  filter(sensitivity==0.65) %>%
-  filter(index_R0 == 1.5) %>%
-  ggplot(aes(time_to_size)) + geom_histogram(aes(y=..density..),breaks=1:30,
-                                                 na.rm=T, colour=cbPalette[2],fill=cbPalette[2]) +
-  facet_grid(precaution ~ max_quar_delay) +
-  scale_colour_manual(values = cbPalette) +
-  ggtitle('Time to reach 500 cases') +
-  xlab('Time (weeks)')
-
-# Plot showing risk of different outbreak sizes occurring
+# Fig 6: Plot showing risk of different outbreak sizes occurring
 
 res3 <- res2 %>% filter(sensitivity==0.65) %>%
   #filter(max_quar_delay==1) %>%
@@ -664,48 +601,62 @@ res3 <- res3 %>% group_by(control_effectiveness, index_R0,x,max_quar_delay) %>%
   mutate(y=max(y)) %>%
   ungroup()
 
-res3 %>% mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
+saveRDS(res3,'Fig6.rds')
+
+Fig6 <- res3 %>% mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
     mutate(control_effectiveness = factor(control_effectiveness, labels=c("Prop. traced 40%","60%","80%","100%"))) %>%
     mutate(max_quar_delay = factor(max_quar_delay, labels=c("1 day trace delay","4 days"))) %>%
-  ggplot(aes(x,y,colour=index_R0)) + geom_line() +
+  ggplot(aes(x,y,colour=index_R0)) + geom_line(size=1.2) +
   scale_colour_manual(values = cbPalette[c(4,2,7)]) +
   facet_grid(max_quar_delay ~ control_effectiveness) +
-  xlim(c(5,2000)) + ylim(c(0,0.5)) +
+  xlim(c(5,800)) + ylim(c(0,0.5)) +
   #scale_x_continuous(breaks=c(5,500,1000)) +
+  theme_minimal(base_size = 18) +
   ggplot2::theme(legend.position = "bottom") +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   xlab('outbreak size, X') +
   ylab('risk of outbreak larger than X') +
-  ggtitle('Risk of outbreak exceeding size X, by tracing coverage and speed') +
   geom_abline(intercept=0.05,slope=0,colour=cbPalette[1],linetype=2)
 
+Fig6
 
-# boxplots for 100% contact tracing
-res_trace <- res %>% group_by(scenario) %>%
-  mutate(trace_stats = list(trace_outs(sims[[1]]))) %>%
-  ungroup()
+ggsave('data-raw/Fig6.pdf')
+ggsave('data-raw/Fig6.svg')
 
-res4 <- res_trace %>% dplyr::filter(control_effectiveness == 1) %>%
-  dplyr::filter(self_report == 0.5) %>%
-  dplyr::filter(max_quar_delay == 1) %>%
-  dplyr::filter(precaution == 7) %>%
-  dplyr::filter(test_delay == 2) %>%
-  dplyr::filter(sensitivity != 0) %>%
-  dplyr::mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
-  dplyr::mutate(sensitivity = factor(sensitivity, labels=c("65% sensitive","95%")))
+#################################################################
+# Getting numbers for paper
+#################################################################
 
-res4 <- res4 %>% unnest(trace_stats)
+Rs <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                           control_effectiveness==0.8) %>% .$index_R0
+tactic <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                                 control_effectiveness==0.8) %>% .$precaution
+testdelays <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                                 control_effectiveness==0.8) %>% .$test_delay
+probOutb <- 1-(sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                                         control_effectiveness==0.8) %>% .$pext)
+data.frame(Rs,tactic,testdelays,probOutb)
 
-res4 %>% filter(cases>=20) %>%
-  mutate(precaution = factor(precaution,labels=" ")) %>%
-  ggplot(aes(index_R0,positive/cases,fill=index_R0)) + geom_boxplot() +
-  scale_fill_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
-  facet_grid(precaution ~ sensitivity) +
-  ylab('proportion cases detected') +
-  xlab(TeX("Index $\\R_s$")) +
-  ggplot2::theme(legend.position = "bottom") +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ggtitle('100% of contacts traced and tested')
+Rs <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                                 control_effectiveness==0.8 & precaution==7) %>% .$index_R0
+testdelays <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                                         control_effectiveness==0.8 & precaution==7) %>% .$test_delay
+probOutb <- 1-(sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
+                                          control_effectiveness==0.8 & precaution==7) %>% .$pext)
+data.frame(Rs,testdelays,probOutb)
+
+
+temp <- res3 %>% filter(index_R0==1.5,control_effectiveness==1,max_quar_delay==1,precaution==7,sensitivity==0.65)
+temp$index_R0 <- c()
+temp$control_effectiveness <- c()
+temp$max_quar_delay <- c()
+temp$precaution <- c()
+temp$sensitivity <- c()
+
+#################################################################
+# END OF RELEVANT PLOTTING
+#################################################################
+
+
 
 # plots looking at number traced versus proportion traced
 
@@ -786,4 +737,49 @@ g_case <- res5 %>%
 #   facet_grid(index_R0 ~ max_quar_delay) +
 #   scale_y_log10()
 
+#+ plots3
 
+testRes <- sweep_results %>%
+  dplyr::group_by(scenario) %>%
+  dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
+  dplyr::ungroup()
+
+# Histogram of how long it takes to reach 500 cases (weeks)
+# Doesn't matter which variables you look at, looks like roughly the same distribution of times
+res2 %>%
+  filter(control_effectiveness == "0.6") %>%
+  filter(sensitivity==0.65) %>%
+  filter(index_R0 == 1.5) %>%
+  ggplot(aes(time_to_size)) + geom_histogram(aes(y=..density..),breaks=1:30,
+                                             na.rm=T, colour=cbPalette[2],fill=cbPalette[2]) +
+  facet_grid(precaution ~ max_quar_delay) +
+  scale_colour_manual(values = cbPalette) +
+  ggtitle('Time to reach 500 cases') +
+  xlab('Time (weeks)')
+
+# boxplots for 100% contact tracing
+res_trace <- res %>% group_by(scenario) %>%
+  mutate(trace_stats = list(trace_outs(sims[[1]]))) %>%
+  ungroup()
+
+res4 <- res_trace %>% dplyr::filter(control_effectiveness == 1) %>%
+  dplyr::filter(self_report == 0.5) %>%
+  dplyr::filter(max_quar_delay == 1) %>%
+  dplyr::filter(precaution == 7) %>%
+  dplyr::filter(test_delay == 2) %>%
+  dplyr::filter(sensitivity != 0) %>%
+  dplyr::mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
+  dplyr::mutate(sensitivity = factor(sensitivity, labels=c("65% sensitive","95%")))
+
+res4 <- res4 %>% unnest(trace_stats)
+
+res4 %>% filter(cases>=20) %>%
+  mutate(precaution = factor(precaution,labels=" ")) %>%
+  ggplot(aes(index_R0,positive/cases,fill=index_R0)) + geom_boxplot() +
+  scale_fill_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
+  facet_grid(precaution ~ sensitivity) +
+  ylab('proportion cases detected') +
+  xlab(TeX("Index $\\R_s$")) +
+  ggplot2::theme(legend.position = "bottom") +
+  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+  ggtitle('100% of contacts traced and tested')
