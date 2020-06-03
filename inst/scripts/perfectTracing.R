@@ -28,23 +28,24 @@ res <- res %>% dplyr::filter(control_effectiveness == 1) %>%
   dplyr::filter(precaution == 7) %>%
   dplyr::filter(test_delay == 2) %>%
   dplyr::filter(sensitivity != 0) %>%
+  dplyr::filter(self_report != 0.1) %>%
   dplyr::mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
   dplyr::mutate(sensitivity = factor(sensitivity, labels=c("65% sensitive","95%")))  %>%
-  dplyr::mutate(self_report = factor(self_report, labels=c("10% self reporting","50%","100%")))
+  dplyr::mutate(self_report = factor(self_report, labels=c("50% self reporting","100%")))
 
-res <- res %>% unnest(trace_stats)
+res <- res %>% unnest(trace_stats) %>%
 
-res %>% filter(cases>=20) %>%
+
+g <- res %>% filter(cases>=20) %>%
   mutate(precaution = factor(precaution,labels=" ")) %>%
   ggplot(aes(index_R0,positive/cases,fill=index_R0,colour=index_R0)) + geom_boxplot(alpha=0.2) +
   scale_fill_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
   scale_colour_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
   facet_grid(sensitivity ~ self_report) +
-  ylab('proportion cases detected') +
-  xlab(TeX("Index $\\R_s$")) +
-  ggplot2::theme(legend.position = "bottom") +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ggtitle('100% of contacts traced and tested')
+  ggplot2::labs(tag = "B",
+                x = TeX("Index $\\R_s$"),
+                y = 'proportion cases detected') +
+  theme_minimal(base_size=18)
 
 
 ################################################
