@@ -25,14 +25,14 @@ sweep_results <- sweep_results %>%
   mutate(sensitivity = factor(sensitivity,labels="65% sensitive")) %>%
   mutate(iso_adhere = factor(iso_adhere))
 
-sweep_results %>% ggplot(aes(x=control_effectiveness,y=1-pext,linetype=iso_scenario,colour=index_R0)) +
+sweep_results %>% ggplot(aes(x=control_effectiveness*100,y=1-pext,linetype=iso_scenario,colour=index_R0)) +
   geom_line() +
   geom_point() +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
   ggplot2::scale_linetype_manual(values = c(2,1),name=TeX("Scenario")) +
   ylim(c(0,1)) +
-  xlab('Proportion of contacts traced given a case is compliant to tracing') +
-  theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
+  xlab('Average % contacts traced') +
+  theme_cowplot(font_size=16) +
   ylab('Prob. of a large outbreak')
 
 sweep_results %>% ggplot(aes(x=control_effectiveness,y=1-pext,colour=index_R0)) +
