@@ -19,6 +19,7 @@
 #' delayfn <- dist_setup(delay_shape, delay_scale)
 #' outbreak_setup(num.initial.cases = 5,incfn,delayfn,k=1.95,prop.asym=0)
 #'}
+
 outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity,
                            precaution, test_delay, self_report, testing, iso_adhere) {
 

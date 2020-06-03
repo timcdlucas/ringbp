@@ -370,16 +370,10 @@ sweep_results <- sweep_results %>%
 
 # Fig 4 - Time tested post-exposure
 
-<<<<<<< HEAD
-#+ plotsS, eval = TRUE, cache = FALSE, fig.height = 5, fig.width = 9
-
 # A colour-blind-friendly palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-res1 <- res %>%
-=======
 res1 <- sweep_results %>%
->>>>>>> df7dc743aa84bba2be6f1807c30822e0b7fd247f
   filter(self_report == 0.5) %>%
   filter(precaution == 7) %>%
   filter(sensitivity == 0.65) %>%
