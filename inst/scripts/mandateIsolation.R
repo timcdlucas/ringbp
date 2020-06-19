@@ -37,6 +37,7 @@ library(furrr)
 library(sn)
 library(ggrepel)
 library(testthat)
+library(patchwork)
 
 devtools::load_all()
 
@@ -112,6 +113,7 @@ if(!exists('sweept_results1')){
 }
 
 sweep_results <- sweep_results1
+rm(sweep_results1)
 # 
 # sweep_results <- rbind(sweep_results1,sweep_results2)
 # 
@@ -140,74 +142,104 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2",
 
 #sweep_results <- readRDS("data-raw/res_20200529_iso.rds")
 
+# 
+# sweep_results %>% 
+#   ggplot(aes(iso_adhere, 1 - pext, colour = control_effectiveness, group = control_effectiveness * contact_adhere)) + 
+#     geom_line() +
+#     facet_wrap( ~ index_R0) 
+# 
+# 
+# sweep_results %>% 
+#   ggplot(aes(self_report, 1 - pext, colour = control_effectiveness, group = control_effectiveness * contact_adhere)) + 
+#   geom_line() +
+#   facet_wrap( ~ index_R0) 
+# 
+# 
+# 
+# sweep_results %>% 
+#   ggplot(aes(self_report, 1 - pext, shape = factor(control_effectiveness), 
+#              group = control_effectiveness * contact_adhere,
+#              colour = contact_adhere)) + 
+#   geom_line() +
+#   geom_point() +
+#   facet_wrap( ~ index_R0) +
+#   ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
+# 
+# 
+# 
+# 
+# sweep_results %>% 
+#   ggplot(aes(iso_adhere, 1 - pext, shape = factor(control_effectiveness), 
+#              group = control_effectiveness * contact_adhere,
+#              colour = contact_adhere)) + 
+#   geom_line() +
+#   geom_point() +
+#   facet_wrap( ~ index_R0) +
+#   ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
+# 
+# 
+# 
+# sweep_results %>% 
+#   filter(contact_adhere == 0.9) %>% 
+#   ggplot(aes(iso_adhere, 1 - pext, colour = factor(control_effectiveness), 
+#              group = control_effectiveness)) + 
+#   geom_line() +
+#   geom_point() +
+#   facet_wrap( ~ index_R0) +
+#   ylab('risk of large outbreak') +
+#   ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
+# 
+# 
+# 
+# sweep_results %>% 
+#   ggplot(aes(self_report, 1 - pext, colour = factor(control_effectiveness), 
+#              group = control_effectiveness)) + 
+#   geom_line() +
+#   geom_point() +
+#   facet_wrap( ~ index_R0) +
+#   ylab('risk of large outbreak') +
+#   ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
+# 
+
 
 sweep_results %>% 
-  ggplot(aes(iso_adhere, 1 - pext, colour = control_effectiveness, group = control_effectiveness * contact_adhere)) + 
-    geom_line() +
-    facet_wrap( ~ index_R0) 
-
-
-sweep_results %>% 
-  ggplot(aes(self_report, 1 - pext, colour = control_effectiveness, group = control_effectiveness * contact_adhere)) + 
-  geom_line() +
-  facet_wrap( ~ index_R0) 
-
-
-
-sweep_results %>% 
-  ggplot(aes(self_report, 1 - pext, shape = factor(control_effectiveness), 
-             group = control_effectiveness * contact_adhere,
-             colour = contact_adhere)) + 
-  geom_line() +
-  geom_point() +
-  facet_wrap( ~ index_R0) +
-  ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
-
-
-
-
-sweep_results %>% 
-  ggplot(aes(iso_adhere, 1 - pext, shape = factor(control_effectiveness), 
-             group = control_effectiveness * contact_adhere,
-             colour = contact_adhere)) + 
-  geom_line() +
-  geom_point() +
-  facet_wrap( ~ index_R0) +
-  ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
-
-
-
-sweep_results %>% 
-  filter(contact_adhere == 0.9) %>% 
-  ggplot(aes(iso_adhere, 1 - pext, colour = factor(control_effectiveness), 
-             group = control_effectiveness)) + 
-  geom_line() +
-  geom_point() +
-  facet_wrap( ~ index_R0) +
-  ylab('risk of large outbreak') +
-  ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
-
-
-
-sweep_results %>% 
-  filter(contact_adhere == 0.9) %>% 
-  ggplot(aes(self_report, 1 - pext, colour = factor(control_effectiveness), 
-             group = control_effectiveness)) + 
-  geom_line() +
-  geom_point() +
-  facet_wrap( ~ index_R0) +
-  ylab('risk of large outbreak') +
-  ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.')
-
-
-
-sweep_results %>% 
-  filter(contact_adhere == 0.9) %>% 
   ggplot(aes(self_report, iso_adhere, fill = 1 - pext,)) + 
   geom_tile() +
   facet_wrap( ~ index_R0) +
-  ggtitle('Risk of outbreak. Self report and iso adhere are reciprocal.') +
-  scale_fill_viridis_c()
+  scale_fill_viridis_c() +
+  labs(fill = 'Risk')
+
+
+r01 <- 
+sweep_results %>% 
+  filter(index_R0 == 1.1) %>% 
+  ggplot(aes(self_report, iso_adhere, fill = 1 - pext,)) + 
+  geom_tile() +
+  scale_fill_viridis_c() +
+  ggtitle('R0 = 1.1') +
+  labs(fill = 'Risk')
+
+
+r02 <- 
+  sweep_results %>% 
+  filter(index_R0 == 1.3) %>% 
+  ggplot(aes(self_report, iso_adhere, fill = 1 - pext,)) + 
+  geom_tile() +
+  scale_fill_viridis_c() +
+  ggtitle('R0 = 1.3') +
+  labs(fill = 'Risk')
+
+r03 <- 
+  sweep_results %>% 
+  filter(index_R0 == 1.5) %>% 
+  ggplot(aes(self_report, iso_adhere, fill = 1 - pext,)) + 
+  geom_tile() +
+  scale_fill_viridis_c() +
+  ggtitle('R0 = 1.5') +
+  labs(fill = 'Risk')
+
+
+(r01 + r02) / (r03 + plot_spacer())
 
 
 # 
