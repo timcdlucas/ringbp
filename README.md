@@ -55,5 +55,4 @@ I'll get round to adding descriptions of them at somepoint.
 The original repo was used for the analysis that underlies [Feasibility of controlling COVID-19 outbreaks by isolation of cases and contacts](https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(20)30074-7/fulltext)
 
 Our additions have been used for the paper [An imperfect tool: COVID-19 'test & trace' success relies on minimising the impact of false negatives and continuation of physical distancing.](https://www.medrxiv.org/content/10.1101/2020.06.09.20124008v2).
-This paper used the code up to [df7dc743](https://github.com/timcdlucas/ringbp/tree/df7dc743aa84bba2be6f1807c30822e0b7fd247f).
-I don't think I can make a release as this repo is a fork. 
+This paper used the code up to [df7dc743](https://github.com/timcdlucas/ringbp/tree/df7dc743aa84bba2be6f1807c30822e0b7fd247f) or [this release](https://github.com/timcdlucas/ringbp/releases/tag/imperfect_tool_sub1).
