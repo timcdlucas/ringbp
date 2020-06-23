@@ -83,7 +83,7 @@ parameter_sweep <- function(scenarios = NULL, samples = 1,
     dplyr::ungroup() %>%
     ##Randomise the order of scenarios - helps share the load across cores
     dplyr::sample_frac(size = 1, replace = FALSE) %>%
-    dplyr::mutate(sims = furrr::future_map(
+    dplyr::mutate(sims = map(
       data,
       ~ safe_sim_fn(n.sim = samples,
                num.initial.cases = .$num.initial.cases,
@@ -105,10 +105,7 @@ parameter_sweep <- function(scenarios = NULL, samples = 1,
                self_report =.$self_report,
                iso_adhere =.$iso_adhere,
                earlyOut = earlyOut
-      )[[1]],
-      .progress = show_progress,
-      .options = furrr::future_options(scheduling = 1)
-    )) %>%
+      )[[1]])) %>%
     tidyr::unnest(cols = "data")
 
   return(scenario_sims)
