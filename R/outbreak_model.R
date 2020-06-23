@@ -168,8 +168,9 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
 
   # Add effective R0
   weekly_cases <- weekly_cases[, `:=`(effective_r0 = mean(effective_r0_vect,
-                                                          na.rm = TRUE),
-                                      cases_per_gen = list(cases_in_gen_vect))]#,
+                                                          na.rm = TRUE))]#,
+                                      #cases_per_gen = list(cases_in_gen_vect))]#,
+                                      
                                       #timetotest = ifelse(length(timetotest)<1, 0,
                                       #                    c(list(timetotest),rep(0,max_week))))]
 
@@ -178,6 +179,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                                         early_missed = early_missed)]
   }
 
+  
   # return
   return(weekly_cases)
 }
