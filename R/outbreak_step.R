@@ -198,7 +198,7 @@ outbreak_step <- function(case_data, disp.iso,
                                               vect_max(isolated_time+time_to_test,isolated_time+precaution)), #onset + time_to_test # If test is negative
                                             # Leave isolation with some precautionary delay (0-7 days)
                                             # If not tested, they now stay in isolation up to two weeks.
-                                            isolated_time + runif(length(which(prob_samples$test == FALSE)), min_isolation, 14))]
+                                            isolated_time[which(prob_samples$test == FALSE)] + runif(length(which(prob_samples$test == FALSE)), min_isolation, 14))]
 
       prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), #if you were traced but your infector didn't test positive
                    isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced and isolated
