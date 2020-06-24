@@ -108,7 +108,10 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
   # bind output together and add simulation index
   res <- data.table::rbindlist(res)
   res[, sim := rep(1:n.sim, rep(floor(cap_max_days / 7) + 1, n.sim)), ]
-  return(res)
+  
+  sweep_results <- extinct_prob(res)
+  
+  return(sweep_results)
 
   # res1 <- data.table::rbindlist(res[[1]])
   # res1[, sim := rep(1:n.sim, rep(floor(cap_max_days / 7) + 1, n.sim)), ]

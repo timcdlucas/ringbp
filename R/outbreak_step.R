@@ -39,7 +39,7 @@ outbreak_step <- function(case_data, disp.iso,
                           test_delay, sensitivity,
                           precaution, self_report,
                           quarantine, testing,
-                          iso_adhere) {
+                          iso_adhere, min_isolation = 14) {
 
   # Column names used in nonstandard eval.
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
@@ -191,13 +191,14 @@ outbreak_step <- function(case_data, disp.iso,
       prob_samples[, test_result := ifelse(vect_isTRUE(test), # If tested
                                             as.logical(rbinom(length(which(prob_samples$test==T)),1,sensitivity)), # =TRUE if positive, =FALSE if false negative
                                             NA)] # not tested
-
+      # Taking out of isolation would go in here.
       prob_samples[, isolated_end := ifelse(vect_isTRUE(test), # If tested
                                             ifelse(vect_isTRUE(test_result), # If positive
-                                            Inf, # Stay in isolation long enough to not transmit
-                                            vect_max(isolated_time+time_to_test,isolated_time+precaution)), #onset + time_to_test # If test is negative
+                                              Inf, # Stay in isolation long enough to not transmit
+                                              vect_max(isolated_time+time_to_test,isolated_time+precaution)), #onset + time_to_test # If test is negative
                                             # Leave isolation with some precautionary delay (0-7 days)
-                                            Inf)]
+                                            # If not tested, they now stay in isolation up to two weeks.
+                                            isolated_time + runif(length(which(prob_samples$test == FALSE)), min_isolation, 14))]
 
       prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), #if you were traced but your infector didn't test positive
                    isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced and isolated
