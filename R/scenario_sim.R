@@ -76,7 +76,7 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
   }
 
   # Run n.sim number of model runs and put them all together in a big data.frame
-  res <- purrr::map(.x = 1:n.sim, ~ outbreak_model(num.initial.cases = num.initial.cases,
+  res <- furrr::future_map(.x = 1:n.sim, ~ outbreak_model(num.initial.cases = num.initial.cases,
                                              prop.ascertain = prop.ascertain,
                                              cap_max_days = cap_max_days,
                                              cap_cases = cap_cases,

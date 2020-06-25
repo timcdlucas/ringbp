@@ -106,7 +106,7 @@ parameter_sweep <- function(scenarios = NULL, samples = 1,
                iso_adhere =.$iso_adhere,
                earlyOut = earlyOut
       )[[1]])) %>%
-    tidyr::unnest(cols = "data")
+    tidyr::unnest(cols = c("data", "sims"))
 
   return(scenario_sims)
 }
