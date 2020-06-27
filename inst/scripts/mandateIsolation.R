@@ -664,8 +664,8 @@ scenarios4 <- tidyr::expand_grid(
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
   control_effectiveness = seq(0.4, 0.8, 0.1),
-  self_report = 0.9,
-  iso_adhere = seq(0.4, 0.9, 0.1),
+  self_report = seq(0.4, 0.9, 0.1),
+  iso_adhere = 0.9,
   min_isolation = seq(4, 14, 2),
   test_delay = c(2), #time from isolation to test result
   sensitivity = 0.65, #percent of cases detected
