@@ -715,46 +715,6 @@ sweep_results4 <-
   mutate(pext = sims) 
 
 
-# 
-# sweep_results4 %>% 
-#   filter(min_isolation == 14) %>% 
-#   ggplot(aes(sensitivity, self_report, fill = 1 - pext,)) + 
-#   geom_tile() +
-#   facet_grid(control_effectiveness ~ index_R0) +
-#   scale_fill_viridis_c(direction = -1) +
-#   labs(fill = 'Risk')
-# ggsave('inst/plots/heatmapQ4.pdf')
-# 
-# 
-# 
-# sweep_results4 %>% 
-#   filter(min_isolation == 14) %>% 
-#   filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), sensitivity %in% c(0.35, 0.45, 0.55, 0.65)) %>% 
-#   ggplot(aes(control_effectiveness, colour = factor(index_R0), y = 1 - pext)) + 
-#   geom_line() +
-#   facet_grid(self_report ~ sensitivity) 
-# ggsave('inst/plots/ready_reckonerQ41.pdf')
-# 
-
-#   
-# 
-# sweep_results4 %>% 
-#   filter(min_isolation == 14) %>% 
-#   filter(index_R0 == 1.1) %>%
-#   filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), sensitivity %in% c(0.35, 0.45, 0.55, 0.65)) %>% 
-#   mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
-#                               levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
-#   ggplot(aes(control_effectiveness, y = 1 - pext)) + 
-#   geom_line() +
-#   facet_grid(self_report ~ sensitivity) +
-#   ylab('Risk') +
-#   xlab('Control effectiveness') +
-#   scale_x_continuous(breaks = c(0.5, 0.7)) +
-#   ggtitle('Rs = 1.1. Sensitivity vs self report')+
-#   theme(text = element_text(size = 20))
-# ggsave('inst/plots/ready_reckonerQ42.pdf')
-
-
 
 
 
