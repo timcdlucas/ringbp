@@ -48,7 +48,7 @@ set.seed(200529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 1000
+no.samples <- 3000
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
 contact_adhere <- 1
@@ -69,7 +69,7 @@ scenarios1 <- tidyr::expand_grid(
   max_quar_delay = c(1),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 0.8, 0.2),
+  control_effectiveness = seq(0.4, 0.8, 0.1),
   self_report = seq(0.4, 0.9, 0.1),
   iso_adhere = seq(0.4, 0.9, 0.1),
   test_delay = c(2), #time from isolation to test result
@@ -92,7 +92,7 @@ sim_with_params <- purrr::partial(scenario_sim,
                                   disp.com = 0.16,
                                   quarantine = TRUE)
 
-#future::plan("sequential")
+future::plan("multicore")
 
 #+ full_run
 tic()
@@ -125,10 +125,12 @@ rm(sweep_results1)
 # sweep_results$scenario <- 1:nrow(sweep_results)
 # sweep_results$iso_scenario <- c(rep(1,nrow(sweep_results1)),rep(2,nrow(sweep_results1)))
 
-sweep_results <- sweep_results %>%
-  dplyr::group_by(scenario) %>%
-  dplyr::mutate(pext = extinct_prob(sims[[1]], cap_cases = cap_cases, week_range = 40:42)) %>%
-  dplyr::ungroup(scenario)
+
+sweep_results <- 
+  sweep_results %>% 
+  mutate(pext = sims) 
+
+
 
 # #+ writeout
 #saveRDS(sweep_results, file = "data-raw/res_20200529_iso.rds")
@@ -326,7 +328,7 @@ r03 <-
 
 
 
-no.samples <- 1000
+no.samples <- 3000
 
 
 
@@ -346,7 +348,7 @@ scenarios2 <- tidyr::expand_grid(
   max_quar_delay = c(1),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 0.8, 0.2),
+  control_effectiveness = seq(0.4, 0.8, 0.1),
   #control_effectiveness_base = seq(0.4, 0.8, 0.2),
   self_report = seq(0.4, 0.9, 0.1),
   min_isolation = 14,
@@ -512,7 +514,7 @@ ggsave('inst/plots/ready_reckoner1+2_2.pdf')
 
 
 
-no.samples <- 600
+no.samples <- 3000
 
 
 
@@ -643,7 +645,7 @@ ggsave('inst/plots/ready_reckonerQ42.pdf')
 
 
 
-no.samples <- 3000
+no.samples <- 5000
 
 
 
@@ -661,11 +663,11 @@ scenarios4 <- tidyr::expand_grid(
   inf_shift = 3,
   min_quar_delay = 1,
   max_quar_delay = c(1),
-  index_R0 = c(1.1,1.3,1.5),
+  index_R0 = c(1.1),
   prop.asym = c(0.4),
   control_effectiveness = seq(0.4, 0.8, 0.1),
   self_report = seq(0.4, 0.9, 0.1),
-  iso_adhere = 0.9,
+  iso_adhere = 0.6,
   min_isolation = seq(4, 14, 2),
   test_delay = c(2), #time from isolation to test result
   sensitivity = 0.65, #percent of cases detected
@@ -700,11 +702,11 @@ toc()
 
 
 
-saveRDS(sweep_results4, file = "data-raw/res_20200617_iso4.rds")
+saveRDS(sweep_results4, file = "data-raw/res_20200709_iso4.rds")
 
 
 if(!exists('sweept_results4')){
-  sweep_results4 <- readRDS(file = "data-raw/res_20200617_iso4.rds")
+  sweep_results4 <- readRDS(file = "data-raw/res_20200709_iso4.rds")
 }
 
 
@@ -779,20 +781,20 @@ ggsave('inst/plots/ready_reckonerQ31.pdf')
 
 
 sweep_results4 %>% 
-  filter(iso_adhere == 0.9) %>% 
   filter(index_R0 == 1.1) %>%
-  filter(sensitivity == 0.65) %>% 
   filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), min_isolation %in% c(4, 8, 12, 14)) %>% 
   mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
                               levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
+  mutate(min_isolation = factor(ifelse(min_isolation == 4, 'min isolate=4', min_isolation), 
+                              levels = c('min isolate=4', "8", "12", "14"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext)) + 
-  geom_line() +
-  facet_grid(self_report ~ min_isolation) +
-  ylab('Risk') +
-  xlab('Control effectiveness') +
-  scale_x_continuous(breaks = c(0.5, 0.7)) +
-  ggtitle('Rs = 1.1. Isolate length (d) vs self report')+
-  theme(text = element_text(size = 20))
+    geom_line() +
+    facet_grid(self_report ~ min_isolation) +
+    ylab('Risk') +
+    xlab('Control effectiveness') +
+    scale_x_continuous(breaks = c(0.5, 0.7)) +
+    ggtitle('Rs = 1.1. Isolate length (d) vs self report')+
+    theme(text = element_text(size = 20))
 ggsave('inst/plots/ready_reckonerQ32.pdf')
 
 
