@@ -352,6 +352,7 @@ scenarios2 <- tidyr::expand_grid(
   #control_effectiveness_base = seq(0.4, 0.8, 0.2),
   self_report = seq(0.4, 0.9, 0.1),
   min_isolation = 14,
+  max_isolation = 14,
   iso_adhere = seq(0.4, 0.9, 0.1),
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
@@ -573,7 +574,7 @@ toc()
 saveRDS(sweep_results4a, file = "data-raw/res_20200617_iso4a.rds")
 
 
-if(!exists('sweept_results4')){
+if(!exists('sweept_results4a')){
   sweep_results4a <- readRDS(file = "data-raw/res_20200617_iso4a.rds")
 }
 
@@ -665,16 +666,19 @@ scenarios4 <- tidyr::expand_grid(
   max_quar_delay = c(1),
   index_R0 = c(1.1),
   prop.asym = c(0.4),
+  #control_effectiveness = seq(0.4, 0.8, 0.1),
   control_effectiveness = seq(0.4, 0.8, 0.1),
-  self_report = seq(0.4, 0.9, 0.1),
+  self_report = seq(0.4, 0.9, 0.2),
   iso_adhere = 0.6,
-  min_isolation = seq(4, 14, 2),
+  max_isolation = c(7, 14),
+  min_isolation = c(1, 4, 7, 14),
   test_delay = c(2), #time from isolation to test result
   sensitivity = 0.65, #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(20)) %>%
   tidyr::unnest("delay_group") %>%
-  dplyr::mutate(scenario = 1:dplyr::n())
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(min_isolation <= max_isolation)
 
 
 cap_cases <- 2000
@@ -731,7 +735,6 @@ ggsave('inst/plots/heatmapQ3.pdf')
 
 
 sweep_results4 %>% 
-  filter(iso_adhere == 0.9) %>% 
   filter(sensitivity == 0.65) %>% 
   filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), min_isolation %in% c(4, 8, 12, 14)) %>% 
   ggplot(aes(control_effectiveness, colour = factor(index_R0), y = 1 - pext)) + 
@@ -742,20 +745,140 @@ ggsave('inst/plots/ready_reckonerQ31.pdf')
 
 sweep_results4 %>% 
   filter(index_R0 == 1.1) %>%
-  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), min_isolation %in% c(4, 8, 12, 14)) %>% 
+  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
   mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
                               levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
-  mutate(min_isolation = factor(ifelse(min_isolation == 4, 'min isolate=4', min_isolation), 
-                              levels = c('min isolate=4', "8", "12", "14"))) %>% 
-  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
+  mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolate=1', min_isolation), 
+                              levels = c('min isolate=1', "4", "7", "14"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
     geom_line() +
     facet_grid(self_report ~ min_isolation) +
     ylab('Risk') +
     xlab('Control effectiveness') +
     scale_x_continuous(breaks = c(0.5, 0.7)) +
+    labs(colour = 'Max isolation') +
     ggtitle('Rs = 1.1. Isolate length (d) vs self report')+
     theme(text = element_text(size = 20))
 ggsave('inst/plots/ready_reckonerQ32.pdf')
+
+
+
+
+
+
+
+
+
+
+
+no.samples <- 5000
+
+
+
+scenarios5 <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.9),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = c(1),
+  index_R0 = c(1.1),
+  prop.asym = c(0.4),
+  control_effectiveness = seq(0.4, 0.8, 0.1),
+  self_report = seq(0.4, 0.9, 0.1),
+  iso_adhere = 0.6,
+  min_isolation = seq(4, 14, 2),
+  test_delay = c(2), #time from isolation to test result
+  sensitivity = 0.65, #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(20)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n())
+
+scenarios5$control_effectivenessraw <- scenarios5$control_effectiveness
+scenarios5$control_effectiveness <- scenarios5$self_report * scenarios5$control_effectiveness
+
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+future::plan("multicore")
+
+#+ full_run
+tic()
+## Run parameter sweep
+sweep_results5 <- ringbp::parameter_sweep(scenarios5,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = FALSE,
+                                          earlyOut = FALSE)
+toc()
+
+
+
+saveRDS(sweep_results5, file = "data-raw/res_20200709_iso5.rds")
+
+
+if(!exists('sweept_results5')){
+  sweep_results5 <- readRDS(file = "data-raw/res_20200709_iso5.rds")
+}
+
+
+sweep_results5 <- 
+  sweep_results5 %>% 
+  mutate(pext = sims) 
+
+
+
+
+dd2 <- 
+  sweep_results4 %>% 
+  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
+  mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
+                              levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
+  filter(min_isolation %in% c(4, 8, 12, 14)) %>% 
+  mutate(min_isolation = factor(ifelse(min_isolation == 4, 'min isolate=4', min_isolation), 
+                                levels = c('min isolate=4', "8", "12", "14"))) %>% 
+  filter(index_R0 == 1.1) %>% 
+  mutate(contact_share = 'fixed') %>% 
+  mutate(control_effectivenessraw = control_effectiveness) %>% 
+  select(pext, self_report, min_isolation, control_effectivenessraw, contact_share)
+
+sweep_results5 %>% 
+  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
+  mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
+                              levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
+  filter(min_isolation %in% c(4, 8, 12, 14)) %>% 
+  mutate(min_isolation = factor(ifelse(min_isolation == 4, 'min isolate=4', min_isolation), 
+                                levels = c('min isolate=4', "8", "12", "14"))) %>% 
+  filter(index_R0 == 1.1) %>% 
+  mutate(contact_share = 'varies') %>% 
+  select(pext, self_report, min_isolation, control_effectivenessraw, contact_share) %>% 
+  rbind(dd2) %>% 
+  ggplot(aes(control_effectivenessraw, y = 1 - pext, colour = contact_share)) + 
+  geom_line() +
+  facet_grid(self_report ~ min_isolation) +
+  ylab('Risk') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  ggtitle('Rs = 1.1')+
+  theme(text = element_text(size = 20))
+ggsave('inst/plots/ready_reckoner4+5_2.pdf')
 
 
 
