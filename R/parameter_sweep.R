@@ -104,6 +104,8 @@ parameter_sweep <- function(scenarios = NULL, samples = 1,
                precaution =.$precaution,
                self_report =.$self_report,
                iso_adhere =.$iso_adhere,
+               min_isolation = .$min_isolation,
+               max_isolation = .$max_isolation,
                earlyOut = earlyOut
       )[[1]])) %>%
     tidyr::unnest(cols = c("data", "sims"))

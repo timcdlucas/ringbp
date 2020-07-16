@@ -67,7 +67,7 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                          inf_shape = NULL, inf_rate = NULL, inf_shift = NULL, num.initial.cases = NULL,
                          min_quar_delay = 1, max_quar_delay = NULL, sensitivity = NULL, precaution = NULL,
                          self_report = NULL, test_delay = NULL, prop.asym = NULL, quarantine = NULL,
-                         earlyOut = NULL, iso_adhere = NULL) {
+                         earlyOut = NULL, iso_adhere = NULL, min_isolation, max_isolation) {
 
   if(sensitivity==0){
     testing = FALSE
@@ -101,6 +101,8 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                                              iso_adhere = iso_adhere,
                                              quarantine = quarantine,
                                              testing = testing,
+                                             min_isolation = min_isolation, 
+                                             max_isolation = max_isolation,
                                              earlyOut = earlyOut))
 
 
@@ -109,7 +111,9 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
   res <- data.table::rbindlist(res)
   res[, sim := rep(1:n.sim, rep(floor(cap_max_days / 7) + 1, n.sim)), ]
   
-  sweep_results <- extinct_prob(res)
+  
+  week_cap <- floor(cap_max_days / 7)
+  sweep_results <- extinct_prob(res, week_range = seq(week_cap - 2, week_cap), cap_cases = cap_cases)
   
   return(sweep_results)
 
