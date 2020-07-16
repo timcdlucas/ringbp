@@ -14,10 +14,19 @@
 #'
 #'\dontrun{
 #' # incubation period sampling function
-#' incfn <- dist_setup(dist_shape = 2.322737,dist_scale = 6.492272)
+#' incfn <- dist_setup(2.322, 6.492, 'weibull')
 #' # delay distribution sampling function
-#' delayfn <- dist_setup(delay_shape, delay_scale)
-#' outbreak_setup(num.initial.cases = 5,incfn,delayfn,k=1.95,prop.asym=0)
+#' delayfn <- dist_setup(2.322, 6.492, 'weibull')
+#' m <- outbreak_setup(num.initial.cases = 5,
+#'                     incfn = incfn,
+#'                     delayfn = delayfn,
+#'                     prop.asym = 0,
+#'                     sensitivity = 0.65,
+#'                     precaution = 1,
+#'                     test_delay = 1, 
+#'                     self_report = 0.3,
+#'                     testing = TRUE,
+#'                     iso_adhere = 0.8)
 #'}
 
 outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensitivity,
