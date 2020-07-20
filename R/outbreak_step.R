@@ -112,7 +112,7 @@ outbreak_step <- function(case_data, disp.iso,
                                       function(x, y) {
                                         rep(x, y)
                                       })),
-    # records if infector was missed
+    # records if infector refused to isolate
     infector_refuse = unlist(purrr::map2(new_case_data$refuse, new_case_data$new_cases,
                                          function(x, y) {
                                            rep(x, y)
