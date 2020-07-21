@@ -177,7 +177,9 @@ outbreak_step <- function(case_data, disp.iso,
                                          TRUE,missed)]
 
   missedSympt <- nrow(prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf),]) # Symptomatic individuals who are missed
-  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] # Report themselves to contact tracing with prob self_report
+  
+  # Report themselves to contact tracing with prob self_report
+  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] 
 
   if(testing==TRUE) {
       prob_samples[, test := ifelse(vect_isTRUE(missed), # & vect_isTRUE(!asym), # If not-traced:
@@ -191,6 +193,9 @@ outbreak_step <- function(case_data, disp.iso,
       prob_samples[, test_result := ifelse(vect_isTRUE(test), # If tested
                                             as.logical(rbinom(length(which(prob_samples$test==T)),1,sensitivity)), # =TRUE if positive, =FALSE if false negative
                                             NA)] # not tested
+      
+      
+      
       # Taking out of isolation would go in here.
       prob_samples[, isolated_end := ifelse(vect_isTRUE(test), # If tested
                                             ifelse(vect_isTRUE(test_result), # If positive
@@ -202,6 +207,9 @@ outbreak_step <- function(case_data, disp.iso,
                                             isolated_time[which(prob_samples$test == FALSE)] + 
                                               runif(sum(prob_samples$test == FALSE, na.rm = TRUE), min_isolation, max_isolation))]
 
+      
+      
+      
       prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), #if you were traced but your infector didn't test positive
                    isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced and isolated
                                           isolated_time+precaution, #then you stay in isolation for time = precaution

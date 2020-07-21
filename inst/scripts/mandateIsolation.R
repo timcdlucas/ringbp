@@ -756,7 +756,7 @@ sweep_results4 %>%
     ylab('Risk') +
     xlab('Control effectiveness') +
     scale_x_continuous(breaks = c(0.5, 0.7)) +
-    labs(colour = 'Max isolation') +
+    labs(colour = 'Max isolate.') +
     ggtitle('Rs = 1.1. Isolate length (d) vs self report')+
     theme(text = element_text(size = 20))
 ggsave('inst/plots/ready_reckonerQ32.pdf')
@@ -879,6 +879,115 @@ sweep_results5 %>%
   ggtitle('Rs = 1.1')+
   theme(text = element_text(size = 20))
 ggsave('inst/plots/ready_reckoner4+5_2.pdf')
+
+
+
+
+
+
+
+
+
+no.samples <- 5000
+
+scenarios1b <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.9),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = c(1),
+  index_R0 = c(1.1),
+  prop.asym = c(0.4),
+  control_effectiveness = seq(0.4, 0.8, 0.1),
+  self_report = seq(0.4, 0.9, 0.1),
+  iso_adhere = seq(0.4, 0.9, 0.1),
+  min_isolation = 7,
+  max_isolation = 7,
+  test_delay = c(2), #time from isolation to test result
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(20)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n())
+
+dim(scenarios1b)
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+future::plan("multicore")
+
+#+ full_run
+tic()
+## Run parameter sweep
+sweep_results1b <- ringbp::parameter_sweep(scenarios1b,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = TRUE,
+                                          earlyOut = FALSE)
+toc()
+
+
+
+saveRDS(sweep_results1b, file = "data-raw/res_20200717_iso.rds")
+
+if(!exists('sweept_results1b')){
+  sweep_results1b <- readRDS(file = "data-raw/res_20200717_iso.rds")
+}
+
+
+sweep_results1b <- 
+  sweep_results1b %>% 
+  mutate(pext = sims) 
+
+
+
+dd <- 
+  sweep_results1b %>% 
+  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
+  mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
+                              levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.4, 'isolate=0.4', iso_adhere), 
+                             levels = c('isolate=0.4', "0.5", "0.6", "0.8"))) %>% 
+  filter(index_R0 == 1.1) %>% 
+  select(pext, self_report, iso_adhere, control_effectiveness, max_isolation)
+
+sweep_results %>% 
+  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
+  mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
+                              levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.4, 'isolate=0.4', iso_adhere), 
+                             levels = c('isolate=0.4', "0.5", "0.6", "0.8"))) %>% 
+  filter(index_R0 == 1.1) %>% 
+  mutate(max_isolation = 14) %>% 
+  select(pext, self_report, iso_adhere, control_effectiveness, max_isolation) %>% 
+  rbind(dd) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  geom_line() +
+  facet_grid(self_report ~ iso_adhere) +
+  ylab('Risk') +
+  xlab('Control effectiveness') +
+  labs(colour = 'Max isolate.') +
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  ggtitle('Rs = 1.1')+
+  theme(text = element_text(size = 20))
+ggsave('inst/plots/ready_reckoner1_7-14.pdf')
 
 
 
