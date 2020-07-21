@@ -34,7 +34,7 @@ set.seed(200529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 10
+no.samples <- 1000
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
 contact_adhere <- 1
