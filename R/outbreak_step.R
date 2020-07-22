@@ -39,6 +39,7 @@ outbreak_step <- function(case_data, disp.iso,
                           test_delay, sensitivity,
                           precaution, self_report,
                           quarantine, testing,
+                          asymptomatic_transmission = 0.5,
                           iso_adhere, min_isolation = NULL, max_isolation = NULL) {
 
   # Column names used in nonstandard eval.
@@ -47,13 +48,14 @@ outbreak_step <- function(case_data, disp.iso,
 
   # For each case in case_data, draw new_cases from a negative binomial distribution
   # with an R0 and dispersion dependent on if isolated=TRUE
-  new_cases <- case_data[, new_cases := purrr::map2_dbl(
-    ifelse(vect_isTRUE(isolated), disp.iso, disp.com),
-    ifelse(vect_isTRUE(isolated),
-           r0isolated,
-           r0community),
-    ~ rnbinom(1, size = .x, mu = .y))
-    ]
+  new_cases <- 
+    case_data[, new_cases := purrr::map2_dbl(
+              ifelse(vect_isTRUE(isolated), disp.iso, disp.com),
+              ifelse(vect_isTRUE(isolated),
+                     r0isolated,
+                     r0community),
+              ~ rnbinom(1, size = .x, mu = .y))
+              ]
 
   # Select cases that have generated any new cases
   new_case_data <- case_data[new_cases > 0]
@@ -177,9 +179,7 @@ outbreak_step <- function(case_data, disp.iso,
                                          TRUE,missed)]
 
   missedSympt <- nrow(prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf),]) # Symptomatic individuals who are missed
-  
-  # Report themselves to contact tracing with prob self_report
-  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] 
+  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] # Report themselves to contact tracing with prob self_report
 
   if(testing==TRUE) {
       prob_samples[, test := ifelse(vect_isTRUE(missed), # & vect_isTRUE(!asym), # If not-traced:
