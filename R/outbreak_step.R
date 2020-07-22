@@ -51,11 +51,13 @@ outbreak_step <- function(case_data, disp.iso,
   new_cases <- 
     case_data[, new_cases := purrr::map2_dbl(
               ifelse(vect_isTRUE(isolated), disp.iso, disp.com),
-              ifelse(vect_isTRUE(isolated),
-                     r0isolated,
-                     r0community),
-              ~ rnbinom(1, size = .x, mu = .y))
-              ]
+                ifelse(vect_isTRUE(isolated),
+                       r0isolated,
+                  ifelse(vect_isTRUE(asym),
+                         r0community * asymptomatic_transmission,
+                         r0community)),
+              ~ rnbinom(1, size = .x, mu = .y)
+              )]
 
   # Select cases that have generated any new cases
   new_case_data <- case_data[new_cases > 0]

@@ -67,6 +67,7 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                          inf_shape = NULL, inf_rate = NULL, inf_shift = NULL, num.initial.cases = NULL,
                          min_quar_delay = 1, max_quar_delay = NULL, sensitivity = NULL, precaution = NULL,
                          self_report = NULL, test_delay = NULL, prop.asym = NULL, quarantine = NULL,
+                         asymptomatic_transmission = 0.5, 
                          earlyOut = NULL, iso_adhere = NULL, min_isolation, max_isolation) {
 
   if(sensitivity==0){
@@ -92,6 +93,7 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                                              inf_rate = inf_rate,
                                              inf_shift = inf_shift,
                                              prop.asym = prop.asym,
+                                             asymptomatic_transmission = asymptomatic_transmission,
                                              min_quar_delay = min_quar_delay,
                                              max_quar_delay = max_quar_delay,
                                              test_delay = test_delay,

@@ -55,6 +55,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                            precaution = NULL, self_report = NULL,
                            quarantine = NULL, testing = NULL,
                            earlyOut = NULL, iso_adhere = NULL,
+                           asymptomatic_transmission = 0.5,
                            min_isolation, max_isolation) {
 
   # Set up functions to sample from distributions
@@ -113,6 +114,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                          test_delay = test_delay,
                          self_report = self_report,
                          iso_adhere = iso_adhere,
+                         asymptomatic_transmission = asymptomatic_transmission,
                          min_isolation = min_isolation,
                          max_isolation = max_isolation,
                          testing = testing)
