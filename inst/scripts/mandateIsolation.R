@@ -165,7 +165,7 @@ sweep_results1 %>%
   facet_grid(delay_shape ~ iso_adhere) +
   ylab('Risk') +
   xlab('Control effectiveness') +
-  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  scale_x_continuous(breaks = c(0.3, 0.5, 0.7)) +
   ggtitle('Isolation adherence (probability)') +
   theme(text = element_text(size = 20)) +
   labs(colour = 'Max iso')
@@ -291,7 +291,7 @@ sweep_results2 %>%
   facet_grid(delay_shape ~ min_isolation) +
   ylab('Risk') +
   xlab('Control effectiveness') +
-  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  scale_x_continuous(breaks = c(0.3, 0.5, 0.7)) +
   ggtitle('Isolation adherence (duration)')+
   theme(text = element_text(size = 20)) +
   labs(colour = 'Max iso')
@@ -368,7 +368,7 @@ if(!exists('sweept_results3')){
 
 sweep_results3 <- 
   sweep_results3 %>% 
-  mutate(pext = sims) 
+  mutate(pext = sims)
 
 
 
@@ -383,7 +383,7 @@ sweep_results3 %>%
   facet_grid(control_effectiveness ~ max_isolation) +
   scale_fill_viridis_c() +
   labs(fill = 'Risk') +
-  xlab('Self report') + 
+  xlab('Sensitivity') + 
   ylab('Isolation adherence') +
   theme(text = element_text(size = 20))
 ggsave('inst/plots/heatmap_sensitivity.pdf', width = 6, height = 9)
@@ -391,24 +391,41 @@ ggsave('inst/plots/heatmap_sensitivity.pdf', width = 6, height = 9)
 
 
 
+
 sweep_results3 %>% 
-  filter(index_R0 == 1.1) %>%
-  filter(sensitivity %in% c(0.35, 0.45, 0.55, 0.65), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
-  mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sensitivity=0.65', sensitivity), 
-                              levels = c('sensitivity=0.65', "0.55", "0.45", "0.35"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.4, 'isolate=0.4', iso_adhere), 
-                             levels = c('isolate=0.4', "0.5", "0.6", "0.8"))) %>% 
-  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
+  filter(control_effectiveness != 0) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
+                             levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
+  mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sens. = 0.65', sensitivity), 
+                              levels = c('sens. = 0.65', "0.55", "0.45", "0.35"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
   geom_line() +
-  labs(colour = 'Rs') +
-  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  facet_grid(sensitivity ~ iso_adhere) +
   ylab('Risk') +
   xlab('Control effectiveness') +
-  ggtitle('Rs = 1.1. Sensitivity vs isolation adherence')+
-  facet_grid(sensitivity ~ iso_adhere) +
-  theme(text = element_text(size = 20))
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  ggtitle('Isolation adherence (duration)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max iso')
+ggsave('inst/plots/ready_reckoner_sensitivity.pdf', height = 7, width = 9)
 
-ggsave('inst/plots/ready_reckoner_sensitivity.pdf')
+  
+
+sweep_results3 %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
+                             levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
+  mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sens. = 0.65', sensitivity), 
+                                levels = c('sens. = 0.65', "0.55", "0.45", "0.35"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  geom_line() +
+  facet_grid(sensitivity ~ iso_adhere) +
+  ylab('Risk') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.3, 0.5, 0.7)) +
+  ggtitle('Isolation adherence (duration)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max iso')
+ggsave('inst/plots/ready_reckoner_sensitivity0.pdf', height = 7, width = 9)
 
 
 
