@@ -69,6 +69,7 @@ scenarios1 <- tidyr::expand_grid(
   max_quar_delay = 1,
   index_R0 = c(1.1),
   prop.asym = c(0.5),
+  asymptomatic_transmission = 0.5,
   min_isolation = 14,
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
@@ -120,11 +121,10 @@ sweep_results1 <-
 
 
 sweep_results1 %>% 
-  filter(control_effectiveness %in% c(0.4, 0.5, 0.6, 0.8)) %>%
-  filter(max_isolation == 14) %>% 
+  filter(control_effectiveness %in% c(0.4, 0.5, "0.6", 0.8)) %>%
   mutate(control_effectiveness = 
-           factor(ifelse(control_effectiveness == "0.8", 'control cov. = 0.8', control_effectiveness),
-         levels = c('control cov. = 0.8', '0.6', '0.5', '0.4'))) %>%  
+           factor(ifelse(control_effectiveness == "0.8", 'Control Eff. = 0.8', control_effectiveness),
+         levels = c('Control Eff. = 0.8', '0.6', '0.5', '0.4'))) %>%  
   ggplot(aes(delay_shape, iso_adhere, fill = 1 - pext)) + 
   geom_tile() +
   facet_grid(control_effectiveness ~ max_isolation) +
@@ -133,25 +133,43 @@ sweep_results1 %>%
   xlab('Self report') + 
   ylab('Isolation adherence') +
   theme(text = element_text(size = 20))
-ggsave('inst/plots/heatmap_adhere.pdf')
+ggsave('inst/plots/heatmap_adhere.pdf', width = 6, height = 9)
 
 
 sweep_results1 %>% 
-  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
-  mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
-                              levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.4, 'isolate=0.4', iso_adhere), 
-                             levels = c('isolate=0.4', "0.5", "0.6", "0.8"))) %>% 
-  filter(index_R0 == 1.1) %>%
-  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
+  filter(control_effectiveness != 0) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=0.9', delay_shape), 
+                              levels = c('self rep=0.9', "0.7", "0.5", "0.3"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
+                             levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
   geom_line() +
-  facet_grid(self_report ~ iso_adhere) +
+  facet_grid(delay_shape ~ iso_adhere) +
   ylab('Risk') +
   xlab('Control effectiveness') +
   scale_x_continuous(breaks = c(0.5, 0.7)) +
-  ggtitle('Rs = 1.1')+
-  theme(text = element_text(size = 20))
-ggsave('inst/plots/ready_reckoner_adhere.pdf')
+  ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max iso')
+ggsave('inst/plots/ready_reckoner_adhere.pdf', height = 7, width = 9)
+
+
+
+sweep_results1 %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=0.9', delay_shape), 
+                              levels = c('self rep=0.9', "0.7", "0.5", "0.3"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
+                             levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  geom_line() +
+  facet_grid(delay_shape ~ iso_adhere) +
+  ylab('Risk') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  ggtitle('Isolation adherence (probability)') +
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max iso')
+ggsave('inst/plots/ready_reckoner_adhere0.pdf', height = 7, width = 9)
 
 
 
@@ -172,6 +190,7 @@ scenarios2 <- tidyr::expand_grid(
   max_quar_delay = 1,
   index_R0 = c(1.1),
   prop.asym = c(0.5),
+  asymptomatic_transmission = 0.5,
   min_isolation = c(1, 4, 7, 14),
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
@@ -227,39 +246,56 @@ sweep_results2 <-
 
 
 sweep_results2 %>% 
-  filter(control_effectiveness %in% c(0.4, 0.5, 0.6, 0.8)) %>%
-  filter(max_isolation == 14) %>% 
+  filter(control_effectiveness %in% c("0.4", 0.5, "0.6", 0.8)) %>%
   mutate(control_effectiveness = 
-           factor(ifelse(control_effectiveness == "0.8", 'control cov. = 0.8', control_effectiveness),
-                  levels = c('control cov. = 0.8', '0.6', '0.5', '0.4'))) %>%  
+           factor(ifelse(control_effectiveness == "0.8", 'Control Eff. = 0.8', control_effectiveness),
+                  levels = c('Control Eff. = 0.8', '0.6', '0.5', '0.4'))) %>%  
   ggplot(aes(delay_shape, min_isolation, fill = 1 - pext)) + 
   geom_tile() +
   facet_grid(control_effectiveness ~ max_isolation) +
   scale_fill_viridis_c() +
   labs(fill = 'Risk') +
   xlab('Self report') + 
-  ylab('Isolation duration') +
+  ylab('Isolation adherence') +
   theme(text = element_text(size = 20))
-ggsave('inst/plots/heatmap_duration.pdf')
+ggsave('inst/plots/heatmap_duration.pdf', width = 6, height = 9)
 
 
 
 sweep_results2 %>% 
-  filter(self_report %in% c(0.4, 0.5, "0.6", 0.8), iso_adhere %in% c(0.4, 0.5, "0.6", 0.8)) %>% 
-  mutate(self_report = factor(ifelse(self_report == 0.8, 'self rep=0.8', self_report), 
-                              levels = c('self rep=0.8', "0.6", "0.5", "0.4"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.4, 'isolate=0.4', iso_adhere), 
-                             levels = c('isolate=0.4', "0.5", "0.6", "0.8"))) %>% 
-  ggplot(aes(control_effectivenessraw, colour = factor(index_R0), y = 1 - pext)) + 
+  filter(control_effectiveness != 0) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=0.9', delay_shape), 
+                              levels = c('self rep=0.9', "0.7", "0.5", "0.3"))) %>% 
+  mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
+                             levels = c('min isolation=1', "4", "7", "14"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
   geom_line() +
-  labs(colour = 'Rs') +
-  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  facet_grid(delay_shape ~ min_isolation) +
   ylab('Risk') +
   xlab('Control effectiveness') +
-  facet_grid(self_report ~ iso_adhere) +
-  theme(text = element_text(size = 20))
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  ggtitle('Isolation adherence (duration)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max iso')
+ggsave('inst/plots/ready_reckoner_duration.pdf', height = 7, width = 9)
 
-ggsave('inst/plots/ready_reckoner_duration.pdf')
+
+
+sweep_results2 %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=0.9', delay_shape), 
+                              levels = c('self rep=0.9', "0.7", "0.5", "0.3"))) %>% 
+  mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
+                                levels = c('min isolation=1', "4", "7", "14"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  geom_line() +
+  facet_grid(delay_shape ~ min_isolation) +
+  ylab('Risk') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
+  ggtitle('Isolation adherence (duration)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max iso')
+ggsave('inst/plots/ready_reckoner_duration0.pdf', height = 7, width = 9)
 
 
 
@@ -283,6 +319,7 @@ scenarios3 <- tidyr::expand_grid(
   max_quar_delay = 1,
   index_R0 = c(1.1),
   prop.asym = c(0.5),
+  asymptomatic_transmission = 0.5,
   min_isolation = 14,
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
@@ -337,11 +374,10 @@ sweep_results3 <-
 
 
 sweep_results3 %>% 
-  filter(control_effectiveness %in% c(0.4, 0.5, 0.6, 0.8)) %>%
-  filter(max_isolation == 14) %>% 
+  filter(control_effectiveness %in% c(0.4, 0.5, "0.6", 0.8)) %>%
   mutate(control_effectiveness = 
-           factor(ifelse(control_effectiveness == "0.8", 'control cov. = 0.8', control_effectiveness),
-                  levels = c('control cov. = 0.8', '0.6', '0.5', '0.4'))) %>%  
+           factor(ifelse(control_effectiveness == "0.8", 'Control Eff. = 0.8', control_effectiveness),
+                  levels = c('Control Eff. = 0.8', '0.6', '0.5', '0.4'))) %>%  
   ggplot(aes(sensitivity, iso_adhere, fill = 1 - pext)) + 
   geom_tile() +
   facet_grid(control_effectiveness ~ max_isolation) +
@@ -350,7 +386,7 @@ sweep_results3 %>%
   xlab('Self report') + 
   ylab('Isolation adherence') +
   theme(text = element_text(size = 20))
-ggsave('inst/plots/heatmap_sensitivity.pdf')
+ggsave('inst/plots/heatmap_sensitivity.pdf', width = 6, height = 9)
 
 
 
