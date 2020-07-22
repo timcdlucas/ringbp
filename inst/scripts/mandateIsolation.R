@@ -48,16 +48,15 @@ set.seed(200529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 3000
+no.samples <- 5000
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
-contact_adhere <- 1
 
 scenarios1 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
   delay_group = list(tibble::tibble(
     delay = c("Adherence"),
-    delay_shape = c(0.9),
+    delay_shape = c(0.3, 0.5, 0.7, 0.9),
     delay_scale = 1
   )),
   inc_meanlog = 1.434065,
@@ -67,19 +66,21 @@ scenarios1 <- tidyr::expand_grid(
   inf_shift = 3,
   min_quar_delay = 1,
   max_quar_delay = c(1),
-  index_R0 = c(1.1,1.3,1.5),
+  index_R0 = c(1.1),
   prop.asym = c(0.4),
+  min_isolation = 14,
+  max_isolation = 14,
   control_effectiveness = seq(0.4, 0.8, 0.1),
-  self_report = seq(0.4, 0.9, 0.1),
-  iso_adhere = seq(0.4, 0.9, 0.1),
+  self_report = 1,
+  iso_adhere = c(0.3, 0.5, 0.7, 0.9),
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(20)) %>%
+  num.initial.cases = c(10)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
 
-
+scenarios1 %>% dim
 
 cap_cases <- 2000
 max_days <- 300
@@ -357,7 +358,7 @@ scenarios2 <- tidyr::expand_grid(
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(20)) %>%
+  num.initial.cases = c(10)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
 
@@ -533,7 +534,7 @@ scenarios4a <- tidyr::expand_grid(
   inf_shift = 3,
   min_quar_delay = 1,
   max_quar_delay = c(1),
-  index_R0 = c(1.1,1.3,1.5),
+  index_R0 = c(1.1),
   prop.asym = c(0.4),
   control_effectiveness = c(0.4, 0.5, 0.6, 0.8),
   self_report = 0.9,
@@ -542,10 +543,11 @@ scenarios4a <- tidyr::expand_grid(
   test_delay = c(2), #time from isolation to test result
   sensitivity = seq(0.25, 0.65, 0.1), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(20)) %>%
+  num.initial.cases = c(10)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
 
+scenarios4a %>% dim
 
 cap_cases <- 2000
 max_days <- 300
@@ -675,7 +677,7 @@ scenarios4 <- tidyr::expand_grid(
   test_delay = c(2), #time from isolation to test result
   sensitivity = 0.65, #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(20)) %>%
+  num.initial.cases = c(10)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n()) %>% 
   filter(min_isolation <= max_isolation)
@@ -798,7 +800,7 @@ scenarios5 <- tidyr::expand_grid(
   test_delay = c(2), #time from isolation to test result
   sensitivity = 0.65, #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(20)) %>%
+  num.initial.cases = c(10)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
 
@@ -914,7 +916,7 @@ scenarios1b <- tidyr::expand_grid(
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(20)) %>%
+  num.initial.cases = c(10)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
 
