@@ -2,26 +2,9 @@
 
 
 # Plan:
-#   self isolation against self_report with three different tradeoffs
-#   self isolation against self_report AND contact report with three tradeoffs
-#   self isolation duration and self isolation against self_report with three different tradeoffs
-
-
-
-# self isolation against self_report with three different tradeoffs
-#   If you mandate self_isolation, fewer people will self report
-
-
-# self isolation against self_report AND contact report with three tradeoffs
-#  If you mandate self_isolation, self reporting AND contact reporting will be lower.
-
-
-# self isolation duration and self isolation against self_report with three different tradeoffs
-#   If you don't mandate self isolation, self reporting will be higher. But maybe most people will self_isolate for a week if not two weeks.
-
-
-
-
+#   self isolation against self_report 7 and 14 maxa
+#   self isolation duration and self_report 7 and 14 max
+#   sensitivity against self_isolation
 
 
 
@@ -48,7 +31,7 @@ set.seed(200529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 10
+no.samples <- 200
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
 
@@ -67,10 +50,10 @@ scenarios1 <- tidyr::expand_grid(
   inf_shift = 3,
   min_quar_delay = 1,
   max_quar_delay = 1,
-  index_R0 = c(1.1),
+  index_R0 = c(1.3),
   prop.asym = c(0.5),
   asymptomatic_transmission = 0.5,
-  min_isolation = 14,
+  min_isolation = c(7, 14),
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
   self_report = 1,
@@ -78,9 +61,10 @@ scenarios1 <- tidyr::expand_grid(
   test_delay = c(1), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(10)) %>%
+  num.initial.cases = c(20)) %>%
   tidyr::unnest("delay_group") %>%
-  dplyr::mutate(scenario = 1:dplyr::n())
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(min_isolation == max_isolation)
 
 scenarios1 %>% dim
 
@@ -173,6 +157,9 @@ ggsave('inst/plots/ready_reckoner_adhere0.pdf', height = 7, width = 9)
 
 
 
+
+###########################################################################################
+
 # Alter delay_shape (self reporting) and min isolation. As well as max isolation.
 scenarios2 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
@@ -188,7 +175,7 @@ scenarios2 <- tidyr::expand_grid(
   inf_shift = 3,
   min_quar_delay = 1,
   max_quar_delay = 1,
-  index_R0 = c(1.1),
+  index_R0 = c(1.3),
   prop.asym = c(0.5),
   asymptomatic_transmission = 0.5,
   min_isolation = c(1, 4, 7, 14),
@@ -199,7 +186,7 @@ scenarios2 <- tidyr::expand_grid(
   test_delay = c(1), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(10)) %>%
+  num.initial.cases = c(20)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n()) %>% 
   filter(max_isolation >= min_isolation)
@@ -300,7 +287,7 @@ ggsave('inst/plots/ready_reckoner_duration0.pdf', height = 7, width = 9)
 
 
 
-
+################################################################################################
 
 # vary sensitivity, iso adhere and max isolation.
 scenarios3 <- tidyr::expand_grid(
@@ -317,7 +304,7 @@ scenarios3 <- tidyr::expand_grid(
   inf_shift = 3,
   min_quar_delay = 1,
   max_quar_delay = 1,
-  index_R0 = c(1.1),
+  index_R0 = c(1.3),
   prop.asym = c(0.5),
   asymptomatic_transmission = 0.5,
   min_isolation = 14,
@@ -328,7 +315,7 @@ scenarios3 <- tidyr::expand_grid(
   test_delay = c(1), #time from isolation to test result
   sensitivity = c(0.35, 0.45, 0.55, 0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(10)) %>%
+  num.initial.cases = c(20)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
 
