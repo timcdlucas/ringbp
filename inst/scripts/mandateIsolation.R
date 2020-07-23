@@ -31,7 +31,7 @@ set.seed(200529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 200
+no.samples <- 4000
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
 
@@ -307,7 +307,7 @@ scenarios3 <- tidyr::expand_grid(
   index_R0 = c(1.3),
   prop.asym = c(0.5),
   asymptomatic_transmission = 0.5,
-  min_isolation = 14,
+  min_isolation = c(7, 14),
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
   self_report = 1,
@@ -317,7 +317,8 @@ scenarios3 <- tidyr::expand_grid(
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(20)) %>%
   tidyr::unnest("delay_group") %>%
-  dplyr::mutate(scenario = 1:dplyr::n())
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(max_isolation >= min_isolation)
 
 scenarios3 %>% dim
 
@@ -380,6 +381,7 @@ ggsave('inst/plots/heatmap_sensitivity.pdf', width = 6, height = 9)
 
 
 sweep_results3 %>% 
+  filter(min_isolation == max_isolation) %>% 
   filter(control_effectiveness != 0) %>% 
   mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
                              levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
@@ -399,6 +401,7 @@ ggsave('inst/plots/ready_reckoner_sensitivity.pdf', height = 7, width = 9)
   
 
 sweep_results3 %>% 
+  filter(min_isolation == max_isolation) %>% 
   mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
                              levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sens. = 0.65', sensitivity), 
