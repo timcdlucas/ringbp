@@ -31,7 +31,7 @@ set.seed(200529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 4000
+no.samples <- 15000
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
 
@@ -95,9 +95,8 @@ toc()
 
 saveRDS(sweep_results1, file = "data-raw/res_adhere.rds")
 
-if(!exists('sweept_results1')){
-  sweep_results1 <- readRDS(file = "data-raw/res_adhere.rds")
-}
+#if(!exists('sweep_results1'))  sweep_results1 <- readRDS(file = "data-raw/res_adhere.rds")
+
 
 sweep_results1 <- 
   sweep_results1 %>% 
@@ -156,7 +155,7 @@ sweep_results1 %>%
 ggsave('inst/plots/ready_reckoner_adhere0.pdf', height = 7, width = 9)
 
 
-
+rm(sweep_results1)
 
 ###########################################################################################
 
@@ -221,9 +220,8 @@ toc()
 saveRDS(sweep_results2, file = "data-raw/res_duration.rds")
 
 
-if(!exists('sweept_results2')){
-  sweep_results2 <- readRDS(file = "data-raw/res_duration.rds")
-}
+#if(!exists('sweep_results2'))  sweep_results2 <- readRDS(file = "data-raw/res_duration.rds")
+
 
 
 sweep_results2 <- 
@@ -285,7 +283,7 @@ sweep_results2 %>%
 ggsave('inst/plots/ready_reckoner_duration0.pdf', height = 7, width = 9)
 
 
-
+rm(sweep_results2)
 
 ################################################################################################
 
@@ -349,9 +347,8 @@ toc()
 saveRDS(sweep_results3, file = "data-raw/res_sensitivity.rds")
 
 
-if(!exists('sweept_results3')){
-  sweep_results3 <- readRDS(file = "data-raw/res_sensitivity.rds")
-}
+#if(!exists('sweep_results3'))  sweep_results3 <- readRDS(file = "data-raw/res_sensitivity.rds")
+
 
 
 sweep_results3 <- 
@@ -393,7 +390,7 @@ sweep_results3 %>%
   ylab('Risk') +
   xlab('Control effectiveness') +
   scale_x_continuous(breaks = c(0.5, 0.7)) +
-  ggtitle('Isolation adherence (duration)')+
+  ggtitle('Sensitivity')+
   theme(text = element_text(size = 20)) +
   labs(colour = 'Max iso')
 ggsave('inst/plots/ready_reckoner_sensitivity.pdf', height = 7, width = 9)
@@ -412,7 +409,7 @@ sweep_results3 %>%
   ylab('Risk') +
   xlab('Control effectiveness') +
   scale_x_continuous(breaks = c(0.3, 0.5, 0.7)) +
-  ggtitle('Isolation adherence (duration)')+
+  ggtitle('Sensitivity')+
   theme(text = element_text(size = 20)) +
   labs(colour = 'Max iso')
 ggsave('inst/plots/ready_reckoner_sensitivity0.pdf', height = 7, width = 9)
