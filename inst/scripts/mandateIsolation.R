@@ -402,13 +402,13 @@ sweep_results3 %>%
   mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
                              levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sens. = 0.65', sensitivity), 
-                                levels = c('sens. = 0.65', "0.55", "0.45", "0.35"))) %>% 
+                              levels = c('sens. = 0.65', "0.55", "0.45", "0.35"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
   geom_line() +
   facet_grid(sensitivity ~ iso_adhere) +
   ylab('Risk') +
   xlab('Control effectiveness') +
-  scale_x_continuous(breaks = c(0.3, 0.5, 0.7)) +
+  scale_x_continuous(breaks = c(0.5, 0.7)) +
   ggtitle('Sensitivity')+
   theme(text = element_text(size = 20)) +
   labs(colour = 'Max iso')
