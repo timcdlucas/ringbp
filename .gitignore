@@ -18,3 +18,4 @@ inst/plots/*.png
 data-raw/*.rds
 .DS_Store
 .zip
+Fig6.rds
