@@ -30,8 +30,8 @@ Fig4A <- ggplot(sims, aes(early_missed,group=index_R0,fill=index_R0,colour=index
   geom_density(alpha=0.2) +
   ggplot2::scale_fill_manual(values = cbPalette[c(4,2,7)],guide="none") +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
-  theme_minimal(base_size = 18) +
-  theme(legend.position=c(0.85,0.85)) +
+  theme_cowplot(font_size = 16) +
+  theme(legend.position=c(0.8,0.85)) +
   labs(tag="a",x='Outbreak size (cases) before first hospitalisation',y="Density") +
   scale_x_continuous(limits=c(5,100),breaks=c(5,25,50,75,100)) +
   geom_vline(xintercept=median(sims$early_missed[which(sims$index_R0==1.1)],na.rm=T),
@@ -64,8 +64,8 @@ Fig4B <- ggplot(sims, aes(early_missed,group=index_R0,fill=index_R0,colour=index
   geom_density(alpha=0.2) +
   ggplot2::scale_fill_manual(values = cbPalette[c(4,2,7)],guide='none') +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
-  theme_minimal(base_size = 18) +
-  theme(legend.position=c(0.85,0.85)) +
+  theme_cowplot(font_size = 16) +
+  theme(legend.position=c(0.8,0.85)) +
   labs(tag="b",x='Outbreak size (cases) before first hospitalisation',y="Density") +
   scale_x_continuous(limits=c(100,1000),breaks=c(100,250,500,750,1000)) +
   geom_vline(xintercept=median(sims$early_missed[which(sims$index_R0==1.1)],na.rm=T),

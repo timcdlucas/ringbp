@@ -42,8 +42,9 @@ Fig3 <- res %>% filter(cases>=20) %>%
   scale_colour_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
   facet_grid(sensitivity ~ self_report) +
   ggplot2::labs(x = TeX("Index $\\R_s$"),
-                y = 'proportion cases detected') +
-  theme_minimal(base_size=18)
+                y = 'Proportion cases detected') +
+  theme_cowplot(font_size=16) +
+  theme(strip.background =element_rect(fill="white"))
 
 save(file="data-raw/Fig3_perfectTraceBox.Rdata",Fig3)
 

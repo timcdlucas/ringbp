@@ -20,11 +20,13 @@ devtools::load_all()
 
 sweep_results <- readRDS("data-raw/res_timetotest.rds")
 falseNeg <- read.csv('data-raw/FalseNegative_kucirka.csv')
+cap_cases <- 2000
+max_days <- 300
 
 # A colour-blind-friendly palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-res1 <- sweep_results2 %>%
+res1 <- sweep_results %>%
   filter(index_R0==1.3) %>%
   filter(control_effectiveness==0.6) %>%
   filter(max_quar_delay==1) %>%
@@ -33,7 +35,7 @@ res1 <- sweep_results2 %>%
   dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
   dplyr::ungroup(scenario)
 
-res2 <- sweep_results2 %>%
+res2 <- sweep_results %>%
   filter(index_R0==1.3) %>%
   filter(control_effectiveness==0.6) %>%
   filter(max_quar_delay==4) %>%
@@ -42,18 +44,19 @@ res2 <- sweep_results2 %>%
   dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
   dplyr::ungroup(scenario)
 
-h1 <- data.frame(y=c(unlist(res1$timetotest[1]),unlist(res1$timetotest[2]),unlist(res1$timetotest[3])),delay=c(rep("4 days",length(unlist(res1$timetotest[1]))),rep("2 days",length(unlist(res1$timetotest[2]))),rep("0 days",length(unlist(res1$timetotest[3]))))) %>%
+df_h1 <- data.frame(y=c(unlist(res1$timetotest[1]),unlist(res1$timetotest[2]),unlist(res1$timetotest[3])),delay=c(rep("4 days",length(unlist(res1$timetotest[1]))),rep("2 days",length(unlist(res1$timetotest[2]))),rep("0 days",length(unlist(res1$timetotest[3])))))
+h1 <- df_h1 %>%
   ggplot() +
   geom_density(alpha=0.2,aes(y,y=..scaled..,fill=delay,colour=delay)) + theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(2,3,4)],name="test delay (density)") +
-  ggplot2::scale_fill_manual(values = cbPalette[c(2,3,4)],name="test delay (density)") +
+  ggplot2::scale_colour_manual(values = cbPalette[c(3,8,1)],name="test delay (density)") +
+  ggplot2::scale_fill_manual(values = cbPalette[c(3,8,1)],name="test delay (density)") +
   xlim(c(0,15)) +
   geom_point(data=falseNeg, aes(x=Day,y=1-Mean)) +
   geom_linerange(data=falseNeg,aes(x=Day,ymax=1-Lower,ymin=1-Upper)) +
   geom_line(data=falseNeg, aes(x=seq(0,15,length.out=21),y=rep(0.65,21)),linetype=2,col="grey") +
-  theme_minimal(base_size = 18) +
-  ggplot2::theme(legend.position = "bottom") +
-  labs(tag="a",x='time tested (days post-exposure)',y='sensitivity (Kucirka et al.)')
+  theme_cowplot(font_size = 16) +
+  ggplot2::theme(legend.position = c(0.8,0.9), legend.title = element_text(size=14)) +
+  labs(tag="a",x='Time tested (days post-exposure)',y='Sensitivity (Kucirka et al.)')
 
 h2 <- data.frame(y=c(unlist(res2$timetotest[1]),unlist(res2$timetotest[2]),unlist(res2$timetotest[3])),delay=c(rep("0 days",length(unlist(res2$timetotest[1]))),rep("4 days",length(unlist(res2$timetotest[2]))),rep("2 days",length(unlist(res2$timetotest[3]))))) %>%
   ggplot() +
