@@ -15,7 +15,7 @@ library(testthat)
 
 devtools::load_all()
 
-res <- readRDS("data-raw/res_20200524_perfectTracing.rds")
+res <- readRDS("data-raw/res_Aug_perfectTracing.rds")
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # boxplots for 100% contact tracing
@@ -35,19 +35,17 @@ res <- res %>% dplyr::filter(control_effectiveness == 1) %>%
 
 res <- res %>% unnest(trace_stats)
 
-Fig5B <- res %>% filter(cases>=20) %>%
+Fig3 <- res %>% filter(cases>=20) %>%
   mutate(precaution = factor(precaution,labels=" ")) %>%
   ggplot(aes(index_R0,positive/cases,fill=index_R0,colour=index_R0)) + geom_boxplot(alpha=0.2) +
   scale_fill_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
   scale_colour_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
   facet_grid(sensitivity ~ self_report) +
-  ggplot2::labs(tag = "B",
-                x = TeX("Index $\\R_s$"),
+  ggplot2::labs(x = TeX("Index $\\R_s$"),
                 y = 'proportion cases detected') +
   theme_minimal(base_size=18)
 
-ggsave(filename="data-raw/Fig5.pdf",plot_grid(Fig5A,Fig5B,Fig5C,Fig5D,nrow=2,ncol=2),
-       width=343, height=291,units="mm")
+save(file="data-raw/Fig3_perfectTraceBox.Rdata",Fig3)
 
 
 ################################################
@@ -65,15 +63,15 @@ scenarios <- tidyr::expand_grid(
   )),
   inc_meanlog = 1.434065,
   inc_sdlog = 0.6612,
-  inf_shape = 2.115779,
-  inf_rate = 0.6898583,
-  inf_shift = 3,
+  inf_shape = 17.773185,
+  inf_rate = 1.388388,
+  inf_shift = 12.978985,
   min_quar_delay = 1,
   max_quar_delay = c(1),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
   control_effectiveness = 1,
-  self_report = c(0.1,0.5,1),
+  self_report = c(0.5,1),
   test_delay = c(2), #time from isolation to test result
   sensitivity = c(0.65,0.95), #percent of cases detected
   precaution = c(7), #this could be between 0 and 7? Number of days stay in isolation if negative test
@@ -102,4 +100,4 @@ sweep_results <- ringbp::parameter_sweep(scenarios,
                                           earlyOut = FALSE)
 toc()
 
-saveRDS(sweep_results, file = "data-raw/res_20200524_perfectTracing.rds")
+saveRDS(sweep_results, file = "data-raw/res_Aug_perfectTracing.rds")

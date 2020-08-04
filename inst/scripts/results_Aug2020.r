@@ -43,7 +43,7 @@ set.seed(200518)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 10
+no.samples <- 3000
 
 tic()
 scenarios1 <- tidyr::expand_grid(
@@ -62,11 +62,11 @@ scenarios1 <- tidyr::expand_grid(
   max_quar_delay = c(1),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 1, 0.2),
+  control_effectiveness = c(0,seq(0.4, 1, 0.2)),
   self_report = c(0.5),
   test_delay = c(0,2), #time from isolation to test result
-  sensitivity = c(0.65,0.95), #percent of cases detected
-  precaution = c(0,7), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(5)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
@@ -93,17 +93,23 @@ toc()
 
 
 # #+ writeout
-# saveRDS(sweep_results1, file = "data-raw/res_20200518_1.rds")
+saveRDS(sweep_results1, file = "data-raw/res_Aug_1.rds")
 rm(list=ls())
-Sys.sleep(180)
+Sys.sleep(120)
 # tic()
-# sweep_results1 <- readRDS("data-raw/res_20200518_1.rds")
+# sweep_results1 <- readRDS("data-raw/res_Aug_1.rds")
 # toc()
 ##################################################################
 
+
 set.seed(200518)
+
+#' Delay shape is adherence probability
+#'
+#' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
 no.samples <- 3000
 
+tic()
 scenarios2 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
   delay_group = list(tibble::tibble(
@@ -120,63 +126,9 @@ scenarios2 <- tidyr::expand_grid(
   max_quar_delay = c(1),
   index_R0 = c(1.1,1.3,1.5),
   prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 1, 0.2),
-  self_report = c(0.1),
-  test_delay = c(2), #time from isolation to test result
-  sensitivity = c(0.65), #percent of cases detected
-  precaution = c(7), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(5)) %>%
-  tidyr::unnest("delay_group") %>%
-  dplyr::mutate(scenario = 1:dplyr::n())
-
-cap_cases <- 2000
-max_days <- 300
-## Parameterise fixed paramters
-sim_with_params <- purrr::partial(ringbp::scenario_sim,
-                                  cap_max_days = max_days,
-                                  cap_cases = cap_cases,
-                                  r0isolated = 0,
-                                  disp.iso = 1,
-                                  disp.com = 0.16,
-                                  quarantine = TRUE)
-
-tic()
-## Run parameter sweep
-sweep_results2 <- ringbp::parameter_sweep(scenarios2,
-                                         sim_fn = sim_with_params,
-                                         samples = no.samples,
-                                         show_progress = TRUE)
-
-toc()
-
-# #+ writeout
-# saveRDS(sweep_results2, file = "data-raw/res_20200518_2.rds")
-rm(list=ls())
-Sys.sleep(180)
-##################################################################
-
-set.seed(200518)
-no.samples <- 3000
-
-scenarios3 <- tidyr::expand_grid(
-  ## Put parameters that are grouped by disease into this data.frame
-  delay_group = list(tibble::tibble(
-    delay = c("Adherence"),
-    delay_shape = c(0.9),
-    delay_scale = 1
-  )),
-  inc_meanlog = 1.434065,
-  inc_sdlog = 0.6612,
-  inf_shape = 17.773185,
-  inf_rate = 1.388388,
-  inf_shift = 12.978985,
-  min_quar_delay = 1,
-  max_quar_delay = c(4),
-  index_R0 = c(1.1,1.3,1.5),
-  prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 1, 0.2),
+  control_effectiveness = c(0,seq(0.4, 1, 0.2)),
   self_report = c(0.5),
-  test_delay = c(2), #time from isolation to test result
+  test_delay = c(0,2), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(7), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(5)) %>%
@@ -197,6 +149,60 @@ sim_with_params <- purrr::partial(ringbp::scenario_sim,
 #+ full_run
 tic()
 ## Run parameter sweep
+sweep_results2 <- ringbp::parameter_sweep(scenarios2,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = TRUE)
+toc()
+
+
+# #+ writeout
+saveRDS(sweep_results2, file = "data-raw/res_Aug_2.rds")
+rm(list=ls())
+Sys.sleep(120)
+
+
+set.seed(200518)
+no.samples <- 3000
+
+scenarios3 <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.9),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 17.773185,
+  inf_rate = 1.388388,
+  inf_shift = 12.978985,
+  min_quar_delay = 1,
+  max_quar_delay = c(1),
+  index_R0 = c(1.3),
+  prop.asym = c(0.4),
+  control_effectiveness = c(0,seq(0.4, 1, 0.2)),
+  self_report = c(0.5),
+  test_delay = c(0,2), #time from isolation to test result
+  sensitivity = c(0.95), #percent of cases detected
+  precaution = c(0,7), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(5)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n())
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(ringbp::scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+tic()
+## Run parameter sweep
 sweep_results3 <- ringbp::parameter_sweep(scenarios3,
                                          sim_fn = sim_with_params,
                                          samples = no.samples,
@@ -204,11 +210,10 @@ sweep_results3 <- ringbp::parameter_sweep(scenarios3,
 
 toc()
 
-
 # #+ writeout
-# saveRDS(sweep_results3, file = "data-raw/res_20200518_3.rds")
+saveRDS(sweep_results3, file = "data-raw/res_Aug_3.rds")
 rm(list=ls())
-Sys.sleep(180)
+Sys.sleep(120)
 ##################################################################
 
 set.seed(200518)
@@ -228,13 +233,13 @@ scenarios4 <- tidyr::expand_grid(
   inf_shift = 12.978985,
   min_quar_delay = 1,
   max_quar_delay = c(4),
-  index_R0 = c(1.1,1.3,1.5),
+  index_R0 = c(1.3),
   prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 1, 0.2),
+  control_effectiveness = c(0,seq(0.4, 1, 0.2)),
   self_report = c(0.5),
   test_delay = c(2), #time from isolation to test result
-  sensitivity = c(0.65), #percent of cases detected
-  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  sensitivity = c(0), #percent of cases detected
+  precaution = c(7), #this could be between 0 and 7? Number of days stay in isolation if negative test
   num.initial.cases = c(5)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n())
@@ -254,100 +259,52 @@ sim_with_params <- purrr::partial(ringbp::scenario_sim,
 tic()
 ## Run parameter sweep
 sweep_results4 <- ringbp::parameter_sweep(scenarios4,
-                                          sim_fn = sim_with_params,
-                                          samples = no.samples,
-                                          show_progress = TRUE)
-
-toc()
-
-
-# #+ writeout
-# saveRDS(sweep_results4, file = "data-raw/res_20200518_4.rds")
-rm(list=ls())
-Sys.sleep(180)
-##################################################################
-
-set.seed(200518)
-no.samples <- 3000
-
-scenarios5 <- tidyr::expand_grid(
-  ## Put parameters that are grouped by disease into this data.frame
-  delay_group = list(tibble::tibble(
-    delay = c("Adherence"),
-    delay_shape = c(0.9),
-    delay_scale = 1
-  )),
-  inc_meanlog = 1.434065,
-  inc_sdlog = 0.6612,
-  inf_shape = 17.773185,
-  inf_rate = 1.388388,
-  inf_shift = 12.978985,
-  min_quar_delay = 1,
-  max_quar_delay = c(1),
-  index_R0 = c(1.1,1.3,1.5),
-  prop.asym = c(0.4),
-  control_effectiveness = seq(0.4, 1, 0.2),
-  self_report = c(0.5),
-  test_delay = c(0), #time from isolation to test result
-  sensitivity = c(0), #percent of cases detected
-  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
-  num.initial.cases = c(5)) %>%
-  tidyr::unnest("delay_group") %>%
-  dplyr::mutate(scenario = 1:dplyr::n())
-
-cap_cases <- 2000
-max_days <- 300
-## Parameterise fixed paramters
-sim_with_params <- purrr::partial(ringbp::scenario_sim,
-                                  cap_max_days = max_days,
-                                  cap_cases = cap_cases,
-                                  r0isolated = 0,
-                                  disp.iso = 1,
-                                  disp.com = 0.16,
-                                  quarantine = TRUE)
-
-#+ full_run
-tic()
-## Run parameter sweep
-sweep_results5 <- ringbp::parameter_sweep(scenarios5,
                                          sim_fn = sim_with_params,
                                          samples = no.samples,
                                          show_progress = TRUE)
 
 toc()
 
-# #+ writeout
-# saveRDS(sweep_results5, file = "data-raw/res_20200518_5.rds")
 
+# #+ writeout
+saveRDS(sweep_results4, file = "data-raw/res_Aug_4.rds")
+rm(list=ls())
 ##################################################################
 
+
+
 # # Load in separate 5 sets of scenarios and combine
-# sweep_results1 <- readRDS("data-raw/res_20200518_1.rds")
-# sweep_results2 <- readRDS("data-raw/res_20200518_2.rds")
-# sweep_results3 <- readRDS("data-raw/res_20200518_3.rds")
-# sweep_results4 <- readRDS("data-raw/res_20200518_4.rds")
-# sweep_results5 <- readRDS("data-raw/res_20200518_5.rds")
-# sweep_results <- rbind(sweep_results1,sweep_results2,sweep_results3,sweep_results4, sweep_results5)
+# sweep_results1 <- readRDS("data-raw/res_Aug_1.rds")
+# sweep_results2 <- readRDS("data-raw/res_Aug_2.rds")
+# sweep_results3 <- readRDS("data-raw/res_Aug_3.rds")
+# sweep_results4 <- readRDS("data-raw/res_Aug_4.rds")
+#
+# sweep_results3 <- sweep_results3 %>% filter(sensitivity==0.95)
+# #
+# sweep_results <- rbind(sweep_results1,sweep_results2,sweep_results3,sweep_results4)
 #
 # # Clear redundant data frames from working memory
-# sweep_results1 = sweep_results2 = sweep_results3 = sweep_results4 = sweep_results5 = c()
-#
+# sweep_results1 = sweep_results2 = sweep_results3 = sweep_results4 = c()
+
 # # Expand results for no testing so they can be filtered for plotting later on
 # # Same results hold for precaution =0,7 and test delay =0,2
 # temp1 <- sweep_results %>% filter(sensitivity==0) %>%
-#   mutate(precaution := 7)
+#   mutate(precaution := 0)
 # temp2 <- sweep_results %>% filter(sensitivity==0) %>%
-#   mutate(precaution := 7) %>%
-#   mutate(test_delay := 2)
+#   mutate(precaution := 0) %>%
+#   mutate(test_delay := 0)
 # temp3 <- sweep_results %>% filter(sensitivity==0) %>%
-#   mutate(test_delay := 2)
+#   mutate(test_delay := 0)
 # temp <- rbind(temp1,temp2,temp3)
-# temp$scenario <- 144 + (1:nrow(temp))
 # sweep_results <- rbind(sweep_results,temp)
-# sweep_results$scenario[1:180] <- 1:180
+# temp = temp1 = temp2 = temp3 = c()
+# temp <- sweep_results %>% filter(sensitivity==0) %>%
+#   mutate(max_quar_delay := 1)
+# sweep_results <- rbind(sweep_results,temp)
+# sweep_results$scenario <- 1:112
 #
-# # Save final combined results
-# saveRDS(sweep_results, file = "data-raw/res_20200518_complete.rds")
+# # # Save final combined results
+# saveRDS(sweep_results, file = "data-raw/res_Aug_complete.rds")
 
 # Plot figure 2:  --------------------------------------------------------
 # Parameter distributions (incubation, generation interval etc.)
@@ -357,140 +314,14 @@ ringbp::make_figure_2()
 # Load in results  -------------------------------------------------------
 
 # Load in pre-saved results
-sweep_results <- readRDS("data-raw/res_20200518_complete.rds")
+sweep_results <- readRDS("data-raw/res_Aug_complete.rds")
 # A colour-blind-friendly palette
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 sweep_results <- sweep_results %>%
   dplyr::group_by(scenario) %>%
   dplyr::mutate(pext = extinct_prob(sims[[1]], cap_cases = cap_cases, week_range = 40:42)) %>%
-  #dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
   dplyr::ungroup(scenario)
-
-
-# Fig 4 - Time tested post-exposure
-
-# A colour-blind-friendly palette
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-res1 <- sweep_results %>%
-  filter(self_report == 0.5) %>%
-  filter(precaution == 7) %>%
-  filter(sensitivity == 0.65) %>%
-  filter(index_R0 == 1.3) %>%
-  filter(control_effectiveness == '0.6')
-
-res1 <- res1 %>%
-  dplyr::group_by(scenario) %>%
-  #dplyr::mutate(pext = extinct_prob(sims[[1]], cap_cases = cap_cases, week_range = 40:42)) %>%
-  dplyr::mutate(timetotest = list(unlist(sims[[1]]$timetotest))) %>%
-  dplyr::ungroup(scenario)
-
-falseNeg <- read.csv('data-raw/FalseNegative_kucirka.csv')
-#saveRDS(res1,"data-raw/Fig4.rds")
-#res1 <- readRDS("data-raw/Fig4.rds")
-
-h1 <- data.frame(y=c(unlist(res1$timetotest[1]),unlist(res1$timetotest[2])),delay=c(rep("2 days",length(unlist(res1$timetotest[1]))),rep("0 days",length(unlist(res1$timetotest[2]))))) %>%
-  ggplot() +
-  geom_density(alpha=0.2,aes(y,y=..scaled..,fill=delay,colour=delay)) + theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(2,3)],name="Test delay (density)") +
-  ggplot2::scale_fill_manual(values = cbPalette[c(2,3)],name="Test delay (density)") +
-  xlim(c(0,15)) +
-  geom_point(data=falseNeg, aes(x=Day,y=1-Mean)) +
-  geom_linerange(data=falseNeg,aes(x=Day,ymax=1-Lower,ymin=1-Upper)) +
-  geom_line(data=falseNeg, aes(x=seq(0,15,length.out=21),y=rep(0.65,21)),linetype=2,col="grey") +
-  theme_minimal(base_size = 18) +
-  ggplot2::theme(legend.position = "bottom") +
-  labs(tag="a",x='Time tested (days post-exposure)',y='Sensitivity (Kucirka et al.)')
-
-save(file="data-raw/timetotest_plot.Rdata",h1)
-load("data-raw/timetotest_plot.Rdata")
-testPlot <- h1
-
-h2 <- data.frame(y=c(unlist(res1$timetotest[1]),unlist(res1$timetotest[2])),delay=c(rep("2 days",length(unlist(res1$timetotest[1]))),rep("0 days",length(unlist(res1$timetotest[2]))))) %>%
-  ggplot() +
-  stat_ecdf(geom="step",aes(y,colour=delay)) + theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(2,3)],name="Test delay (cum. density)") +
-  xlim(c(0,15)) +
-  geom_point(data=falseNeg, aes(x=Day,y=1-Mean)) +
-  geom_linerange(data=falseNeg,aes(x=Day,ymax=1-Lower,ymin=1-Upper)) +
-  geom_line(data=falseNeg, aes(x=seq(0,15,length.out=21),y=rep(0.65,21)),linetype=2,col="grey") +
-  theme_minimal(base_size = 18) +
-  ggplot2::theme(legend.position = "bottom") +
-  labs(tag="b",x='Time tested (days post-exposure)',y='Sensitivity (Kucirka et al.)')
-
-# save(file="data-raw/timetotest_cum_plot.Rdata",h1)
-# load("data-raw/timetotest_cum_plot.Rdata")
-# cumtestPlot <- h1
-
-# Supp Fig7 A and B
-
-res <- sweep_results %>%
-  filter(precaution == 7) %>%
-  filter(test_delay == 2) %>%
-  filter(sensitivity == 0.65)
-
-lower <- rep(NA,nrow(res))
-upper <- rep(NA,nrow(res))
-
-for(i in 1:nrow(res)){
-  out <- prop.test(res$pext[i]*no.samples,no.samples,correct=FALSE)
-  CIs <- as.numeric(unlist(out[6]))
-  lower[i] <- CIs[1]
-  upper[i] <- CIs[2]
-}
-
-res <- res %>% mutate(lower = lower,
-                      upper = upper)
-lower <- c()
-upper <- c()
-
-saveRDS(res,'data-raw/FigS7.rds')
-
-Fig7A <- res %>%
-  filter(max_quar_delay == 1) %>%
-  filter(precaution == 7) %>%
-  filter(test_delay == 2) %>%
-  filter(sensitivity == 0.65) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
-  mutate(self_report = factor(self_report, labels = c('10% self-reporting','50%'))) %>%
-  mutate(index_R0 = factor(index_R0)) %>%
-  ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
-  geom_line() +
-  geom_point() +
-  geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
-  facet_grid(self_report ~ sensitivity) +
-  theme_minimal(base_size = 18) +
-  ggplot2::theme(legend.position = "bottom") +
-  labs(tag="a",x='Contact tracing coverage',y="Prob. large outbreak") +
-  ylim(c(0,0.3))
-
-Fig7B <- res %>%
-  filter(self_report == 0.5) %>%
-  filter(precaution == 7) %>%
-  filter(test_delay == 2) %>%
-  filter(sensitivity == 0.65) %>%
-  mutate(sensitivity = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
-  mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 days'))) %>%
-  mutate(index_R0 = factor(index_R0)) %>%
-  ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
-  geom_line() +
-  geom_point() +
-  geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
-  ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
-  facet_grid(max_quar_delay ~ sensitivity) +
-  theme_minimal(base_size = 18) +
-  ggplot2::theme(legend.position = "bottom") +
-  labs(tag="b",x='Contact tracing coverage',y="Prob. large outbreak") +
-  ylim(c(0,0.3))
-
-# save(file="data-raw/selfreport_plot.Rdata",Fig7A)
-# load("data-raw/selfreport_plot.Rdata")
-# save(file="data-raw/tracedelay_plot.Rdata",Fig7B)
-# load("data-raw/tracedelay_plot.Rdata")
-Fig7A + Fig7B
-
 
 
 # Fig 3 A and B
@@ -513,9 +344,9 @@ res <- res %>% mutate(lower = lower,
 lower <- c()
 upper <- c()
 
-saveRDS(res,'data-raw/Fig3.rds')
+saveRDS(res,'data-raw/FigR2.rds')
 
-Fig3B <- res %>%
+Fig2B <- res %>%
   filter(self_report == 0.5) %>%
   filter(max_quar_delay == 1) %>%
   filter(sensitivity == 0.65) %>%
@@ -533,7 +364,7 @@ Fig3B <- res %>%
   labs(tag="b",x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.3))
 
-Fig3A <- res %>%
+Fig2A <- res %>%
   filter(self_report == 0.5) %>%
   filter(max_quar_delay == 1) %>%
   filter(index_R0 == 1.3) %>%
@@ -551,11 +382,11 @@ Fig3A <- res %>%
   labs(tag="a",x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.17))
 
-save(file="data-raw/sensitivity_plot.Rdata",Fig3A)
+save(file="data-raw/sensitivity_plot.Rdata",Fig2A)
 # load("data-raw/sensitivity_plot.Rdata")
-save(file="data-raw/precatuion_plot.Rdata",Fig3B)
+save(file="data-raw/precatuion_plot.Rdata",Fig2B)
 # load("data-raw/precaution_plot.Rdata")
-Fig3A + Fig3B
+Fig2A + Fig2B
 
 # Manipulate data for further plots
 
@@ -643,15 +474,15 @@ T1 <- T1 %>% mutate(lower = lower,
 lower <- c()
 upper <- c()
 
-saveRDS(T1,'data-raw/Fig5A.rds')
-T1 <- readRDS('data-raw/Fig5A.rds')
+saveRDS(T1,'data-raw/Fig4C.rds')
+T1 <- readRDS('data-raw/Fig4C.rds')
 T1 <- T1 %>% filter(max_quar_delay=="1 day trace delay") %>%
   mutate(index_R0 = ifelse(index_R0=="R0 = 1.3",
                            "Rs = 1.3",
                            "Rs = 1.5")) %>%
   mutate(max_quar_delay = " ")
 
-Fig5A <- ggplot(T1,
+Fig4C <- ggplot(T1,
          aes(total, poutbreak, colour = factor(control_effectiveness), group = factor(control_effectiveness))) +
     geom_line(size=1.1) +
     geom_linerange(alpha=0.1,aes(total,ymax=upper,ymin=lower),show.legend=FALSE) +
@@ -665,7 +496,7 @@ Fig5A <- ggplot(T1,
     xlim(c(0,1000)) +
     ylim(c(0,1))
 
-save(file="data-raw/outbreakSize_plot.Rdata",Fig5A)
+save(file="data-raw/outbreakSize_plot.Rdata",Fig4C)
 # load("data-raw/precaution_plot.Rdata")
 
 # Fig 6: Plot showing risk of different outbreak sizes occurring
@@ -706,12 +537,12 @@ res3 <- res3 %>% group_by(control_effectiveness, index_R0,x,max_quar_delay) %>%
 saveRDS(res3,'Fig6.rds')
 
 Fig6 <- res3 %>% mutate(index_R0 = factor(index_R0, labels=c("1.1","1.3","1.5"))) %>%
-    mutate(control_effectiveness = factor(control_effectiveness, labels=c("Prop. traced 40%","60%","80%","100%"))) %>%
-    mutate(max_quar_delay = factor(max_quar_delay, labels=c("1 day trace delay","4 days"))) %>%
+    mutate(control_effectiveness = factor(control_effectiveness, labels=c("No tracing", "Prop. traced 40%","60%","80%","100%"))) %>%
+    mutate(max_quar_delay = factor(max_quar_delay, labels=c("1 day trace delay"))) %>%
   ggplot(aes(x,y,colour=index_R0)) + geom_line(size=1.2) +
   geom_ribbon(alpha=0.5,aes(x,ymax=1-upper,ymin=1-lower,fill=index_R0),colour=NA,show.legend=FALSE) +
-  scale_colour_manual(values = cbPalette[c(4,2,7)]) +
-  scale_fill_manual(values = cbPalette[c(4,2,7)]) +
+  scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$:")) +
+  scale_fill_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$:")) +
   facet_grid(max_quar_delay ~ control_effectiveness) +
   xlim(c(5,800)) + ylim(c(0,0.5)) +
   #scale_x_continuous(breaks=c(5,500,1000)) +
@@ -732,23 +563,23 @@ Fig6
 #################################################################
 
 Rs <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                           control_effectiveness==0.8) %>% .$index_R0
+                           control_effectiveness=='0.6') %>% .$index_R0
 tactic <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                                 control_effectiveness==0.8) %>% .$precaution
+                                 control_effectiveness=='0.6') %>% .$precaution
 testdelays <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                                 control_effectiveness==0.8) %>% .$test_delay
+                                 control_effectiveness=='0.6') %>% .$test_delay
 probOutb <- 1-(sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                                         control_effectiveness==0.8) %>% .$pext)
-data.frame(Rs,tactic,testdelays,probOutb)
+                                         control_effectiveness=='0.6') %>% .$pext)
+tactics <- data.frame(Rs,tactic,testdelays,probOutb)
+write_csv(tactics,'data-raw/probs_testTactics.csv')
 
 Rs <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                                 control_effectiveness==0.8 & precaution==7) %>% .$index_R0
+                                 control_effectiveness=='0.6' & precaution==7) %>% .$index_R0
 testdelays <- sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                                         control_effectiveness==0.8 & precaution==7) %>% .$test_delay
+                                         control_effectiveness=='0.6' & precaution==7) %>% .$test_delay
 probOutb <- 1-(sweep_results %>% filter(max_quar_delay==1 & sensitivity==0.65 & self_report==0.5 &
-                                          control_effectiveness==0.8 & precaution==7) %>% .$pext)
+                                          control_effectiveness=='0.6' & precaution==7) %>% .$pext)
 data.frame(Rs,testdelays,probOutb)
-
 
 temp <- res3 %>% filter(index_R0==1.5,control_effectiveness==1,max_quar_delay==1,precaution==7,sensitivity==0.65)
 temp$index_R0 <- c()
@@ -888,3 +719,73 @@ res4 %>% filter(cases>=20) %>%
   ggplot2::theme(legend.position = "bottom") +
   theme(text = element_text(size = 16),plot.title = element_text(size = 16, face = "bold")) +
   ggtitle('100% of contacts traced and tested')
+
+
+
+# Supp Fig7 A and B
+
+res <- sweep_results %>%
+  filter(precaution == 7) %>%
+  filter(test_delay == 2) %>%
+  filter(sensitivity == 0.65)
+
+lower <- rep(NA,nrow(res))
+upper <- rep(NA,nrow(res))
+
+for(i in 1:nrow(res)){
+  out <- prop.test(res$pext[i]*no.samples,no.samples,correct=FALSE)
+  CIs <- as.numeric(unlist(out[6]))
+  lower[i] <- CIs[1]
+  upper[i] <- CIs[2]
+}
+
+res <- res %>% mutate(lower = lower,
+                      upper = upper)
+lower <- c()
+upper <- c()
+
+saveRDS(res,'data-raw/FigS7.rds')
+
+Fig7A <- res %>%
+  filter(max_quar_delay == 1) %>%
+  filter(precaution == 7) %>%
+  filter(test_delay == 2) %>%
+  filter(sensitivity == 0.65) %>%
+  mutate(sensitivity = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
+  mutate(self_report = factor(self_report, labels = c('10% self-reporting','50%'))) %>%
+  mutate(index_R0 = factor(index_R0)) %>%
+  ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
+  ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
+  geom_line() +
+  geom_point() +
+  geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
+  facet_grid(self_report ~ sensitivity) +
+  theme_minimal(base_size = 18) +
+  ggplot2::theme(legend.position = "bottom") +
+  labs(tag="a",x='Contact tracing coverage',y="Prob. large outbreak") +
+  ylim(c(0,0.3))
+
+Fig7B <- res %>%
+  filter(self_report == 0.5) %>%
+  filter(precaution == 7) %>%
+  filter(test_delay == 2) %>%
+  filter(sensitivity == 0.65) %>%
+  mutate(sensitivity = factor(sensitivity, labels = c('sensitivity = 65%'))) %>%
+  mutate(max_quar_delay = factor(max_quar_delay, labels = c('1 day trace delay', '4 days'))) %>%
+  mutate(index_R0 = factor(index_R0)) %>%
+  ggplot(aes(control_effectiveness, 1 - pext, colour = index_R0)) +
+  geom_line() +
+  geom_point() +
+  geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
+  ggplot2::scale_colour_manual(values = cbPalette[c(4,2,7)],name=TeX("Index $\\R_s$")) +
+  facet_grid(max_quar_delay ~ sensitivity) +
+  theme_minimal(base_size = 18) +
+  ggplot2::theme(legend.position = "bottom") +
+  labs(tag="b",x='Contact tracing coverage',y="Prob. large outbreak") +
+  ylim(c(0,0.3))
+
+# save(file="data-raw/selfreport_plot.Rdata",Fig7A)
+# load("data-raw/selfreport_plot.Rdata")
+# save(file="data-raw/tracedelay_plot.Rdata",Fig7B)
+# load("data-raw/tracedelay_plot.Rdata")
+Fig7A + Fig7B
