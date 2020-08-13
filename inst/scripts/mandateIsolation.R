@@ -93,9 +93,9 @@ toc()
 
 
 
-saveRDS(sweep_results1, file = "data-raw/res_adhere.rds")
+saveRDS(sweep_results1, file = "data-raw/res_adhere2020-08-13.rds")
 
-#if(!exists('sweep_results1'))  sweep_results1 <- readRDS(file = "data-raw/res_adhere.rds")
+#if(!exists('sweep_results1'))  sweep_results1 <- readRDS(file = "data-raw/res_adhere2020-08-13.rds")
 
 
 sweep_results1 <- 
@@ -221,10 +221,10 @@ toc()
 
 
 
-saveRDS(sweep_results2, file = "data-raw/res_duration.rds")
+saveRDS(sweep_results2, file = "data-raw/res_duration2020-08-13.rds")
 
 
-#if(!exists('sweep_results2'))  sweep_results2 <- readRDS(file = "data-raw/res_duration.rds")
+#if(!exists('sweep_results2'))  sweep_results2 <- readRDS(file = "data-raw/res_duration2020-08-13.rds")
 
 
 
@@ -354,10 +354,10 @@ sweep_results3 <- ringbp::parameter_sweep(scenarios3,
 toc()
 
 
-saveRDS(sweep_results3, file = "data-raw/res_sensitivity.rds")
+saveRDS(sweep_results3, file = "data-raw/res_sensitivity2020-08-13.rds")
 
 
-#if(!exists('sweep_results3'))  sweep_results3 <- readRDS(file = "data-raw/res_sensitivity.rds")
+#if(!exists('sweep_results3'))  sweep_results3 <- readRDS(file = "data-raw/res_sensitivity2020-08-13.rds")
 
 
 
