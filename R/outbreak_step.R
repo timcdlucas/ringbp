@@ -111,6 +111,12 @@ outbreak_step <- function(case_data, disp.iso,
                                        function(x, y) {
                                          rep(x, y)
                                        })),
+    
+    # records infector onset time
+    infector_onset = unlist(purrr::map2(new_case_data$onset, new_case_data$new_cases,
+                                        function(x, y) {
+                                          rep(x, y)
+                                        })), 
     # records if infector was missed
     infector_missed = unlist(purrr::map2(new_case_data$missed, new_case_data$new_cases,
                                       function(x, y) {
@@ -144,6 +150,10 @@ outbreak_step <- function(case_data, disp.iso,
   # cases whose parents have been missed are automatically missed
   prob_samples$missed[vect_isTRUE(prob_samples$infector_missed)] <- TRUE
 
+  
+  # cases who were infected more than 3 days before infector's symptoms can't be traced
+  prob_samples$missed[vect_isTRUE(prob_samples$exposure < prob_samples$infector_onset - 3)] <- TRUE 
+  
   # ##UK tracing edit 27/05/2020:
   # # cases whose parents are asymptomatic or tested negative are automatically missed
   # prob_samples$missed[vect_isTRUE(prob_samples$infector_asym) | vect_isTRUE(!prob_samples$infector_pos)] <- TRUE
@@ -246,8 +256,7 @@ outbreak_step <- function(case_data, disp.iso,
   # Chop out unneeded sample columns
   prob_samples[, c("incubfn_sample", "infector_iso_time", "infector_asym","infector_pos",
                    "infector_exp","infector_iso_end","delays","delays_traced","test",
-                   'time_to_test',"infector_missed","infector_refuse") := NULL]
-  # Set new case ids for new people
+                   'time_to_test',"infector_missed","infector_refuse","infector_onset") := NULL]   # Set new case ids for new people
   prob_samples$caseid <- (nrow(case_data) + 1):(nrow(case_data) + nrow(prob_samples))
 
   ## Number of new cases

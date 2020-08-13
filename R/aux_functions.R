@@ -58,11 +58,11 @@ adherence <- function(n, p, mu){
 }
 
 
-#' Samples the serial interval for given incubation period samples
+#' Samples the generation interval for given incubation period samples
 #'
 #' @param inc_samp vector of samples from the incubation period distribution
-#' @param inf_shape shape parameter for sampling the serial interval from the incubation period
-#' @param inf_rate rate parameter for sampling the serial interval from the incubation period
+#' @param inf_shape shape parameter for sampling the generation interval from the incubation period
+#' @param inf_rate rate parameter for sampling the generation interval from the incubation period
 #' @param inf_shift shift parameter, describing number of days pre-symptoms can be infectious
 #'
 #' @export
@@ -70,15 +70,21 @@ adherence <- function(n, p, mu){
 #' @examples
 #' fnc <- inf_fn(1, 2, 3, 3)
 inf_fn <- function(inc_samp = NULL, inf_shape = NULL, inf_rate = NULL, inf_shift = NULL) {
-
-  out <- inc_samp - inf_shift + rgamma(n = length(inc_samp),
-                                shape = inf_shape,
-                                rate = inf_rate)
-
-  out <- ifelse(out < 1, 1, out)
-
+  
+  out <- c()
+  for(i in seq_along(inc_samp)){
+    GI <- 0
+    while(GI < 0.5) {
+      GI <- inc_samp[i] - inf_shift + rgamma(1,
+                                             shape = inf_shape,
+                                             rate = inf_rate)
+    }
+    out[i] <- GI
+  }
+  
   return(out)
 }
+
 
 #' Calculate proportion of runs that have controlled outbreak
 #'
