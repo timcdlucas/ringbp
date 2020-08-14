@@ -40,7 +40,7 @@ scenarios1 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
   delay_group = list(tibble::tibble(
     delay = c("Adherence"),
-    delay_shape = c(0.3, 0.5, 0.7, 0.9),
+    delay_shape = c(0.1, 0.3, 0.5, 0.7),
     delay_scale = 1
   )),
   inc_meanlog = 1.434065,
@@ -57,7 +57,7 @@ scenarios1 <- tidyr::expand_grid(
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
   self_report = 1,
-  iso_adhere = c(0.3, 0.5, 0.7, 0.9),
+  iso_adhere = c(0.1, 0.3, 0.5, 0.7),
   test_delay = c(1), #time from isolation to test result
   sensitivity = c(0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
@@ -122,10 +122,10 @@ ggsave('inst/plots/heatmap_adhere.pdf', width = 6, height = 9)
 
 sweep_results1 %>% 
   filter(control_effectiveness != 0) %>% 
-  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=90%', paste0(100*delay_shape, '%')), 
-                              levels = c('self rep=90%', "70%", "50%", "30%"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=30%', paste0(100*iso_adhere, '%')), 
-                             levels = c('isolate=30%', "50%", "70%", "90%"))) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
     geom_line() +
     geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
@@ -143,10 +143,10 @@ ggsave('inst/plots/ready_reckoner_adhere.pdf', height = 8, width = 8)
 
 
 sweep_results1 %>% 
-  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=0.9', delay_shape), 
-                              levels = c('self rep=0.9', "0.7", "0.5", "0.3"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
-                             levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
   geom_line() +
   facet_grid(delay_shape ~ iso_adhere) +
@@ -168,7 +168,7 @@ scenarios2 <- tidyr::expand_grid(
   ## Put parameters that are grouped by disease into this data.frame
   delay_group = list(tibble::tibble(
     delay = c("Adherence"),
-    delay_shape = c(0.3, 0.5, 0.7, 0.9),
+    delay_shape = c(0.1, 0.3, 0.5, 0.7),
     delay_scale = 1
   )),
   inc_meanlog = 1.434065,
@@ -255,8 +255,8 @@ ggsave('inst/plots/heatmap_duration.pdf', width = 6, height = 9)
 
 sweep_results2 %>% 
   filter(control_effectiveness != 0) %>% 
-  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=90%', paste0(100*delay_shape, '%')), 
-                              levels = c('self rep=90%', "70%", "50%", "30%"))) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
   mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
                              levels = c('min isolation=1', "4", "7", "14"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
@@ -277,8 +277,8 @@ ggsave('inst/plots/ready_reckoner_duration.pdf', height = 8, width = 8)
 
 
 sweep_results2 %>% 
-  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=0.9', delay_shape), 
-                              levels = c('self rep=0.9', "0.7", "0.5", "0.3"))) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
   mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
                                 levels = c('min isolation=1', "4", "7", "14"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
@@ -319,7 +319,7 @@ scenarios3 <- tidyr::expand_grid(
   max_isolation = c(7, 14),
   control_effectiveness = c(0, seq(0.4, 0.8, 0.1)),
   self_report = 1,
-  iso_adhere = c(0.3, 0.5, 0.7, 0.9),
+  iso_adhere = c(0.1, 0.3, 0.5, 0.7),
   test_delay = c(1), #time from isolation to test result
   sensitivity = c(0.35, 0.45, 0.55, 0.65), #percent of cases detected
   precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
@@ -391,8 +391,8 @@ ggsave('inst/plots/heatmap_sensitivity.pdf', width = 6, height = 9)
 
 sweep_results2 %>% 
   filter(control_effectiveness != 0) %>% 
-  mutate(delay_shape = factor(ifelse(delay_shape == 0.9, 'self rep=90%', paste0(100*delay_shape, '%')), 
-                              levels = c('self rep=90%', "70%", "50%", "30%"))) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
   mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
                                 levels = c('min isolation=1', "4", "7", "14"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
@@ -412,8 +412,8 @@ sweep_results2 %>%
 sweep_results3 %>% 
   filter(min_isolation == max_isolation) %>% 
   filter(control_effectiveness != 0) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=30%', paste0(100*iso_adhere, '%')), 
-                             levels = c('isolate=30%', "50%", "70%", "90%"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sensitiv=65%', paste0(100*sensitivity, '%')), 
                               levels = c('sensitiv=65%', "55%", "45%", "35%"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
@@ -434,8 +434,8 @@ ggsave('inst/plots/ready_reckoner_sensitivity.pdf', height = 8, width = 8)
 
 sweep_results3 %>% 
   filter(min_isolation == max_isolation) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=0.3', iso_adhere), 
-                             levels = c('isolate=0.3', "0.5", "0.7", "0.9"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sens. = 0.65', sensitivity), 
                               levels = c('sens. = 0.65', "0.55", "0.45", "0.35"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
