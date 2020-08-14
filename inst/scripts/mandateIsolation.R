@@ -326,7 +326,7 @@ scenarios3 <- tidyr::expand_grid(
   num.initial.cases = c(20)) %>%
   tidyr::unnest("delay_group") %>%
   dplyr::mutate(scenario = 1:dplyr::n()) %>% 
-  filter(max_isolation >= min_isolation)
+  filter(max_isolation == min_isolation)
 
 scenarios3 %>% dim
 
