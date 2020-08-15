@@ -124,7 +124,7 @@ sweep_results1 %>%
   filter(control_effectiveness != 0) %>% 
   mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
                               levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
                              levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
     geom_line() +
@@ -145,7 +145,7 @@ ggsave('inst/plots/ready_reckoner_adhere.pdf', height = 8, width = 8)
 sweep_results1 %>% 
   mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
                               levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
                              levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
   geom_line() +
@@ -412,7 +412,7 @@ sweep_results2 %>%
 sweep_results3 %>% 
   filter(min_isolation == max_isolation) %>% 
   filter(control_effectiveness != 0) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
                              levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sensitiv=65%', paste0(100*sensitivity, '%')), 
                               levels = c('sensitiv=65%', "55%", "45%", "35%"))) %>% 
@@ -434,7 +434,7 @@ ggsave('inst/plots/ready_reckoner_sensitivity.pdf', height = 8, width = 8)
 
 sweep_results3 %>% 
   filter(min_isolation == max_isolation) %>% 
-  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.3, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
                              levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sens. = 0.65', sensitivity), 
                               levels = c('sens. = 0.65', "0.55", "0.45", "0.35"))) %>% 
