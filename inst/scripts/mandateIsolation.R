@@ -121,12 +121,12 @@ ggsave('inst/plots/heatmap_adhere.pdf', width = 6, height = 9)
 
 
 sweep_results1 %>% 
-  filter(control_effectiveness != 0) %>% 
+  filter(control_effectiveness != 0, max_isolation == 14) %>% 
   mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
                               levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
   mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
                              levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
-  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
     geom_line() +
     geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
     facet_grid(delay_shape ~ iso_adhere) +
@@ -139,6 +139,28 @@ sweep_results1 %>%
     labs(colour = 'Isolation Duration (days)') +
     theme(legend.position="bottom")
 ggsave('inst/plots/ready_reckoner_adhere.pdf', height = 8, width = 8)
+
+
+
+sweep_results1 %>% 
+  filter(control_effectiveness != 0, max_isolation == 7) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
+  geom_line() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  facet_grid(delay_shape ~ iso_adhere) +
+  ylab('Risk of large outbreak') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.5, 0.7), labels = c('50%', '70%')) +
+  scale_y_continuous(breaks = c(0, 0.02, 0.04, 0.06), labels = c('0%', '2%', '4%', '6%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Isolation Duration (days)') +
+  theme(legend.position="bottom")
+ggsave('inst/plots/ready_reckoner_adhere7.pdf', height = 8, width = 8)
 
 
 
@@ -254,12 +276,12 @@ ggsave('inst/plots/heatmap_duration.pdf', width = 6, height = 9)
 
 
 sweep_results2 %>% 
-  filter(control_effectiveness != 0) %>% 
+  filter(control_effectiveness != 0, max_isolation == 14) %>% 
   mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
                               levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
   mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
                              levels = c('min isolation=1', "4", "7", "14"))) %>% 
-  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
   geom_line() +
   geom_line() +
   geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
@@ -273,6 +295,29 @@ sweep_results2 %>%
   labs(colour = 'Max Isolation Duration (days)') +
   theme(legend.position="bottom")
 ggsave('inst/plots/ready_reckoner_duration.pdf', height = 8, width = 8)
+
+
+
+sweep_results2 %>% 
+  filter(control_effectiveness != 0, max_isolation == 7) %>% 
+  mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+                              levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
+  mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
+                                levels = c('min isolation=1', "4", "7", "14"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
+  geom_line() +
+  geom_line() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  facet_grid(delay_shape ~ min_isolation) +
+  ylab('Risk of large outbreak') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.5, 0.7), labels = c('50%', '70%')) +
+  scale_y_continuous(breaks = c(0, 0.02, 0.04), labels = c('0%', '2%', '4%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Max Isolation Duration (days)') +
+  theme(legend.position="bottom")
+ggsave('inst/plots/ready_reckoner_duration7.pdf', height = 8, width = 8)
 
 
 
@@ -411,12 +456,12 @@ sweep_results2 %>%
 
 sweep_results3 %>% 
   filter(min_isolation == max_isolation) %>% 
-  filter(control_effectiveness != 0) %>% 
+  filter(control_effectiveness != 0, max_isolation == 14) %>% 
   mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
                              levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
   mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sensitiv=65%', paste0(100*sensitivity, '%')), 
                               levels = c('sensitiv=65%', "55%", "45%", "35%"))) %>% 
-  ggplot(aes(control_effectiveness, y = 1 - pext, colour = factor(max_isolation))) + 
+  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
   geom_line() +
   geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
   facet_grid(sensitivity ~ iso_adhere) +
@@ -429,6 +474,29 @@ sweep_results3 %>%
   labs(colour = 'Isolation Duration (days)') +
   theme(legend.position="bottom")
 ggsave('inst/plots/ready_reckoner_sensitivity.pdf', height = 8, width = 8)
+
+
+
+sweep_results3 %>% 
+  filter(min_isolation == max_isolation) %>% 
+  filter(control_effectiveness != 0, max_isolation == 7) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, 'isolate=10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('isolate=10%',"30%", "50%", "70%"))) %>% 
+  mutate(sensitivity = factor(ifelse(sensitivity == 0.65, 'sensitiv=65%', paste0(100*sensitivity, '%')), 
+                              levels = c('sensitiv=65%', "55%", "45%", "35%"))) %>% 
+  ggplot(aes(control_effectiveness, y = 1 - pext)) + 
+  geom_line() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  facet_grid(sensitivity ~ iso_adhere) +
+  ylab('Risk of large outbreak') +
+  xlab('Control effectiveness') +
+  scale_x_continuous(breaks = c(0.5, 0.7), labels = c('50%', '70%')) +
+  scale_y_continuous(breaks = c(0, 0.02, 0.04, 0.06), labels = c('0%', '2%', '4%', '6%')) +
+  #  ggtitle('Sensitivity')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Isolation Duration (days)') +
+  theme(legend.position="bottom")
+ggsave('inst/plots/ready_reckoner_sensitivity7.pdf', height = 8, width = 8)
 
   
 
