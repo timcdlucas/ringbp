@@ -7,7 +7,7 @@ library(cowplot)
 
 #--- data ---
 # package: readxl
-data = data.frame(readxl::read_xlsx("Fig1c_data.xlsx"))
+data = data.frame(readxl::read_xlsx("data-raw/Fig1c_data.xlsx"))
 ref.date = as.Date("2020-01-01")
 data$x.lb <- as.numeric(as.Date(data$x.lb)-ref.date)
 data$x.ub <- as.numeric(as.Date(data$x.ub)-ref.date)
@@ -109,7 +109,7 @@ g1 <- ggplot(df1,aes(x=x,y=y,col=ref,linetype=ref)) + geom_line(size=1.5) +
   scale_colour_manual(values=cbPalette[c(1,5)],name="") +
   scale_linetype_manual(values=c(3,1),name="") +
   ggplot2::theme(legend.position = c(0.6,0.8), legend.key.width = unit(1,"cm")) +
-  labs(tag="c",x="Serial interval (days)",y="Density") +
+  labs(tag="c",x="Serial interval (days)",y="") +
   xlim(c(-5,20)) +
   ylim(c(0,0.15))
 
@@ -142,7 +142,7 @@ g3 <- ggplot(df3,aes(x=x,y=y,col=ref,linetype=ref)) + geom_line(size=1.5) +
   scale_colour_manual(values=cbPalette[c(5)],name="") +
   scale_linetype_manual(values=c(1),name="") +
   ggplot2::theme(legend.position = c(0.6,0.8), legend.key.width = unit(1,"cm")) +
-  labs(tag="d",x="Generation interval (days)",y="Density") +
+  labs(tag="d",x="Generation interval (days)",y="") +
   xlim(c(0,20)) +
   ylim(c(0,0.15))
 
