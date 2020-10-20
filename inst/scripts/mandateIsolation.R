@@ -189,7 +189,6 @@ sweep_results1 %>%
   write.csv('data-raw/adherence_summary.csv')
 
 
-rm(sweep_results1)
 
 ###########################################################################################
 
@@ -357,6 +356,69 @@ sweep_results2 %>%
   arrange(min_isolation, delay_shape) %>% 
   write.csv('data-raw/duration_summary.csv')
 
+
+
+# Combine plots 1 and 2 at contact tracing efficacy of 0.6
+
+
+
+p1 <- 
+sweep_results1 %>% 
+  filter(control_effectiveness == '0.6', max_isolation == 14) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, '10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('10%',"30%", "50%", "70%"))) %>% 
+  ggplot(aes(delay_shape, y = 1 - pext, colour = factor(iso_adhere),
+             group = iso_adhere)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  #facet_grid(delay_shape ~ min_isolation) +
+  ylab('Risk of large outbreak') +
+  xlab('Self report probability') +
+  scale_y_continuous(breaks = c(0, 0.02, 0.04, 0.06, 0.08), labels = c('0%', '2%', '4%', '6%', '8%')) +
+  scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Self-Isolation') +
+  theme_bw() +
+  theme(legend.position="right",
+        text = element_text(size = 24, family = "serif"))
+p1
+ggsave('inst/plots/self_report_iso_60pc_coverage.pdf', height = 8, width = 8)
+
+
+# do brewer
+p2 <- 
+sweep_results2 %>% 
+  filter(control_effectiveness == '0.6', max_isolation == 14) %>% 
+  #mutate(delay_shape = factor(ifelse(delay_shape == 0.7, 'self rep=70%', paste0(100*delay_shape, '%')), 
+  #                            levels = c('self rep=70%', "50%", "30%", "10%"))) %>% 
+  #mutate(min_isolation = factor(ifelse(min_isolation == 1, 'min isolation=1', min_isolation), 
+  #                           levels = c('min isolation=1', "4", "7", "14"))) %>% 
+  ggplot(aes(delay_shape, y = 1 - pext, colour = factor(min_isolation),
+             group = min_isolation)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  #facet_grid(delay_shape ~ min_isolation) +
+  ylab('Risk of large outbreak') +
+  xlab('') +
+  scale_y_continuous(breaks = c(0, 0.02, 0.04, 0.06), labels = c('0%', '2%', '4%', '6%')) +
+  scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Min Isolate') +
+  theme_bw() +
+  theme(legend.position="right",
+        text = element_text(size = 24, family = "serif"))
+p2
+ggsave('inst/plots/self_report_iso_duration_60pc_coverage.pdf', height = 8, width = 8)
+
+
+p2 / p1 + plot_annotation(tag_levels = 'A')
+ggsave('inst/plots/only_60pc.pdf', height = 8, width = 7)
+
+rm(sweep_results1)
 rm(sweep_results2)
 
 ################################################################################################
@@ -526,5 +588,404 @@ sweep_results3 %>%
          max_isolation == 14) %>% 
   arrange(min_isolation, delay_shape) %>% 
   write.csv('data-raw/sensitivity_summary.csv')
+
+
+
+
+
+###########################################################################
+
+## Sensitivity analysis.
+set.seed(3103103)
+no.samples <- 15000
+
+# alter delay shape (which actually controls reporting) and iso_adhere and max_isolation 
+
+# alter delay shape (which actually controls reporting) and iso_adhere and max_isolation 
+scenarios_sens <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.1, 0.3, 0.5, 0.7),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = 1,
+  index_R0 = c(1.3),
+  prop.asym = c(0.5),
+  asymptomatic_transmission = c(0.5, 0.6, 0.7),
+  min_isolation = c(14),
+  max_isolation = c(14),
+  control_effectiveness = 0.6,
+  self_report = 1,
+  iso_adhere = c(0.1, 0.3, 0.5, 0.7),
+  test_delay = c(1), #time from isolation to test result
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(20)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(min_isolation == max_isolation)
+
+
+scenarios_sens %>% dim
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+future::plan("multicore")
+
+#+ full_run
+tic()
+## Run parameter sweep
+scenarios_sens <- ringbp::parameter_sweep(scenarios_sens,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = TRUE,
+                                          earlyOut = FALSE)
+toc()
+
+
+
+saveRDS(scenarios_sens, file = "data-raw/res_sensitivity_analysis2020-10-15.rds")
+
+#if(!exists('scenarios_sens'))  scenarios_sens <- readRDS(file = "data-raw/res_sensitivity_analysis2020-10-15.rds")
+
+scenarios_sens <- 
+  scenarios_sens %>% 
+  mutate(pext = sims) %>% 
+  mutate(lower = binom.confint(pext * no.samples, no.samples, method = 'exact')$lower) %>% 
+  mutate(upper = binom.confint(pext * no.samples, no.samples, method = 'exact')$upper) 
+  
+
+scenarios_sens %>% 
+  filter(max_isolation == 14) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, '10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('10%',"30%", "50%", "70%"))) %>% 
+  ggplot(aes(delay_shape, y = 1 - pext, colour = factor(iso_adhere),
+             group = iso_adhere)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  #facet_grid(delay_shape ~ min_isolation) +
+  ylab('Risk of large outbreak') +
+  xlab('Self report probability') +
+  scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Self-Isolation') +
+  facet_wrap(~ asymptomatic_transmission) +
+  theme_bw() +
+  theme(legend.position="right",
+        text = element_text(size = 24, family = "serif"))
+ggsave('inst/plots/self_report_iso_60pc_asym_trans_sens.pdf', height = 8, width = 14)
+
+
+
+
+## Sensitivity analysis.
+set.seed(2103)
+no.samples <- 15000
+
+# alter delay shape (which actually controls reporting) and iso_adhere and max_isolation 
+
+# alter delay shape (which actually controls reporting) and iso_adhere and max_isolation 
+scenarios_sens2 <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.1, 0.3, 0.5, 0.7),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = c(1, 3, 5),
+  index_R0 = c(1.3),
+  prop.asym = c(0.5),
+  asymptomatic_transmission = c(0.5),
+  min_isolation = c(14),
+  max_isolation = c(14),
+  control_effectiveness = 0.6,
+  self_report = 1,
+  iso_adhere = c(0.1, 0.3, 0.5, 0.7),
+  test_delay = c(1), #time from isolation to test result
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(20)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(min_isolation == max_isolation)
+
+
+scenarios_sens2 %>% dim
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+
+#+ full_run
+tic()
+## Run parameter sweep
+scenarios_sens2 <- ringbp::parameter_sweep(scenarios_sens2,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = TRUE,
+                                          earlyOut = FALSE)
+toc()
+
+
+
+saveRDS(scenarios_sens2, file = "data-raw/res_sensitivity_analysis22020-10-15.rds")
+
+#if(!exists('scenarios_sens'))  scenarios_sens <- readRDS(file = "data-raw/res_sensitivity_analysis22020-10-15.rds")
+
+scenarios_sens2 <- 
+  scenarios_sens2 %>% 
+  mutate(pext = sims) %>% 
+  mutate(lower = binom.confint(pext * no.samples, no.samples, method = 'exact')$lower) %>% 
+  mutate(upper = binom.confint(pext * no.samples, no.samples, method = 'exact')$upper) 
+  
+
+scenarios_sens2 %>% 
+  filter(max_isolation == 14) %>% 
+  mutate(iso_adhere = factor(ifelse(iso_adhere == 0.1, '10%', paste0(100*iso_adhere, '%')), 
+                             levels = c('10%',"30%", "50%", "70%"))) %>% 
+  ggplot(aes(delay_shape, y = 1 - pext, colour = factor(iso_adhere),
+             group = iso_adhere)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  #facet_grid(delay_shape ~ min_isolation) +
+  ylab('Risk of large outbreak') +
+  xlab('Self report probability') +
+  scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Self-Isolation') +
+  facet_wrap(~ max_quar_delay) +
+  theme_bw() +
+  theme(legend.position="right",
+        text = element_text(size = 24, family = "serif"))
+ggsave('inst/plots/self_report_iso_60pc_delay_sens.pdf', height = 8, width = 14)
+
+
+
+
+
+######################################################################
+
+
+# Alter delay_shape (self reporting) and min isolation. As well as max isolation.
+scenarios2_sen <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.1, 0.3, 0.5, 0.7),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = 1,
+  index_R0 = c(1.3),
+  prop.asym = c(0.5),
+  asymptomatic_transmission = c(0.5, 0.6, 0.7),
+  min_isolation = c(1, 4, 7, 14),
+  max_isolation = c(14),
+  control_effectiveness = 0.6,
+  self_report = 1,
+  iso_adhere = 0.7,
+  test_delay = c(1), #time from isolation to test result
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(20)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(max_isolation >= min_isolation)
+
+dim(scenarios2_sen)
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+future::plan("multicore")
+
+#+ full_run
+tic()
+## Run parameter sweep
+scenarios2_sen <- ringbp::parameter_sweep(scenarios2_sen,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = FALSE,
+                                          earlyOut = FALSE)
+toc()
+
+
+
+saveRDS(scenarios2_sen, file = "data-raw/res_sensitivity_analysis32020-10-15.rds")
+
+
+#if(!exists('scenarios2_sen'))  scenarios2_sen <- readRDS(file = "data-raw/res_sensitivity_analysis32020-10-15.rds")
+
+
+
+scenarios2_sen <- 
+  scenarios2_sen %>% 
+  mutate(pext = sims) %>% 
+  mutate(lower = binom.confint(pext * no.samples, no.samples, method = 'exact')$lower) %>% 
+  mutate(upper = binom.confint(pext * no.samples, no.samples, method = 'exact')$upper) 
+
+scenarios2_sen %>% 
+  filter(control_effectiveness == '0.6', max_isolation == 14) %>% 
+  ggplot(aes(delay_shape, y = 1 - pext, colour = factor(min_isolation),
+             group = min_isolation)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  facet_grid(~asymptomatic_transmission) +
+  ylab('Risk of large outbreak') +
+  xlab('') +
+  scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Min Isolate') +
+  theme_bw() +
+  theme(legend.position="right",
+        text = element_text(size = 24, family = "serif"))
+
+ggsave('inst/plots/self_report_iso_duration_60pc_asym_tran_sens.pdf', height = 8, width = 14)
+
+
+
+
+######################################################################
+
+
+# Alter delay_shape (self reporting) and min isolation. As well as max isolation.
+scenarios2_sen2 <- tidyr::expand_grid(
+  ## Put parameters that are grouped by disease into this data.frame
+  delay_group = list(tibble::tibble(
+    delay = c("Adherence"),
+    delay_shape = c(0.1, 0.3, 0.5, 0.7),
+    delay_scale = 1
+  )),
+  inc_meanlog = 1.434065,
+  inc_sdlog = 0.6612,
+  inf_shape = 2.115779,
+  inf_rate = 0.6898583,
+  inf_shift = 3,
+  min_quar_delay = 1,
+  max_quar_delay = c(1, 3, 5),
+  index_R0 = c(1.3),
+  prop.asym = c(0.5),
+  asymptomatic_transmission = c(0.5),
+  min_isolation = c(1, 4, 7, 14),
+  max_isolation = c(14),
+  control_effectiveness = 0.6,
+  self_report = 1,
+  iso_adhere = 0.7,
+  test_delay = c(1), #time from isolation to test result
+  sensitivity = c(0.65), #percent of cases detected
+  precaution = c(0), #this could be between 0 and 7? Number of days stay in isolation if negative test
+  num.initial.cases = c(20)) %>%
+  tidyr::unnest("delay_group") %>%
+  dplyr::mutate(scenario = 1:dplyr::n()) %>% 
+  filter(max_isolation >= min_isolation)
+
+dim(scenarios2_sen2)
+
+cap_cases <- 2000
+max_days <- 300
+## Parameterise fixed paramters
+sim_with_params <- purrr::partial(scenario_sim,
+                                  cap_max_days = max_days,
+                                  cap_cases = cap_cases,
+                                  r0isolated = 0,
+                                  disp.iso = 1,
+                                  disp.com = 0.16,
+                                  quarantine = TRUE)
+
+future::plan("multicore")
+
+#+ full_run
+tic()
+## Run parameter sweep
+scenarios2_sen2 <- ringbp::parameter_sweep(scenarios2_sen2,
+                                          sim_fn = sim_with_params,
+                                          samples = no.samples,
+                                          show_progress = FALSE,
+                                          earlyOut = FALSE)
+toc()
+
+
+
+saveRDS(scenarios2_sen2, file = "data-raw/res_sensitivity_analysis42020-10-15.rds")
+
+
+#if(!exists('scenarios2_sen2'))  scenarios2_sen <- readRDS(file = "data-raw/res_sensitivity_analysis42020-10-15.rds")
+
+
+
+scenarios2_sen2 <- 
+  scenarios2_sen2 %>% 
+  mutate(pext = sims) %>% 
+  mutate(lower = binom.confint(pext * no.samples, no.samples, method = 'exact')$lower) %>% 
+  mutate(upper = binom.confint(pext * no.samples, no.samples, method = 'exact')$upper) 
+
+scenarios2_sen2 %>% 
+  filter(control_effectiveness == '0.6', max_isolation == 14) %>% 
+  ggplot(aes(delay_shape, y = 1 - pext, colour = factor(min_isolation),
+             group = min_isolation)) + 
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
+  facet_grid(~max_quar_delay) +
+  ylab('Risk of large outbreak') +
+  xlab('') +
+  scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
+  #ggtitle('Isolation adherence (probability)')+
+  theme(text = element_text(size = 20)) +
+  labs(colour = 'Min Isolate') +
+  theme_bw() +
+  theme(legend.position="right",
+        text = element_text(size = 24, family = "serif"))
+
+ggsave('inst/plots/self_report_iso_duration_60pc_quar_delay_sens.pdf', height = 8, width = 14)
 
 
