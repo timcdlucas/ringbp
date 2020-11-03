@@ -21,3 +21,8 @@ data-raw/*.rds
 *.svg
 *.pdf
 inst/plots\ copy/*
+data-arch/*
+data-raw/adherence_summary.csv
+data-raw/duration_summary.csv
+data-raw/sensitivity_summary.csv
+inst/plots copy 2/*
