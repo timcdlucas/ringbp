@@ -762,7 +762,7 @@ toc()
 
 saveRDS(scenarios_sens2, file = "data-raw/res_sensitivity_analysis22020-10-15.rds")
 
-#if(!exists('scenarios_sens'))  scenarios_sens <- readRDS(file = "data-raw/res_sensitivity_analysis22020-10-15.rds")
+#if(!exists('scenarios_sens2'))  scenarios_sens2 <- readRDS(file = "data-raw/res_sensitivity_analysis22020-10-15.rds")
 
 scenarios_sens2 <- 
   scenarios_sens2 %>% 
@@ -880,7 +880,7 @@ scenarios2_sen %>%
   geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
   facet_grid(~asymptomatic_transmission) +
   ylab('Risk of large outbreak') +
-  xlab('') +
+  xlab('Self-report probability') +
   scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
   #ggtitle('Isolation adherence (probability)')+
   theme(text = element_text(size = 20)) +
@@ -958,7 +958,7 @@ toc()
 saveRDS(scenarios2_sen2, file = "data-raw/res_sensitivity_analysis42020-10-15.rds")
 
 
-#if(!exists('scenarios2_sen2'))  scenarios2_sen <- readRDS(file = "data-raw/res_sensitivity_analysis42020-10-15.rds")
+#if(!exists('scenarios2_sen2'))  scenarios2_sen2 <- readRDS(file = "data-raw/res_sensitivity_analysis42020-10-15.rds")
 
 
 
@@ -977,7 +977,7 @@ scenarios2_sen2 %>%
   geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
   facet_grid(~max_quar_delay) +
   ylab('Risk of large outbreak') +
-  xlab('') +
+  xlab('Self-report probability') +
   scale_x_continuous(breaks = c(0.1, 0.3, 0.5, 0.7), labels = c('10%', '30%', '50%', '70%')) +
   #ggtitle('Isolation adherence (probability)')+
   theme(text = element_text(size = 20)) +
