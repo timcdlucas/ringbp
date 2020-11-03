@@ -31,7 +31,7 @@ set.seed(20000529)
 #' Delay shape is adherence probability
 #'
 #' Cap cases was chosen in a seperate analysis (choose_cap.R or something.)
-no.samples <- 10000
+no.samples <- 20000
 
 # Scenario 1: 90% self reporting and contact reporting, 60% isolation  adherence
 
@@ -79,7 +79,7 @@ sim_with_params <- purrr::partial(scenario_sim,
                                   disp.com = 0.16,
                                   quarantine = TRUE)
 
-future::plan("multicore")
+future::plan("multicore", workers = 8)
 
 #+ full_run
 tic()
@@ -107,7 +107,12 @@ sweep_results1 <-
   
 
 
+
 sweep_results1 %>% 
+  filter(control_effectiveness != 0) %>% 
+  filter(delay_shape <= 0.3, iso_adhere <= 0.3) %>% 
+  filter(!(delay_shape == 0.3 & max_isolation == 14)) %>% 
+  filter(!(iso_adhere == 0.3 & max_isolation == 14)) %>% 
   mutate(adherence = paste0('sr', delay_shape, 'i', iso_adhere)) %>% 
   mutate(adherence = factor(adherence, 
                             labels = c('SR: 20%, Iso: 20%',
@@ -121,6 +126,8 @@ sweep_results1 %>%
     geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
     labs(linetype = 'Requested iso.',
          colour = 'Adherence') +
+    ylab('Risk of large outbreak') +
     ggtitle('Benefits of 7/14 days and adherence')
-ggsave('inst/plots/seven_days_vs_20pc_adherence.pdf')
+
+ggsave('inst/plots/seven_days_vs_20pc_adherence.png')
 
