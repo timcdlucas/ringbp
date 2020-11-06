@@ -85,6 +85,8 @@ sweep_results1 <-
 sweep_results1 %>% 
   filter(control_effectiveness != 0) %>% 
   filter(delay_shape <= 0.3, iso_adhere <= 0.3) %>% 
+  filter(!(delay_shape == 0.3 & max_isolation == 14)) %>% 
+  filter(!(iso_adhere == 0.3 & max_isolation == 14)) %>% 
   mutate(adherence = paste0('sr', delay_shape, 'i', iso_adhere)) %>% 
   mutate(adherence = factor(adherence, 
                             labels = c('SR: 10%, Iso: 10%',
@@ -98,14 +100,18 @@ sweep_results1 %>%
     geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
     labs(linetype = 'Requested iso.',
          colour = 'Adherence') +
-    ggtitle('Benefits of 7/14 days and adherence')
-ggsave('inst/plots/seven_days_vs_10pc_adherence.pdf')
+    scale_y_continuous(breaks = c(0.06, 0.07, 0.08), labels = c('6%', '7%', '8%')) +
+    ggtitle('Benefits of 7/14 days and adherence') +
+    ylab('Risk of large outbreak')
+ ggsave('inst/plots/seven_days_vs_10pc_adherence.png')
 
 
 sweep_results1 %>% 
   filter(control_effectiveness != 0) %>% 
   filter(delay_shape %in% c(0.3, 0.5), 
          iso_adhere %in% c(0.3, 0.5)) %>% 
+  filter(!(delay_shape == 0.5 & max_isolation == 14)) %>% 
+  filter(!(iso_adhere == 0.5 & max_isolation == 14)) %>% 
   mutate(adherence = paste0('sr', delay_shape, 'i', iso_adhere)) %>% 
   mutate(adherence = factor(adherence, 
                             labels = c('SR: 30%, Iso: 30%',
@@ -116,11 +122,13 @@ sweep_results1 %>%
              colour = factor(adherence),
              linetype = factor(max_isolation))) + 
     geom_line() +
+    scale_y_continuous(breaks = c(0, 0.02, 0.04, 0.06), labels = c('0%', '2%', '4%', '6%')) +
     geom_errorbar(aes(ymax = 1 - upper, ymin = 1 - lower), width = 0) +
     labs(linetype = 'Requested iso.',
          colour = 'Adherence') +
+    ylab('Risk of large outbreak') +
     ggtitle('Benefits of 7/14 days and adherence')
-ggsave('inst/plots/seven_days_vs_30pc_adherence.pdf')
+ggsave('inst/plots/seven_days_vs_30pc_adherence.png')
 
 
 
