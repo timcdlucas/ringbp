@@ -40,10 +40,10 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
                           test_result = NA,
                           refuse = NA) #refuse to isolate
 
-  # precalculate who will self-report if symptomatic and how long after onset, returns Inf if never report
+  # precalculate who will self-isolate if symptomatic and how long after onset, returns Inf if never report
   adhere_rep <- delayfn(num.initial.cases)
-  # who won't isolate even if asked
-  case_data <- case_data %>% mutate(refuse = rbinom(num.initial.cases,1,1-iso_adhere))
+  # who won't isolate if asked when traced - this is no one because no one will be traced
+  case_data <- case_data %>% mutate(refuse = FALSE)
 
   # you never isolate if asymptomatic, but isolate at time 'adhere' after onset if symptomatic
   case_data <- case_data %>% mutate(isolated_time = ifelse(asym==FALSE,
@@ -62,11 +62,15 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
       mutate(test_result = ifelse(missed==FALSE,
                                    purrr::rbernoulli(sum(!missed), sensitivity),
                                    NA))
+    case_data <- case_data %>%
+      mutate(time_to_test = ifelse(missed==FALSE,
+                                   test_delay,
+                                   Inf))
     # end isolation never (Inf) if test positive or missed (isolation start also Inf)
     # if test negative then end isolation a precautionary period ('precaution') after isolation start
     case_data <- case_data %>%
-      mutate(isolated_end = isolated_time+ifelse(vect_isTRUE(test_result) | missed==T,Inf,precaution)) %>%
-      mutate(isolated = FALSE) # initialise so all cases are initially able to transit (effectively isolate once their secondary cases have been calculated and assigned)
+      mutate(isolated_end = isolated_time+test_delay+ifelse(vect_isTRUE(test_result) | missed==T,Inf,precaution)) %>%
+      mutate(isolated = FALSE) # initialise so all cases are initially able to transmit (effectively isolate once their secondary cases have been calculated and assigned)
   }
   if(testing==FALSE) {
     case_data <- case_data %>%

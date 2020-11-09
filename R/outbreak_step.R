@@ -112,6 +112,11 @@ outbreak_step <- function(case_data, disp.iso,
                                       function(x, y) {
                                         rep(x, y)
                                       })),
+    # records infector time to test
+    infector_timetotest = unlist(purrr::map2(new_case_data$time_to_test, new_case_data$new_cases,
+                                        function(x, y) {
+                                          rep(x, y)
+                                        })),
     # records if infector was missed
     infector_missed = unlist(purrr::map2(new_case_data$missed, new_case_data$new_cases,
                                       function(x, y) {
@@ -146,6 +151,8 @@ outbreak_step <- function(case_data, disp.iso,
   prob_samples$missed[vect_isTRUE(prob_samples$infector_missed)] <- TRUE
   # cases who were infected more than 3 days before infector's symptoms can't be traced
   prob_samples$missed[vect_isTRUE(prob_samples$exposure < prob_samples$infector_onset - 3)] <- TRUE
+  # cases whose parents tested negative are automatically missed - only trace contacts if get a positive test
+  prob_samples$missed[vect_isTRUE(!prob_samples$infector_pos)] <- TRUE
 
   # ##UK tracing edit 27/05/2020:
   # # cases whose parents are asymptomatic or tested negative are automatically missed
@@ -155,13 +162,11 @@ outbreak_step <- function(case_data, disp.iso,
   prob_samples[, delays := delayfn(nrow(prob_samples))] #delays of symptomatic individuals to isolation
   prob_samples[, delays_traced := runif(nrow(prob_samples), min_quar_delay, max_quar_delay)] #delays of those who are traced
 
-  prob_samples[, refuse := rbinom(nrow(prob_samples),1,1-iso_adhere)] #who will refuse to isolated even if traced/detected
-
   # If you are asymptomatic, your isolation time is Inf
   prob_samples[, isolated_time := ifelse(vect_isTRUE(missed),
                                          # If you are not tracked (are missed)
                                          ifelse(vect_isTRUE(asym),
-                                                # If you a are missed asymptotic you never isolate
+                                                # If you are a missed asymptotic you never isolate
                                                 Inf,
                                                 # If you are not asymptotic you isolate after onset of symptoms plus a delay
                                                 onset + delays),
@@ -170,7 +175,7 @@ outbreak_step <- function(case_data, disp.iso,
                                                 # With quarantine, isolate with some delay after your infector was identified.
                                                 ifelse(vect_isTRUE(asym),
                                                        infector_iso_time + delays_traced, #infector_test_time + delays_traced (same next line)
-                                                       vect_min(onset+delays,infector_iso_time + delays_traced)), #minimum of isolation due to symptoms and isolation due to tracing
+                                                       vect_min(onset+delays,infector_iso_time + infector_timetotest + delays_traced)), #minimum of isolation due to symptoms and isolation due to tracing
                                                 # Without quarantine:
                                                 # onset < infector_iso < onset+delay  -> isolate when infector is identified and isolates
                                                 # onset < onset+delay  < infector_iso -> isolate after symptoms and a delay
@@ -183,13 +188,21 @@ outbreak_step <- function(case_data, disp.iso,
   prob_samples[, missed := ifelse(vect_isTRUE(exposure > infector_iso_end),
                                          TRUE,missed)]
 
-  missedSympt <- nrow(prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf),]) # Symptomatic individuals who are missed
-  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed:=purrr::rbernoulli(missedSympt,p=1-self_report)] # Report themselves to contact tracing with prob self_report
+  #who will refuse to isolate if traced/detected and asked
+  prob_samples[, refuse := rbinom(nrow(prob_samples),1,1-iso_adhere)]
+  #who will self-report if symptomatic and untraced
+  prob_samples[, selfreport := rbinom(nrow(prob_samples),1,self_report)]
+  #if you've isolated by choice due to symptoms then you can't refuse to isolate as already isolating
+  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), refuse := FALSE]
+  #individuals choosing to isolate due to symptoms and decide to self-report, hence not missed
+  prob_samples[vect_isTRUE(missed) & vect_isTRUE(isolated_time<Inf), missed := !selfreport]
 
   if(testing==TRUE) {
       prob_samples[, test := ifelse(vect_isTRUE(missed), # & vect_isTRUE(!asym), # If not-traced:
                                     FALSE, # not tested
-                                    TRUE)] # otherwise tested
+                                    ifelse(vect_isTRUE(asym), # if asymptomatic
+                                           FALSE, # also not tested even if traced
+                                           TRUE))] # otherwise tested
 
       prob_samples[, time_to_test := ifelse(vect_isTRUE(test), # If tested:
                                             test_delay, # delay from isolation to test results (currently a constant delay but could be expanded)
@@ -206,19 +219,21 @@ outbreak_step <- function(case_data, disp.iso,
                                             # Leave isolation with some precautionary delay (0-7 days)
                                             Inf)]
 
-      prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), #if you were traced but your infector didn't test positive
-                   isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced and isolated
-                                          isolated_time+precaution, #then you stay in isolation for time = precaution
-                                          ifelse(vect_isTRUE(test_result), #if you were isolated before their test then you're also tested
-                                                 isolated_end, #if you tested positive then no change to end of isolation (i.e. =Inf)
-                                                 vect_max(isolated_time+time_to_test,isolated_time+precaution)))] #if you tested negative then you are released after your test result, providing you've been in isolation for at least precaution days
+      # REMOVED THESE STEPS AND EDITED PREVIOUS CODE TO MAKE MORE REALISTIC
+      # TRACING + TESTING CURRENTLY DOES NOT HAPPEN IF INFECTOR TESTS NEGATIVE
+      # prob_samples[vect_isTRUE(!prob_samples$infector_pos) & vect_isTRUE(!missed), #if you were traced but your infector didn't test positive
+      #              isolated_end := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced and isolated
+      #                                     isolated_time+precaution, #then you stay in isolation for time = precaution
+      #                                     ifelse(vect_isTRUE(test_result), #if you were isolated before their test then you're also tested
+      #                                            isolated_end, #if you tested positive then no change to end of isolation (i.e. =Inf)
+      #                                            vect_max(isolated_time+time_to_test,isolated_time+precaution)))] #if you tested negative then you are released after your test result, providing you've been in isolation for at least precaution days
 
-      prob_samples[vect_isTRUE(prob_samples$infector_pos==FALSE), #if your infector tested negative
-                   missed := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced
-                                    TRUE, #your contacts aren't traced
-                                    ifelse(vect_isTRUE(test_result), #otherwise, you're tested
-                                           missed, #positive: no change to previous allocation
-                                           TRUE))] #negative: your contacts also aren't traced
+      # prob_samples[vect_isTRUE(prob_samples$infector_pos==FALSE), #if your infector tested negative
+      #              missed := ifelse((infector_iso_time + test_delay)<=isolated_time, #if their test came back before you were traced
+      #                               TRUE, #your contacts aren't traced
+      #                               ifelse(vect_isTRUE(test_result), #otherwise, you're tested
+      #                                      missed, #positive: no change to previous allocation
+      #                                      TRUE))] #negative: your contacts also aren't traced
   }
 
   if(testing == FALSE) {
@@ -239,8 +254,8 @@ outbreak_step <- function(case_data, disp.iso,
 
   # Chop out unneeded sample columns
   prob_samples[, c("incubfn_sample", "infector_iso_time", "infector_asym","infector_pos",
-                   "infector_exp","infector_iso_end","delays","delays_traced","test",
-                   'time_to_test',"infector_missed","infector_refuse","infector_onset") := NULL]
+                   "infector_exp","infector_iso_end","delays","delays_traced","test","selfreport",
+                   "infector_timetotest","infector_missed","infector_refuse","infector_onset") := NULL]
   # Set new case ids for new people
   prob_samples$caseid <- (nrow(case_data) + 1):(nrow(case_data) + nrow(prob_samples))
 
