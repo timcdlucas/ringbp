@@ -13,6 +13,7 @@ library(sn)
 library(ggrepel)
 library(testthat)
 library(svglite)
+library(lemon)
 
 
 # Plotting:
@@ -127,9 +128,11 @@ FigS1 <- res %>%
   geom_line() +
   geom_point() +
   geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
-  facet_grid(test_delay ~ precaution) +
+  facet_rep_grid(test_delay ~ precaution) +
   theme_cowplot(font_size = 16) +
-  theme(strip.background =element_rect(fill="white")) +
+  background_grid() +
+  theme(panel.spacing = unit(2, "lines")) +
+  theme(strip.background =element_rect(fill="white"),axis.line=element_line()) +
   ggplot2::theme(legend.position = c(0.85,0.37),legend.title=element_text(size=14)) +
   labs(x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.3))
@@ -148,11 +151,13 @@ Fig1B <- res %>%
   geom_line() +
   geom_point(size=2) +
   geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
-  facet_grid(test_delay ~ precaution) +
+  facet_rep_grid(test_delay ~ precaution) +
   theme_cowplot(font_size = 16) +
-  theme(strip.background =element_rect(fill="white")) +
+  background_grid() +
+  theme(panel.spacing = unit(2, "lines")) +
+  theme(strip.background =element_rect(fill="white"),axis.line=element_line()) +
   theme(legend.position=c(0.8,0.36),legend.title = element_text(size=14)) +
-  labs(tag="b",x='Contact tracing coverage',y="Prob. large outbreak") +
+  labs(x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.17))
 
 save(file="data-raw/sensitivity_plot.Rdata",Fig1B)
@@ -268,7 +273,7 @@ Fig3C <- ggplot(T1,
   theme_cowplot(font_size = 16) +
   theme(strip.background =element_rect(fill="white")) +
   ggplot2::theme(legend.position = c(0.8,0.3), legend.title=element_text(size=14), legend.key.width = unit(2,"cm")) +
-  labs(tag="c",x='Total cases so far',y="Prob. large outbreak") +
+  labs(x='Total cases so far',y="Prob. large outbreak") +
   xlim(c(0,1000)) +
   ylim(c(0,1))
 
@@ -309,11 +314,14 @@ Fig2 <- res %>% filter(cases>=20) %>%
   ggplot(aes(index_R0,positive/cases,fill=index_R0,colour=index_R0)) + geom_boxplot(alpha=0.2) +
   scale_fill_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
   scale_colour_manual(values = cbPalette[c(4,2,7)],name="",guide=FALSE) +
-  facet_grid(sensitivity ~ self_report) +
   ggplot2::labs(x = TeX("Index $\\R_s$"),
                 y = 'Proportion cases detected') +
-  theme_cowplot(font_size=16) +
-  theme(strip.background =element_rect(fill="white"))
+  facet_rep_grid(self_report ~ sensitivity) +
+  theme_cowplot(font_size = 16) +
+  background_grid() +
+  theme(panel.spacing = unit(2, "lines")) +
+  theme(strip.background =element_rect(fill="white"),axis.line=element_line()) +
+  theme(legend.position=c(0.8,0.36),legend.title = element_text(size=14))
 
 save(file="data-raw/Fig2_perfectTraceBox.Rdata",Fig2)
 
