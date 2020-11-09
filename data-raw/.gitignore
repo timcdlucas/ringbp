@@ -1,3 +1,6 @@
 probs_testTactics.csv
+<<<<<<< HEAD
 sensitivity_plot.Rdata
 timetotest_plot.Rdata
+=======
+>>>>>>> a548f91868859d2b8572b1e083b5052c9d362146
