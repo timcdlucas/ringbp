@@ -67,7 +67,7 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                          inf_shape = NULL, inf_rate = NULL, inf_shift = NULL, num.initial.cases = NULL,
                          min_quar_delay = 1, max_quar_delay = NULL, sensitivity = NULL, precaution = NULL,
                          self_report = NULL, test_delay = NULL, prop.asym = NULL, quarantine = NULL,
-                         earlyOut = NULL, iso_adhere = NULL) {
+                         earlyOut = NULL, iso_adhere = NULL,test_asym = NULL) {
 
   if(sensitivity==0){
     testing = FALSE
@@ -101,7 +101,8 @@ scenario_sim <- function(n.sim = NULL, prop.ascertain = NULL, cap_max_days = NUL
                                              iso_adhere = iso_adhere,
                                              quarantine = quarantine,
                                              testing = testing,
-                                             earlyOut = earlyOut))
+                                             earlyOut = earlyOut,
+                                             test_asym = test_asym))
 
 
 

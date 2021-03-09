@@ -109,6 +109,7 @@ g1 <- ggplot(df1,aes(x=x,y=y,col=ref,linetype=ref)) + geom_line(size=1.5) +
   scale_colour_manual(values=cbPalette[c(1,5)],name="") +
   scale_linetype_manual(values=c(3,1),name="") +
   ggplot2::theme(legend.position = c(0.6,0.8), legend.key.width = unit(1,"cm")) +
+  background_grid() +
   labs(tag="c",x="Serial interval (days)",y="") +
   xlim(c(-5,20)) +
   ylim(c(0,0.15))
@@ -123,6 +124,7 @@ g2 <- ggplot(df2,aes(x=x,y=y,col=ref,linetype=ref)) + geom_line(size=1.5) +
   scale_colour_manual(values=cbPalette[c(1,5)],name="") +
   scale_linetype_manual(values=c(3,1),name="") +
   ggplot2::theme(legend.position = c(0.6,0.8), legend.key.width = unit(1,"cm")) +
+  background_grid() +
   labs(tag="b",x="Time from symptom onset (days)",y="Density") +
   xlim(c(-10,15)) +
   ylim(c(0,0.15))
@@ -142,6 +144,7 @@ g3 <- ggplot(df3,aes(x=x,y=y,col=ref,linetype=ref)) + geom_line(size=1.5) +
   scale_colour_manual(values=cbPalette[c(5)],name="") +
   scale_linetype_manual(values=c(1),name="") +
   ggplot2::theme(legend.position = c(0.6,0.8), legend.key.width = unit(1,"cm")) +
+  background_grid() +
   labs(tag="d",x="Generation interval (days)",y="") +
   xlim(c(0,20)) +
   ylim(c(0,0.15))
@@ -156,6 +159,7 @@ g4 <- ggplot(df4,aes(x=x,y=y,col=ref,linetype=ref)) + geom_line(size=1.5) +
   scale_colour_manual(values=cbPalette[c(1)],name="") +
   scale_linetype_manual(values=c(1),name="") +
   ggplot2::theme(legend.position = c(0.6,0.8), legend.key.width = unit(1,"cm")) +
+  background_grid() +
   labs(tag="a",x="Time from exposure to onset (days)",y="Density") +
   xlim(c(0,10)) +
   ylim(c(0,0.4))

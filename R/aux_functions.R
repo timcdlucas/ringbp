@@ -54,7 +54,7 @@ dist_setup <- function(dist_param1 = NULL, dist_param2 = NULL, dist_type = NULL)
 
 adherence <- function(n, p, mu){
   iso_delay <- ifelse(mu==1,1,rexp(n, 1/mu))
-  ifelse(as.logical(rbinom(n, 1, p)), iso_delay, Inf)
+  return(ifelse(as.logical(rbinom(n, 1, p)), iso_delay, Inf))
 }
 
 
@@ -158,6 +158,45 @@ extinct_prob <- function(outbreak_df_week = NULL, cap_cases  = NULL, week_range 
 
   return(out)
 }
+
+#' Calculate effective R value for a given scenario
+#'
+#' @author Emma Davis
+#' @export
+#'
+calc_R <- function(outbreak_df_week = NULL) {
+
+  n_sim <- max(outbreak_df_week$sim)
+
+  out <- outbreak_df_week %>%
+    # new variable extinct = 1 if cases in weeks 10-12 all 0, 0 if not
+    filter(week==1) %>%
+    # number of runs where extinct = TRUE / number of runs
+    .$effective_r0 %>%
+    sum(.) / n_sim
+
+  return(out)
+}
+
+#' Calculate s.d. of R value for a given scenario
+#'
+#' @author Emma Davis
+#' @export
+#'
+calc_R_sd <- function(outbreak_df_week = NULL) {
+
+  n_sim <- max(outbreak_df_week$sim)
+
+  out <- outbreak_df_week %>%
+    # new variable extinct = 1 if cases in weeks 10-12 all 0, 0 if not
+    filter(week==1) %>%
+    # number of runs where extinct = TRUE / number of runs
+    .$effective_r0 %>%
+    sd(.)
+
+  return(out)
+}
+
 
 
 #' Calculate proportion of outbreaks that went extinct

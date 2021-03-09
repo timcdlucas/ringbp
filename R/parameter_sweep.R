@@ -104,6 +104,7 @@ parameter_sweep <- function(scenarios = NULL, samples = 1,
                precaution =.$precaution,
                self_report =.$self_report,
                iso_adhere =.$iso_adhere,
+               test_asym = .$test_asym,
                earlyOut = earlyOut
       )[[1]],
       .progress = show_progress,

@@ -25,7 +25,7 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
 
   # Column names used in nonstandard eval. These should go in globaVariables in scenario_sim.R
   test_result <- isolated_end <- infector_iso_end <- delays <- NULL
-  delays_traced <- test <- time_to_test <- test_result <- isolated_end <- NULL
+  delays_traced <- test <- time_to_test <- test_time <- test_result <- isolated_end <- NULL
 
   # Set up table of initial cases
   inc_samples <- incfn(num.initial.cases)
@@ -38,12 +38,11 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
                           new_cases = NA,
                           missed = NA,
                           test_result = NA,
+                          test_time = NA,
                           refuse = NA) #refuse to isolate
 
   # precalculate who will self-report if symptomatic and how long after onset, returns Inf if never report
   adhere_rep <- delayfn(num.initial.cases)
-  # who won't isolate even if asked
-  case_data <- case_data %>% mutate(refuse = rbinom(num.initial.cases,1,1-iso_adhere))
 
   # you never isolate if asymptomatic, but isolate at time 'adhere' after onset if symptomatic
   case_data <- case_data %>% mutate(isolated_time = ifelse(asym==FALSE,
@@ -61,7 +60,8 @@ outbreak_setup <- function(num.initial.cases, incfn, delayfn, prop.asym, sensiti
     case_data <- case_data %>%
       mutate(test_result = ifelse(missed==FALSE,
                                    purrr::rbernoulli(sum(!missed), sensitivity),
-                                   NA))
+                                   NA),
+             test_time = isolated_time + test_delay)
     # end isolation never (Inf) if test positive or missed (isolation start also Inf)
     # if test negative then end isolation a precautionary period ('precaution') after isolation start
     case_data <- case_data %>%

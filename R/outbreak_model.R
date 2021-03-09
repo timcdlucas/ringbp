@@ -54,7 +54,7 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                            test_delay = NULL, sensitivity = NULL,
                            precaution = NULL, self_report = NULL,
                            quarantine = NULL, testing = NULL,
-                           earlyOut = NULL, iso_adhere = NULL) {
+                           earlyOut = NULL, iso_adhere = NULL, test_asym = NULL) {
 
   # Set up functions to sample from distributions
   # incubation period sampling function
@@ -112,7 +112,8 @@ outbreak_model <- function(num.initial.cases = NULL, prop.ascertain = NULL,
                          test_delay = test_delay,
                          self_report = self_report,
                          iso_adhere = iso_adhere,
-                         testing = testing)
+                         testing = testing,
+                         test_asym = test_asym)
 
 
     case_data <- out[[1]]
