@@ -29,9 +29,12 @@ test_that("A basic sim returns the correct object", {
                    quarantine = FALSE,
                    test_delay = 1,
                    testing = FALSE,
-                   sensitivity = 0.9, 
+                   sensitivity = 0.9,
                    precaution = 5,
-                   self_report = 0.5)
+                   self_report = 0.5,
+                   test_asym = F,
+                   iso_adhere = 0.9,
+                   earlyOut = F)
 
   # Check initialise at time = 0
   expect_equal(r1$week[1],0)

@@ -114,7 +114,7 @@ test_that('extinct_prob works as expected', {
                       test_delay = 1,
                       quarantine = TRUE,
                       prop.asym = 0,
-                      sensitivity = 0.9, 
+                      sensitivity = 0.9,
                       prop.ascertain = 0)
 
   r1 <- extinct_prob(res, cap)
@@ -148,7 +148,7 @@ test_that('extinct_prob works as expected', {
 
   r2 <- extinct_prob(res2, cap_cases = cap, week_range = 1)
   expect_equal(r2, 0.5)
-  
+
   # Run some sims with almost certain outputs
   # Very high r0, shouldn't ever go extinct.
   res3 <- scenario_sim(n.sim = sims,
@@ -173,7 +173,7 @@ test_that('extinct_prob works as expected', {
                       test_delay = 1,
                       quarantine = FALSE,
                       prop.asym = 0,
-                      sensitivity = 0.9, 
+                      sensitivity = 0.9,
                       prop.ascertain = 0)
 
   r3 <- extinct_prob(res3, cap, 12:14)
@@ -203,7 +203,7 @@ test_that('extinct_prob works as expected', {
                        test_delay = 1,
                        quarantine = TRUE,
                        prop.asym = 0,
-                       sensitivity = 0.9, 
+                       sensitivity = 0.9,
                        prop.ascertain = 0)
 
   r3 <- extinct_prob(res3, cap)
@@ -240,7 +240,7 @@ test_that('extinct_prob week_range argument works', {
                        test_delay = 1,
                        quarantine = TRUE,
                        prop.asym = 0,
-                       sensitivity = 0.9, 
+                       sensitivity = 0.9,
                        prop.ascertain = 0)
 
 
@@ -331,7 +331,7 @@ test_that('detect_extinct works', {
                        test_delay = 1,
                        quarantine = TRUE,
                        prop.asym = 0,
-                       sensitivity = 0.9, 
+                       sensitivity = 0.9,
                        prop.ascertain = 0)
 
 

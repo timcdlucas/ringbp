@@ -19,7 +19,8 @@ test_that("A basic sim setup returns the correct object", {
                               sensitivity = 0.9,
                               precaution = 3,
                               self_report = 0,
-                              prop.asym=0)
+                              prop.asym = 0,
+                              iso_adhere = 0.9)
 
   expect_equal(nrow(case_data), 5)
   expect_true(all(case_data$missed))
@@ -43,7 +44,8 @@ test_that("asym arg works properly", {
                               delayfn = delayfn,
                               testing = FALSE,
                               test_delay = 1,
-                              prop.asym=1)
+                              prop.asym = 1,
+                              iso_adhere = 0.9)
   expect_true(all(all_asym$asym))
 
 

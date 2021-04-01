@@ -21,7 +21,7 @@ library(lemon)
 
 rm(list = ls())
 devtools::load_all()
-no.samples <- 10000
+no.samples <- 5000
 cap_cases <- 2000
 max_days <- 300
 
@@ -80,7 +80,7 @@ Fig1 <- res %>%
   filter(test_asym == FALSE) %>%
   filter(sensitivity == 0.95) %>%
   mutate(test_delay = factor(test_delay, labels = c('instant tracing','2 day delay'))) %>%
-  mutate(iso_adhere = factor(iso_adhere, labels = c('poor reporting & adherence', 'average reporting & adherence','average reporting & high adherence'))) %>%
+  mutate(iso_adhere = factor(iso_adhere, labels = c('poor reporting & adherence', 'good reporting & adherence','high adherence'))) %>%
   mutate(index_R0 = factor(index_R0, labels = c("Rs = 1.3","1.5"))) %>%
   ggplot(aes(control_effectiveness, 1 - pext, colour = test_delay, linetype = test_delay)) +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2)],name="TTI delay:") +
@@ -88,13 +88,13 @@ Fig1 <- res %>%
   geom_line(lwd=1.1) +
   geom_point() +
   geom_linerange(aes(control_effectiveness,ymax=1-lower,ymin=1-upper),show.legend=FALSE) +
-  facet_rep_grid(index_R0 ~ iso_adhere,scales='free', repeat.tick.labels = 'all') +
+  facet_rep_grid(iso_adhere~index_R0,scales='free', repeat.tick.labels = 'all') +
   coord_capped_cart(bottom='both', left='both') +
   theme_cowplot(font_size = 16) +
   background_grid() +
   theme(panel.spacing = unit(2, "lines")) +
   theme(strip.background =element_rect(fill="white"), axis.line=element_line()) +
-  ggplot2::theme(legend.position = c(0.28,-0.13),legend.title=element_text(size=14),legend.direction = "horizontal",legend.box = "horizontal",plot.margin= grid::unit(c(0.1,0.1,3,0.1), 'lines'),legend.key.size = grid::unit(2.5, "lines")) +
+  ggplot2::theme(legend.position = c(0.24,-0.1),legend.title=element_text(size=14),legend.direction = "horizontal",legend.box = "horizontal",plot.margin= grid::unit(c(0.1,0.1,3,0.1), 'lines'),legend.key.size = grid::unit(2.5, "lines")) +
   #ggplot2::theme(legend.position = c(0.24,-0.1),legend.title=element_text(size=14),legend.direction = "horizontal",legend.box = "horizontal",plot.margin= grid::unit(c(0.1,0.1,2.5,0.1), 'lines')) +
   labs(x='Contact tracing coverage',y="Prob. large outbreak") +
   ylim(c(0,0.6))
@@ -104,19 +104,19 @@ Fig2 <- res %>%
   filter(test_asym == FALSE) %>%
   filter(sensitivity == 0.95) %>%
   mutate(test_delay = factor(test_delay, labels = c('instant tracing','2 day delay'))) %>%
-  mutate(iso_adhere = factor(iso_adhere, labels = c('poor reporting & adherence', 'average reporting & adherence','average reporting & high adherence'))) %>%
+  mutate(iso_adhere = factor(iso_adhere, labels = c('poor reporting & adherence', 'good reporting & adherence','high adherence'))) %>%
   mutate(index_R0 = factor(index_R0, labels = c("Rs = 1.3","1.5"))) %>%
   ggplot(aes(control_effectiveness, 100*rel_Re, colour = test_delay, fill = test_delay)) +
   ggplot2::scale_colour_manual(values = cbPalette[c(4,2)],name="TTI delay:") +
   ggplot2::scale_fill_manual(values = cbPalette[c(4,2)],name="TTI delay:") +
   geom_col(aes(y=100*rel_Re),position=position_dodge()) +
-  facet_rep_grid(index_R0 ~ iso_adhere,scales='free', repeat.tick.labels = 'all') +
+  facet_rep_grid(iso_adhere ~ index_R0,scales='free', repeat.tick.labels = 'all') +
   coord_capped_cart(bottom='both', left='both') +
   theme_cowplot(font_size = 16) +
   background_grid() +
   theme(panel.spacing = unit(2, "lines")) +
   theme(strip.background =element_rect(fill="white"), axis.line=element_line()) +
-  ggplot2::theme(legend.position = c(0.29,-0.13),legend.title=element_text(size=14),legend.direction = "horizontal",legend.box = "horizontal",plot.margin= grid::unit(c(0.1,0.1,3,0.1), 'lines'),legend.key.size = grid::unit(1.5, "lines")) +
+  ggplot2::theme(legend.position = c(0.25,-0.1),legend.title=element_text(size=14),legend.direction = "horizontal",legend.box = "horizontal",plot.margin= grid::unit(c(0.1,0.1,3,0.1), 'lines'),legend.key.size = grid::unit(1.5, "lines")) +
   #ggplot2::theme(legend.position = c(0.24,-0.1),legend.title=element_text(size=14),legend.direction = "horizontal",legend.box = "horizontal",plot.margin= grid::unit(c(0.1,0.1,2.5,0.1), 'lines')) +
   labs(x='Contact tracing coverage',y="% reduction in R") +
   ylim(c(-2,15)) +
